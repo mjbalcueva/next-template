@@ -44,36 +44,36 @@ access via inline caches.
 ```ts
 // GOOD — consistent shape, single hidden class transition chain
 class RequestContext {
-  url: string
-  method: string
-  headers: Record<string, string>
-  startTime: number
-  cached: boolean
+	url: string
+	method: string
+	headers: Record<string, string>
+	startTime: number
+	cached: boolean
 
-  constructor(url: string, method: string, headers: Record<string, string>) {
-    this.url = url
-    this.method = method
-    this.headers = headers
-    this.startTime = performance.now()
-    this.cached = false // always initialize, even defaults
-  }
+	constructor(url: string, method: string, headers: Record<string, string>) {
+		this.url = url
+		this.method = method
+		this.headers = headers
+		this.startTime = performance.now()
+		this.cached = false // always initialize, even defaults
+	}
 }
 ```
 
 ```ts
 // BAD — conditional property addition creates multiple hidden classes
 class RequestContext {
-  constructor(url, method, headers, options) {
-    this.url = url
-    this.method = method
-    if (options.timing) {
-      this.startTime = performance.now() // shape fork!
-    }
-    if (options.cache) {
-      this.cached = false // another shape fork!
-    }
-    this.headers = headers
-  }
+	constructor(url, method, headers, options) {
+		this.url = url
+		this.method = method
+		if (options.timing) {
+			this.startTime = performance.now() // shape fork!
+		}
+		if (options.cache) {
+			this.cached = false // another shape fork!
+		}
+		this.headers = headers
+	}
 }
 ```
 
@@ -95,12 +95,12 @@ class RequestContext {
 
 ```ts
 // GOOD — same key order, shares hidden class
-const a = { type: 'static', value: 1 }
-const b = { type: 'dynamic', value: 2 }
+const a = { type: "static", value: 1 }
+const b = { type: "dynamic", value: 2 }
 
 // BAD — different key order, different hidden classes
-const a = { type: 'static', value: 1 }
-const b = { value: 2, type: 'dynamic' }
+const a = { type: "static", value: 1 }
+const b = { value: 2, type: "dynamic" }
 ```
 
 ### Real Codebase Example
@@ -129,12 +129,12 @@ function.
 ```ts
 // GOOD — always called with the same argument shape
 function processChunk(chunk: Uint8Array): void {
-  // chunk is always Uint8Array → monomorphic
+	// chunk is always Uint8Array → monomorphic
 }
 
 // BAD — called with different types at the same call site
 function processChunk(chunk: Uint8Array | Buffer | string): void {
-  // IC becomes polymorphic/megamorphic
+	// IC becomes polymorphic/megamorphic
 }
 ```
 
@@ -150,10 +150,10 @@ function processChunk(chunk: Uint8Array | Buffer | string): void {
 ```ts
 // Entry point dispatches once
 function handleStream(stream: ReadableStream | Readable) {
-  if (stream instanceof ReadableStream) {
-    return handleWebStream(stream) // monomorphic call
-  }
-  return handleNodeStream(stream) // monomorphic call
+	if (stream instanceof ReadableStream) {
+		return handleWebStream(stream) // monomorphic call
+	}
+	return handleNodeStream(stream) // monomorphic call
 }
 ```
 
@@ -170,36 +170,36 @@ or per-request paths generates GC pressure and can prevent escape analysis.
 ```ts
 // BAD — closure allocated for every request
 function handleRequest(req) {
-  stream.on('data', (chunk) => processChunk(chunk, req.id))
+	stream.on("data", chunk => processChunk(chunk, req.id))
 }
 
 // GOOD — shared listener, request context looked up by stream
 const requestIdByStream = new WeakMap()
 function onData(chunk) {
-  const id = requestIdByStream.get(this)
-  if (id !== undefined) processChunk(chunk, id)
+	const id = requestIdByStream.get(this)
+	if (id !== undefined) processChunk(chunk, id)
 }
 
 function processChunk(chunk, id) {
-  /* ... */
+	/* ... */
 }
 
 function handleRequest(req) {
-  requestIdByStream.set(stream, req.id)
-  stream.on('data', onData)
+	requestIdByStream.set(stream, req.id)
+	stream.on("data", onData)
 }
 ```
 
 ```ts
 // BEST — pre-allocate the callback as a method on a context object
 class StreamProcessor {
-  id: string
-  constructor(id: string) {
-    this.id = id
-  }
-  handleChunk(chunk: Uint8Array) {
-    processChunk(chunk, this.id)
-  }
+	id: string
+	constructor(id: string) {
+		this.id = id
+	}
+	handleChunk(chunk: Uint8Array) {
+		processChunk(chunk, this.id)
+	}
 }
 ```
 
@@ -208,15 +208,15 @@ class StreamProcessor {
 ```ts
 // BAD — allocates a new object per iteration
 for (const item of items) {
-  doSomething({ key: item.key, value: item.value })
+	doSomething({ key: item.key, value: item.value })
 }
 
 // GOOD — reuse a mutable scratch object
-const scratch = { key: '', value: '' }
+const scratch = { key: "", value: "" }
 for (const item of items) {
-  scratch.key = item.key
-  scratch.value = item.value
-  doSomething(scratch)
+	scratch.key = item.key
+	scratch.value = item.value
+	doSomething(scratch)
 }
 ```
 
@@ -256,13 +256,13 @@ it never goes back.
 // GOOD — packed SMI array
 const indices: number[] = []
 for (let i = 0; i < n; i++) {
-  indices.push(i)
+	indices.push(i)
 }
 
 // BAD — holey from the start
 const indices = new Array(n)
 for (let i = 0; i < n; i++) {
-  indices[i] = i
+	indices[i] = i
 }
 ```
 
@@ -289,16 +289,16 @@ throughout its lifetime.
 ```ts
 // GOOD — predictable: always returns same type
 function getStatus(code: number): string {
-  if (code === 200) return 'ok'
-  if (code === 404) return 'not found'
-  return 'error'
+	if (code === 200) return "ok"
+	if (code === 404) return "not found"
+	return "error"
 }
 
 // BAD — returns different types
 function getStatus(code: number): string | null | undefined {
-  if (code === 200) return 'ok'
-  if (code === 404) return null
-  // implicitly returns undefined
+	if (code === 200) return "ok"
+	if (code === 404) return null
+	// implicitly returns undefined
 }
 ```
 
@@ -307,15 +307,15 @@ function getStatus(code: number): string | null | undefined {
 ```ts
 // WATCH OUT — `node.type` IC can go megamorphic if many shapes hit one site
 function render(node) {
-  switch (node.type) {
-    case 'div':
-      return { tag: 'div', children: node.children }
-    case 'span':
-      return { tag: 'span', text: node.text }
-    case 'img':
-      return { src: node.src, alt: node.alt }
-    // Many distinct node layouts can make this dispatch site polymorphic
-  }
+	switch (node.type) {
+		case "div":
+			return { tag: "div", children: node.children }
+		case "span":
+			return { tag: "span", text: node.text }
+		case "img":
+			return { src: node.src, alt: node.alt }
+		// Many distinct node layouts can make this dispatch site polymorphic
+	}
 }
 ```
 
@@ -339,12 +339,12 @@ profiles show this site is hot and polymorphic.
 const ROUTE_PATTERN = /^\/api\//
 
 function isApiRoute(path: string): boolean {
-  return ROUTE_PATTERN.test(path)
+	return ROUTE_PATTERN.test(path)
 }
 
 // BAD — regex recreated on every call
 function isApiRoute(path: string): boolean {
-  return /^\/api\//.test(path) // V8 may or may not cache this
+	return /^\/api\//.test(path) // V8 may or may not cache this
 }
 ```
 
@@ -404,7 +404,7 @@ With `--allow-natives-syntax`:
 
 ```js
 function hotFunction(x) {
-  return x + 1
+	return x + 1
 }
 
 // Force optimization

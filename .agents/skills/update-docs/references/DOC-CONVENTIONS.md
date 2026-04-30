@@ -68,16 +68,16 @@ Always provide TypeScript first, then JavaScript:
 
 ````mdx
 ```tsx filename="app/page.tsx" switcher
-import type { Metadata } from 'next'
+import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: 'My Page',
+	title: "My Page",
 }
 ```
 
 ```jsx filename="app/page.js" switcher
 export const metadata = {
-  title: 'My Page',
+	title: "My Page",
 }
 ```
 ````
@@ -129,11 +129,11 @@ For themed images with light/dark variants:
 
 ```mdx
 <Image
-  alt="Description of the image"
-  srcLight="/docs/light/image-name.png"
-  srcDark="/docs/dark/image-name.png"
-  width={1600}
-  height={800}
+	alt="Description of the image"
+	srcLight="/docs/light/image-name.png"
+	srcDark="/docs/dark/image-name.png"
+	width={1600}
+	height={800}
 />
 ```
 

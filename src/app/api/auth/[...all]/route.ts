@@ -1,5 +1,5 @@
-import { toNextJsHandler } from "better-auth/next-js";
+import { toNextJsHandler } from "better-auth/next-js"
 
-import { auth } from "@/services/better-auth";
+import { auth } from "@/services/better-auth"
 
-export const { GET, POST } = toNextJsHandler(auth.handler);
+export const { GET, POST } = toNextJsHandler(auth.handler)

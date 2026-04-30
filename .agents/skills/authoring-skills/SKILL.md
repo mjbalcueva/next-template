@@ -43,7 +43,7 @@ Keep in AGENTS.md instead when:
 name: my-skill # Required. Used for $name references and /name commands.
 description: > # Required. How Claude decides to auto-load the skill.
   What this covers and when to use it. Include file names and keywords.
-argument-hint: '<pr-number>' # Optional. Hint for expected arguments.
+argument-hint: "<pr-number>" # Optional. Hint for expected arguments.
 user-invocable: false # Optional. Set false to hide from / menu.
 disable-model-invocation: true # Optional. Set true to prevent auto-triggering.
 allowed-tools: [Bash, Read] # Optional. Tools allowed without permission.

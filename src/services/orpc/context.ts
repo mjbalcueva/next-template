@@ -1,7 +1,7 @@
-import { os } from "@orpc/server";
+import { os } from "@orpc/server"
 
 export type ORPCContext = {
-  headers: Headers;
-};
+	headers: Headers
+}
 
-export const base = os.$context<ORPCContext>();
+export const base = os.$context<ORPCContext>()

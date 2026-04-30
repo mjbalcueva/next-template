@@ -73,14 +73,14 @@ Responses are buffered and only forwarded to the browser after the scope functio
 
 ```typescript
 await act(
-  async () => {
-    /* toggle accordion, click link */
-  },
-  { includes: 'Page content' }
+	async () => {
+		/* toggle accordion, click link */
+	},
+	{ includes: "Page content" }
 )
 
 // Read content after act returns, not inside the scope
-expect(await browser.elementById('my-content').text()).toBe('Page content')
+expect(await browser.elementById("my-content").text()).toBe("Page content")
 ```
 
 ## LinkAccordion Pattern
@@ -91,29 +91,30 @@ expect(await browser.elementById('my-content').text()).toBe('Page content')
 
 ```tsx
 // components/link-accordion.tsx
-'use client'
-import Link from 'next/link'
-import { useState } from 'react'
+"use client"
+
+import { useState } from "react"
+import Link from "next/link"
 
 export function LinkAccordion({ href, children, prefetch }) {
-  const [isVisible, setIsVisible] = useState(false)
-  return (
-    <>
-      <input
-        type="checkbox"
-        checked={isVisible}
-        onChange={() => setIsVisible(!isVisible)}
-        data-link-accordion={href}
-      />
-      {isVisible ? (
-        <Link href={href} prefetch={prefetch}>
-          {children}
-        </Link>
-      ) : (
-        `${children} (link is hidden)`
-      )}
-    </>
-  )
+	const [isVisible, setIsVisible] = useState(false)
+	return (
+		<>
+			<input
+				type="checkbox"
+				checked={isVisible}
+				onChange={() => setIsVisible(!isVisible)}
+				data-link-accordion={href}
+			/>
+			{isVisible ? (
+				<Link href={href} prefetch={prefetch}>
+					{children}
+				</Link>
+			) : (
+				`${children} (link is hidden)`
+			)}
+		</>
+	)
 }
 ```
 
@@ -123,18 +124,16 @@ Always toggle the accordion and click the link inside the same `act` scope:
 
 ```typescript
 await act(
-  async () => {
-    // 1. Toggle accordion — Link enters DOM, triggers prefetch
-    const toggle = await browser.elementByCss(
-      'input[data-link-accordion="/target-page"]'
-    )
-    await toggle.click()
+	async () => {
+		// 1. Toggle accordion — Link enters DOM, triggers prefetch
+		const toggle = await browser.elementByCss('input[data-link-accordion="/target-page"]')
+		await toggle.click()
 
-    // 2. Click the now-visible link — triggers navigation
-    const link = await browser.elementByCss('a[href="/target-page"]')
-    await link.click()
-  },
-  { includes: 'Expected page content' }
+		// 2. Click the now-visible link — triggers navigation
+		const link = await browser.elementByCss('a[href="/target-page"]')
+		await link.click()
+	},
+	{ includes: "Expected page content" }
 )
 ```
 
@@ -170,28 +169,29 @@ Hub pages use `connection()` to ensure they are dynamically rendered. This guara
 
 ```tsx
 // app/my-test/hub-a/page.tsx
-import { Suspense } from 'react'
-import { connection } from 'next/server'
-import { LinkAccordion } from '../../components/link-accordion'
+import { Suspense } from "react"
+import { connection } from "next/server"
+
+import { LinkAccordion } from "../../components/link-accordion"
 
 async function Content() {
-  await connection()
-  return <div id="hub-a-content">Hub a</div>
+	await connection()
+	return <div id="hub-a-content">Hub a</div>
 }
 
 export default function Page() {
-  return (
-    <>
-      <Suspense fallback="Loading...">
-        <Content />
-      </Suspense>
-      <ul>
-        <li>
-          <LinkAccordion href="/my-test/target-page">Target page</LinkAccordion>
-        </li>
-      </ul>
-    </>
-  )
+	return (
+		<>
+			<Suspense fallback="Loading...">
+				<Content />
+			</Suspense>
+			<ul>
+				<li>
+					<LinkAccordion href="/my-test/target-page">Target page</LinkAccordion>
+				</li>
+			</ul>
+		</>
+	)
 }
 ```
 
@@ -207,23 +207,21 @@ export default function Page() {
 ```typescript
 // 1. Navigate to target (first visit)
 await act(
-  async () => {
-    /* toggle accordion, click link */
-  },
-  { includes: 'Target content' }
+	async () => {
+		/* toggle accordion, click link */
+	},
+	{ includes: "Target content" }
 )
 
 // 2. Navigate to hub-a (fresh page, all accordions closed)
 await act(
-  async () => {
-    const toggle = await browser.elementByCss(
-      'input[data-link-accordion="/my-test/hub-a"]'
-    )
-    await toggle.click()
-    const link = await browser.elementByCss('a[href="/my-test/hub-a"]')
-    await link.click()
-  },
-  { includes: 'Hub a' }
+	async () => {
+		const toggle = await browser.elementByCss('input[data-link-accordion="/my-test/hub-a"]')
+		await toggle.click()
+		const link = await browser.elementByCss('a[href="/my-test/hub-a"]')
+		await link.click()
+	},
+	{ includes: "Hub a" }
 )
 
 // 3. Advance time
@@ -231,13 +229,11 @@ await page.clock.setFixedTime(startDate + 60 * 1000)
 
 // 4. Navigate back to target from hub (controlled prefetch)
 await act(async () => {
-  const toggle = await browser.elementByCss(
-    'input[data-link-accordion="/my-test/target-page"]'
-  )
-  await toggle.click()
-  const link = await browser.elementByCss('a[href="/my-test/target-page"]')
-  await link.click()
-}, 'no-requests') // or { includes: '...' } if data is stale
+	const toggle = await browser.elementByCss('input[data-link-accordion="/my-test/target-page"]')
+	await toggle.click()
+	const link = await browser.elementByCss('a[href="/my-test/target-page"]')
+	await link.click()
+}, "no-requests") // or { includes: '...' } if data is stale
 ```
 
 ## Fake Clock Setup
@@ -246,19 +242,19 @@ Segment cache staleness tests use Playwright's clock API to control `Date.now()`
 
 ```typescript
 async function startBrowserWithFakeClock(url: string) {
-  let page!: Playwright.Page
-  const startDate = Date.now()
+	let page!: Playwright.Page
+	const startDate = Date.now()
 
-  const browser = await next.browser(url, {
-    async beforePageLoad(p: Playwright.Page) {
-      page = p
-      await page.clock.install()
-      await page.clock.setFixedTime(startDate)
-    },
-  })
+	const browser = await next.browser(url, {
+		async beforePageLoad(p: Playwright.Page) {
+			page = p
+			await page.clock.install()
+			await page.clock.setFixedTime(startDate)
+		},
+	})
 
-  const act = createRouterAct(page)
-  return { browser, page, act, startDate }
+	const act = createRouterAct(page)
+	return { browser, page, act, startDate }
 }
 ```
 

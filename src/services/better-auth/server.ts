@@ -1,8 +1,7 @@
-import "server-only";
+import "server-only"
 
-import { headers } from "next/headers";
+import { headers } from "next/headers"
 
-import { auth } from "@/services/better-auth";
+import { auth } from "@/services/better-auth"
 
-export const getSession = async () =>
-  auth.api.getSession({ headers: await headers() });
+export const getSession = async () => auth.api.getSession({ headers: await headers() })

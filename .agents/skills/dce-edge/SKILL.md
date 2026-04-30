@@ -20,9 +20,9 @@ Webpack only DCEs a `require()` when it sits inside the dead branch of an `if/el
 ```ts
 // CORRECT - webpack can eliminate the dead branch
 if (process.env.__NEXT_USE_NODE_STREAMS) {
-  require('node:stream')
+	require("node:stream")
 } else {
-  // web path
+	// web path
 }
 ```
 

@@ -38,10 +38,10 @@ To prove what user bundling includes, emit webpack stats from the app's `next.co
 ```js
 // next.config.js
 module.exports = {
-  webpack(config) {
-    config.profile = true
-    return config
-  },
+	webpack(config) {
+		config.profile = true
+		return config
+	},
 }
 ```
 
