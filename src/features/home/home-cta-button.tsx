@@ -4,21 +4,14 @@ import { useState } from "react"
 import type { Route } from "next"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-
 import { ArrowRight01Icon, Logout01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 
 import { Button, buttonVariants } from "@/core/components/ui/button"
 import { cn } from "@/core/lib/utils"
-
 import { useLogoutMutation } from "@/features/auth/lib/mutations"
 
-type HomeCtaButtonProps = {
-  href: string
-  isLoggedIn: boolean
-}
-
-export function HomeCtaButton({ href, isLoggedIn }: HomeCtaButtonProps) {
+export function HomeCtaButton({ href, isLoggedIn }: { href: string; isLoggedIn: boolean }) {
   const router = useRouter()
   const [isPending, setIsPending] = useState(false)
   const logoutMutation = useLogoutMutation()

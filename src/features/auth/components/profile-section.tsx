@@ -14,8 +14,8 @@ import {
 } from "@/core/components/ui/card"
 import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
+import { useUpdateProfileMutation } from "@/features/auth/lib/mutations"
 import { selectUser, useAuthStore } from "@/features/auth/lib/store"
-import { useUpdateProfileMutation } from "@/features/site/lib/mutations"
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(50),

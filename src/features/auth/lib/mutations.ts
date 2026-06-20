@@ -10,6 +10,7 @@ import { useMutation } from "@tanstack/react-query"
 
 import { fetchUser, login, logout, register } from "../api/auth.api"
 import type { LoginInput, RegisterInput } from "../api/auth.schema"
+import { changePassword, checkHealth, deleteAccount, updateProfile } from "../api/settings.api"
 
 import { useAuthStore } from "./store"
 
@@ -76,5 +77,37 @@ export function useFetchUserMutation() {
       // Token might be expired — clear it.
       clearAuth()
     },
+  })
+}
+
+// ─── Profile ──────────────────────────────────────────────────────────
+
+export function useUpdateProfileMutation() {
+  return useMutation({
+    mutationFn: updateProfile,
+  })
+}
+
+// ─── Password ─────────────────────────────────────────────────────────
+
+export function useChangePasswordMutation() {
+  return useMutation({
+    mutationFn: changePassword,
+  })
+}
+
+// ─── Account ──────────────────────────────────────────────────────────
+
+export function useDeleteAccountMutation() {
+  return useMutation({
+    mutationFn: deleteAccount,
+  })
+}
+
+// ─── Health ──────────────────────────────────────────────────────────
+
+export function useCheckHealthMutation() {
+  return useMutation({
+    mutationFn: checkHealth,
   })
 }

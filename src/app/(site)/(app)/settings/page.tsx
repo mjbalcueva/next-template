@@ -1,8 +1,8 @@
 import { Separator } from "@/core/components/ui/separator"
 import { RoleGate } from "@/packages/access-control/components/access-control"
-import { DangerZone } from "@/features/site/components/danger-zone"
-import { PasswordSection } from "@/features/site/components/password-section"
-import { ProfileSection } from "@/features/site/components/profile-section"
+import { DangerZone } from "@/features/auth/components/danger-zone"
+import { PasswordSection } from "@/features/auth/components/password-section"
+import { ProfileSection } from "@/features/auth/components/profile-section"
 
 export default function SettingsPage() {
   return (

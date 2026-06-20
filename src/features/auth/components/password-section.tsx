@@ -14,7 +14,7 @@ import {
 } from "@/core/components/ui/card"
 import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
-import { useChangePasswordMutation } from "@/features/site/lib/mutations"
+import { useChangePasswordMutation } from "@/features/auth/lib/mutations"
 
 const passwordSchema = z
   .object({
@@ -139,7 +139,7 @@ export function PasswordSection() {
             <form.Subscribe selector={s => s.isSubmitting}>
               {isSubmitting => (
                 <Button type="submit" disabled={isSubmitting} size="sm" className="ml-auto">
-                  {isSubmitting ? "Saving…" : "Change password"}
+                  {isSubmitting ? "Changing…" : "Change password"}
                 </Button>
               )}
             </form.Subscribe>

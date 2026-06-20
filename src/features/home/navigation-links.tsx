@@ -7,10 +7,10 @@ import { Separator } from "@/core/components/ui/separator"
 import { cn } from "@/core/lib/utils"
 
 const LINKS = [
-  { href: "/todos" as const, label: "Dashboard" },
-  { href: "/todos" as const, label: "Todos" },
-  { href: "/session" as const, label: "Session" },
-] as const
+  { href: "/todos", label: "Dashboard" },
+  { href: "/todos", label: "Todos" },
+  { href: "/session", label: "Session" },
+]
 
 export function NavigationLinks() {
   return (

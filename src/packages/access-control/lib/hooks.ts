@@ -12,7 +12,7 @@ import { permissionsQueryOptions } from "./query-options"
  */
 export function useResolvedPermissions(): readonly string[] {
   const { data } = useQuery(permissionsQueryOptions())
-  return data ?? []
+  return data?.permissions ?? []
 }
 
 // ─── Permission checks (one hook each, backed by useResolvedPermissions) ──

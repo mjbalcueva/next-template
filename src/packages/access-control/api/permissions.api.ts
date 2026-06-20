@@ -1,7 +1,13 @@
-import { PERMISSIONS_ENDPOINT } from "@/packages/tanstack/lib/api-schema"
-import { $fetch } from "@/packages/tanstack/lib/client-core"
+import { $fetch } from "@/packages/tanstack/lib/client"
 
-export async function fetchMyPermissions(): Promise<readonly string[]> {
-  const data = (await $fetch(`/${PERMISSIONS_ENDPOINT}`)) as { permissions: string[] }
-  return data.permissions
+import { type PermissionsInput } from "./permissions.schema"
+
+// ─── Endpoint path constants ─────────────────────────────────────────
+
+export const PERMISSIONS_ENDPOINT = "@get/mock/permissions"
+
+// ─── Fetch wrappers ──────────────────────────────────────────────────
+
+export async function fetchMyPermissions(): Promise<PermissionsInput> {
+  return $fetch(`/${PERMISSIONS_ENDPOINT}`)
 }

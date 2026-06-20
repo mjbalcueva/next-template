@@ -1,15 +1,6 @@
-import { z } from "zod"
+import { $fetch } from "@/packages/tanstack/lib/client"
 
-import { $fetch } from "@/packages/tanstack/lib/client-core"
-
-import {
-  createTodoSchema,
-  todoOutputSchema,
-  toggleTodoSchema,
-  type CreateTodoInput,
-  type Todo,
-  type ToggleTodoInput,
-} from "./todos.schema"
+import { type CreateTodoInput, type Todo, type ToggleTodoInput } from "./todos.schema"
 
 // ─── Endpoint path constants ─────────────────────────────────────────
 
@@ -19,29 +10,7 @@ export const TODO_ENDPOINTS = {
   get: "@get/mock/todos/:id",
   toggle: "@patch/mock/todos/:id/toggle",
   remove: "@delete/mock/todos/:id",
-} as const
-
-// ─── API schema slice (merged into packages/tanstack/lib/api-schema.ts) ──
-
-export const todoApiSchema = {
-  [TODO_ENDPOINTS.list]: {
-    output: todoOutputSchema.array(),
-  },
-  [TODO_ENDPOINTS.create]: {
-    input: createTodoSchema,
-    output: todoOutputSchema,
-  },
-  [TODO_ENDPOINTS.get]: {
-    output: todoOutputSchema,
-  },
-  [TODO_ENDPOINTS.toggle]: {
-    input: toggleTodoSchema.omit({ id: true }),
-    output: todoOutputSchema,
-  },
-  [TODO_ENDPOINTS.remove]: {
-    output: z.object({ id: z.string() }),
-  },
-} as const
+}
 
 // ─── Fetch wrappers ──────────────────────────────────────────────────
 

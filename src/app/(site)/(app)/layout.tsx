@@ -1,8 +1,8 @@
 "use client"
 
+import { SiteHeader } from "@/core/components/site-header"
 import { Protected } from "@/packages/access-control/components/access-control"
 import { selectUser, useAuthStore } from "@/features/auth/lib/store"
-import { SiteHeader } from "@/features/site/components/site-header"
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const user = useAuthStore(selectUser)

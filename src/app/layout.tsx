@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/core/components/providers/theme-provider"
 import { TooltipProvider } from "@/core/components/ui/tooltip"
 import { cn } from "@/core/lib/utils"
 import { ReactQueryProvider } from "@/packages/tanstack/providers/provider"
-import { AuthProvider } from "@/features/auth/components/auth-provider"
+import { AuthProvider } from "@/features/auth/providers/auth-provider"
 
 import "@/core/styles/globals.css"
 

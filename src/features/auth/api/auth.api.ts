@@ -1,12 +1,6 @@
-import { z } from "zod"
-
-import { $fetch } from "@/packages/tanstack/lib/client-core"
+import { $fetch } from "@/packages/tanstack/lib/client"
 
 import {
-  authUserSchema,
-  loginInputSchema,
-  registerInputSchema,
-  tokenResponseSchema,
   type AuthUser,
   type LoginInput,
   type RegisterInput,
@@ -20,27 +14,7 @@ export const AUTH_ENDPOINTS = {
   register: "@post/mock/auth/register",
   me: "@get/mock/user",
   logout: "@post/mock/auth/logout",
-} as const
-
-// ─── API schema slice (merged into packages/tanstack/lib/api-schema.ts) ──
-
-export const authApiSchema = {
-  [AUTH_ENDPOINTS.login]: {
-    input: loginInputSchema,
-    output: tokenResponseSchema,
-  },
-  [AUTH_ENDPOINTS.register]: {
-    input: registerInputSchema,
-    output: tokenResponseSchema,
-  },
-  [AUTH_ENDPOINTS.me]: {
-    output: authUserSchema,
-  },
-  [AUTH_ENDPOINTS.logout]: {
-    input: z.object({}).optional(),
-    output: z.object({ success: z.literal(true) }),
-  },
-} as const
+}
 
 // ─── Fetch wrappers ──────────────────────────────────────────────────
 
