@@ -1,95 +1,95 @@
 {
-	"version": 1,
-	"skills": {
-		"authoring-skills": {
-			"source": "vercel/next.js",
-			"sourceType": "github",
-			"skillPath": ".agents/skills/authoring-skills/SKILL.md",
-			"computedHash": "675405535387e709487b0a107a898ec4e16fdebec160c6dee339fe38b62f1443"
-		},
-		"dce-edge": {
-			"source": "vercel/next.js",
-			"sourceType": "github",
-			"skillPath": ".agents/skills/dce-edge/SKILL.md",
-			"computedHash": "b206f20c17065f4c16711f93e2cfc0bb768fd5765194723867d64aca2b3f78c9"
-		},
-		"flags": {
-			"source": "vercel/next.js",
-			"sourceType": "github",
-			"skillPath": ".agents/skills/flags/SKILL.md",
-			"computedHash": "120d6db8ce786706c0844ca1558aa4796c808230a5c40bcb5382df7aa1c5043f"
-		},
-		"frontend-design": {
-			"source": "anthropics/skills",
-			"sourceType": "github",
-			"skillPath": "skills/frontend-design/SKILL.md",
-			"computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
-		},
-		"next-compile": {
-			"source": "vercel/next.js",
-			"sourceType": "github",
-			"skillPath": "skills/next-compile/SKILL.md",
-			"computedHash": "c9bd5df74a868b69532b77b205fd7b4e0bb0acc9effde770ff3241a81eaa69fd"
-		},
-		"pr-status-triage": {
-			"source": "vercel/next.js",
-			"sourceType": "github",
-			"skillPath": ".agents/skills/pr-status-triage/SKILL.md",
-			"computedHash": "5e207c0dcb535fc723d152545afbc17d9e88147e14c838670f71aa529d7837e4"
-		},
-		"react-vendoring": {
-			"source": "vercel/next.js",
-			"sourceType": "github",
-			"skillPath": ".agents/skills/react-vendoring/SKILL.md",
-			"computedHash": "2ed7b7d5b9d5291cff49f048f66cc845349bf3666eab57676283429cd7fddfb6"
-		},
-		"router-act": {
-			"source": "vercel/next.js",
-			"sourceType": "github",
-			"skillPath": ".agents/skills/router-act/SKILL.md",
-			"computedHash": "1d77280adc004cbb78169ee76bd92e74c440039062a322d2d337edf08c2530cf"
-		},
-		"runtime-debug": {
-			"source": "vercel/next.js",
-			"sourceType": "github",
-			"skillPath": ".agents/skills/runtime-debug/SKILL.md",
-			"computedHash": "5b586e8253016599b85e96707fb84155b2909414ad554f4421b03111e744a124"
-		},
-		"shadcn": {
-			"source": "shadcn/ui",
-			"sourceType": "github",
-			"skillPath": "skills/shadcn/SKILL.md",
-			"computedHash": "80a6226e78f6d1fe464214ae0ef449d49d8ffaa3e7704f011e9b418c678ad4d1"
-		},
-		"update-docs": {
-			"source": "vercel/next.js",
-			"sourceType": "github",
-			"skillPath": ".agents/skills/update-docs/SKILL.md",
-			"computedHash": "034e91004b30db6f2f432cecbc1fe09e8293a7baeaa2238eed25740bd3afb895"
-		},
-		"v8-jit": {
-			"source": "vercel/next.js",
-			"sourceType": "github",
-			"skillPath": ".agents/skills/v8-jit/SKILL.md",
-			"computedHash": "43bf16e47f484d26b667a3bf6d6d2e3869833df426db850089e2aafd2cab448e"
-		},
-		"vercel-react-best-practices": {
-			"source": "vercel-labs/agent-skills",
-			"sourceType": "github",
-			"skillPath": "skills/react-best-practices/SKILL.md",
-			"computedHash": "ca7b0c0c6e5f2750043f7f0cd72d16ac4e2abc48f9b5500d047a4b77a2506212"
-		},
-		"write-api-reference": {
-			"source": "vercel/next.js",
-			"sourceType": "github",
-			"skillPath": ".agents/skills/write-api-reference/SKILL.md",
-			"computedHash": "71ef0ce66be41d19902987bf9a259c081af4f52a7a8d93dde1a23c3bb07c5a4a"
-		},
-		"write-guide": {
-			"source": "vercel/next.js",
-			"sourceType": "github",
-			"skillPath": ".agents/skills/write-guide/SKILL.md",
-			"computedHash": "1289e9fcff63d2f7342e50936809b2491446927b6ca403d98be414e522df6781"
-		}
-	}
+  "version": 1,
+  "skills": {
+    "authoring-skills": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/authoring-skills/SKILL.md",
+      "computedHash": "675405535387e709487b0a107a898ec4e16fdebec160c6dee339fe38b62f1443"
+    },
+    "dce-edge": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/dce-edge/SKILL.md",
+      "computedHash": "b206f20c17065f4c16711f93e2cfc0bb768fd5765194723867d64aca2b3f78c9"
+    },
+    "flags": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/flags/SKILL.md",
+      "computedHash": "120d6db8ce786706c0844ca1558aa4796c808230a5c40bcb5382df7aa1c5043f"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+    },
+    "next-compile": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": "skills/next-compile/SKILL.md",
+      "computedHash": "c9bd5df74a868b69532b77b205fd7b4e0bb0acc9effde770ff3241a81eaa69fd"
+    },
+    "pr-status-triage": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/pr-status-triage/SKILL.md",
+      "computedHash": "5e207c0dcb535fc723d152545afbc17d9e88147e14c838670f71aa529d7837e4"
+    },
+    "react-vendoring": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/react-vendoring/SKILL.md",
+      "computedHash": "2ed7b7d5b9d5291cff49f048f66cc845349bf3666eab57676283429cd7fddfb6"
+    },
+    "router-act": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/router-act/SKILL.md",
+      "computedHash": "1d77280adc004cbb78169ee76bd92e74c440039062a322d2d337edf08c2530cf"
+    },
+    "runtime-debug": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/runtime-debug/SKILL.md",
+      "computedHash": "5b586e8253016599b85e96707fb84155b2909414ad554f4421b03111e744a124"
+    },
+    "shadcn": {
+      "source": "shadcn/ui",
+      "sourceType": "github",
+      "skillPath": "skills/shadcn/SKILL.md",
+      "computedHash": "80a6226e78f6d1fe464214ae0ef449d49d8ffaa3e7704f011e9b418c678ad4d1"
+    },
+    "update-docs": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/update-docs/SKILL.md",
+      "computedHash": "034e91004b30db6f2f432cecbc1fe09e8293a7baeaa2238eed25740bd3afb895"
+    },
+    "v8-jit": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/v8-jit/SKILL.md",
+      "computedHash": "43bf16e47f484d26b667a3bf6d6d2e3869833df426db850089e2aafd2cab448e"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "computedHash": "ca7b0c0c6e5f2750043f7f0cd72d16ac4e2abc48f9b5500d047a4b77a2506212"
+    },
+    "write-api-reference": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/write-api-reference/SKILL.md",
+      "computedHash": "71ef0ce66be41d19902987bf9a259c081af4f52a7a8d93dde1a23c3bb07c5a4a"
+    },
+    "write-guide": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/write-guide/SKILL.md",
+      "computedHash": "1289e9fcff63d2f7342e50936809b2491446927b6ca403d98be414e522df6781"
+    }
+  }
 }

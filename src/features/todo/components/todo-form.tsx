@@ -6,58 +6,62 @@ import { Button } from "@/core/components/ui/button"
 import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
 
+import { Can } from "@/packages/permissions/components/Can"
+
 import { createTodoSchema } from "../api/todos.schema"
-import { useCreateTodo } from "../lib/queries"
+import { useCreateTodo } from "../lib/mutations"
 
 export function TodoForm() {
-	const create = useCreateTodo()
+  const create = useCreateTodo()
 
-	const form = useForm({
-		defaultValues: { text: "" },
-		validators: {
-			onSubmit: createTodoSchema,
-		},
-		onSubmit: async ({ value }) => {
-			await create.mutateAsync(value)
-			form.reset()
-		},
-	})
+  const form = useForm({
+    defaultValues: { text: "" },
+    validators: {
+      onSubmit: createTodoSchema,
+    },
+    onSubmit: async ({ value }) => {
+      await create.mutateAsync(value)
+      form.reset()
+    },
+  })
 
-	return (
-		<form
-			onSubmit={e => {
-				e.preventDefault()
-				e.stopPropagation()
-				void form.handleSubmit()
-			}}
-			className="flex flex-col gap-2"
-		>
-			<form.Field name="text">
-				{field => {
-					const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-					return (
-						<Field data-invalid={isInvalid}>
-							<FieldLabel htmlFor={field.name}>New todo</FieldLabel>
-							<div className="flex gap-2">
-								<Input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={e => field.handleChange(e.target.value)}
-									placeholder="What needs to be done?"
-									disabled={create.isPending}
-									aria-invalid={isInvalid}
-								/>
-								<Button type="submit" disabled={create.isPending}>
-									Add
-								</Button>
-							</div>
-							{isInvalid && <FieldError errors={field.state.meta.errors} />}
-						</Field>
-					)
-				}}
-			</form.Field>
-		</form>
-	)
+  return (
+    <Can permission="todos:create">
+      <form
+        onSubmit={e => {
+          e.preventDefault()
+          e.stopPropagation()
+          void form.handleSubmit()
+        }}
+        className="flex flex-col gap-2"
+      >
+        <form.Field name="text">
+          {field => {
+            const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
+            return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>New todo</FieldLabel>
+                <div className="flex gap-2">
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={e => field.handleChange(e.target.value)}
+                    placeholder="What needs to be done?"
+                    disabled={create.isPending}
+                    aria-invalid={isInvalid}
+                  />
+                  <Button type="submit" disabled={create.isPending}>
+                    Add
+                  </Button>
+                </div>
+                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              </Field>
+            )
+          }}
+        </form.Field>
+      </form>
+    </Can>
+  )
 }

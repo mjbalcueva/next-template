@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+dist/
+build/
+.turbo/
+
+# Agent skills / instructions (not project source)
+.agents/
+
+# Cache & generated
+*.tsbuildinfo
+.next/
+coverage/
+
+# Lock files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lockb
+
+# Misc
+*.md
