@@ -4,19 +4,18 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { useForm } from "@tanstack/react-form"
-import { useSetAtom } from "jotai"
 
 import { Button } from "@/core/components/ui/button"
 import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
 
 import { registerInputSchema } from "@/features/auth/api/auth.schema"
-import { registerAction } from "@/features/auth/lib/atoms"
+import { useRegisterMutation } from "@/features/auth/lib/mutations"
 
 export function SignUpForm() {
   const router = useRouter()
   const [authError, setAuthError] = useState<string | null>(null)
-  const register = useSetAtom(registerAction)
+  const registerMutation = useRegisterMutation()
 
   const form = useForm({
     defaultValues: { name: "", email: "", password: "", password_confirmation: "" },
@@ -24,7 +23,7 @@ export function SignUpForm() {
     onSubmit: async ({ value }) => {
       setAuthError(null)
       try {
-        await register(value)
+        await registerMutation.mutateAsync(value)
         router.push("/todos")
       } catch (err) {
         setAuthError(

@@ -3,25 +3,23 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 
-import { useAtomValue, useSetAtom } from "jotai"
-
-import { fetchUserAction, isAuthenticatedAtom, userAtom } from "@/features/auth/lib/atoms"
-import { SiteHeader } from "@/features/site/components/site-header"
-
 import { Protected } from "@/packages/access-control/components/access-control"
+import { useFetchUserMutation } from "@/features/auth/lib/mutations"
+import { selectIsAuthenticated, selectUser, useAuthStore } from "@/features/auth/lib/store"
+import { SiteHeader } from "@/features/site/components/site-header"
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const isAuthenticated = useAtomValue(isAuthenticatedAtom)
-  const user = useAtomValue(userAtom)
-  const fetchUser = useSetAtom(fetchUserAction)
+  const isAuthenticated = useAuthStore(selectIsAuthenticated)
+  const user = useAuthStore(selectUser)
+  const fetchUserMutation = useFetchUserMutation()
 
-  // Fetch user profile on mount if authenticated
+  // Fetch user profile on mount if token exists but user not loaded
   useEffect(() => {
     if (isAuthenticated && !user) {
-      void fetchUser()
+      fetchUserMutation.mutate()
     }
-  }, [isAuthenticated, user, fetchUser])
+  }, [isAuthenticated, user, fetchUserMutation])
 
   // Redirect if not authenticated
   useEffect(() => {

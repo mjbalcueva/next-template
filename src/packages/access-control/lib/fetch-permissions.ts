@@ -1,25 +1,33 @@
+"use client"
+
 /**
  * Fetch and cache the permissions mapping from the backend.
  *
- * The mapping is fetched once on app startup and stored in a Jotai atom.
- * `permissionsAtom` reads from this mapping to resolve what the current
- * user can do.
+ * The mapping is fetched once on app startup via React Query
+ * and stored in a Zustand store.  Permission hooks derive
+ * from the current user's role + this mapping.
  */
-
-import { atom } from "jotai"
+import { useQuery } from "@tanstack/react-query"
 
 import { $fetch } from "@/packages/tanstack/lib/client"
 
-export interface PermissionsMapping {
-  permissions: readonly string[]
-  roles: readonly string[]
-  rolePermissions: Record<string, readonly string[]>
-}
+import type { PermissionsMapping } from "./store"
 
-/** The fetched permissions mapping (null until loaded). */
-export const permissionsMappingAtom = atom<PermissionsMapping | null>(null)
+export type { PermissionsMapping }
 
 /** Fetch the permissions mapping from the backend. */
 export async function fetchPermissionsMapping(): Promise<PermissionsMapping> {
   return $fetch("/@get/mock/permissions")
+}
+
+/**
+ * React Query hook — fetches the permissions mapping once on mount
+ * and stores it in the Zustand store.
+ */
+export function usePermissionsMappingQuery() {
+  return useQuery({
+    queryKey: ["permissions", "mapping"] as const,
+    queryFn: fetchPermissionsMapping,
+    staleTime: Infinity,
+  })
 }

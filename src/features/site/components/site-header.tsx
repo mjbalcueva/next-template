@@ -3,11 +3,9 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 
-import { useSetAtom } from "jotai"
-
 import { Button } from "@/core/components/ui/button"
 
-import { logoutAction } from "@/features/auth/lib/atoms"
+import { useLogoutMutation } from "@/features/auth/lib/mutations"
 
 type SiteHeaderProps = {
   user: {
@@ -19,10 +17,10 @@ type SiteHeaderProps = {
 export function SiteHeader({ user: _user }: SiteHeaderProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const logout = useSetAtom(logoutAction)
+  const logoutMutation = useLogoutMutation()
 
   const handleSignOut = async () => {
-    await logout()
+    await logoutMutation.mutateAsync()
     router.push("/auth/sign-in")
   }
 

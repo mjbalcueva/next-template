@@ -1,26 +1,21 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import { useSetAtom } from "jotai"
 
-import {
-  fetchPermissionsMapping,
-  permissionsMappingAtom,
-} from "@/packages/access-control/lib/fetch-permissions"
+import { usePermissionsMappingQuery } from "@/packages/access-control/lib/fetch-permissions"
+import { usePermissionsStore } from "@/packages/access-control/lib/store"
 
 function PermissionsLoader({ children }: { children: React.ReactNode }) {
-  const setMapping = useSetAtom(permissionsMappingAtom)
+  const { data: mapping } = usePermissionsMappingQuery()
+  const setMapping = usePermissionsStore(s => s.setMapping)
 
   useEffect(() => {
-    fetchPermissionsMapping()
-      .then(setMapping)
-      .catch(() => {
-        // Permissions endpoint unavailable — RBAC will be empty
-      })
-  }, [setMapping])
+    if (mapping) {
+      setMapping(mapping)
+    }
+  }, [mapping, setMapping])
 
   return <>{children}</>
 }

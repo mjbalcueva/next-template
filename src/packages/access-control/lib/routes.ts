@@ -17,8 +17,6 @@
  *   3. Use `<Can permission="...">` in page components for UI-level gating.
  */
 
-import type { Permission } from "./constants"
-
 /** Paths that require an auth token to access. */
 export const PROXY_PROTECTED_PREFIXES = ["/todos", "/settings"] as const
 
@@ -35,7 +33,7 @@ export const PUBLIC_PREFIXES = ["/auth/sign-in", "/auth/sign-up", "/session"] as
  *
  * This map serves as documentation and can be used by future middleware.
  */
-export const ROUTE_PERMISSIONS: Record<string, readonly Permission[]> = {
+export const ROUTE_PERMISSIONS: Record<string, readonly string[]> = {
   "/todos": ["todos:read"],
   "/settings": ["settings:read"],
   "/admin": ["admin:access"],

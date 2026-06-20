@@ -2,9 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-
 import { useForm } from "@tanstack/react-form"
-import { useAtomValue, useSetAtom } from "jotai"
 import { z } from "zod"
 
 import { Button } from "@/core/components/ui/button"
@@ -18,11 +16,14 @@ import {
 import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
 import { Separator } from "@/core/components/ui/separator"
-
-import { logoutAction, userAtom } from "@/features/auth/lib/atoms"
-
 import { RoleGate } from "@/packages/access-control/components/access-control"
-import { $fetch } from "@/packages/tanstack/lib/client"
+import { useLogoutMutation } from "@/features/auth/lib/mutations"
+import { selectUser, useAuthStore } from "@/features/auth/lib/store"
+import {
+  useChangePasswordMutation,
+  useDeleteAccountMutation,
+  useUpdateProfileMutation,
+} from "@/features/site/lib/mutations"
 
 // ─── Profile Section ─────────────────────────────────────────────────────────
 
@@ -31,8 +32,9 @@ const profileSchema = z.object({
 })
 
 function ProfileSection() {
-  const user = useAtomValue(userAtom)
+  const user = useAuthStore(selectUser)
   const [status, setStatus] = useState<string | null>(null)
+  const updateProfile = useUpdateProfileMutation()
 
   const form = useForm({
     defaultValues: { name: user?.name ?? "" },
@@ -40,7 +42,7 @@ function ProfileSection() {
     onSubmit: async ({ value }) => {
       setStatus(null)
       try {
-        await $fetch("/@patch/mock/settings/profile", { body: value })
+        await updateProfile.mutateAsync(value)
         setStatus("Profile updated.")
       } catch (err) {
         setStatus(err instanceof Error ? err.message : "Failed to update profile.")
@@ -123,6 +125,7 @@ const passwordSchema = z
 
 function PasswordSection() {
   const [status, setStatus] = useState<string | null>(null)
+  const changePassword = useChangePasswordMutation()
 
   const form = useForm({
     defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },
@@ -130,8 +133,9 @@ function PasswordSection() {
     onSubmit: async ({ value }) => {
       setStatus(null)
       try {
-        await $fetch("/@patch/mock/settings/password", {
-          body: { currentPassword: value.currentPassword, newPassword: value.newPassword },
+        await changePassword.mutateAsync({
+          currentPassword: value.currentPassword,
+          newPassword: value.newPassword,
         })
         form.reset()
         setStatus("Password changed successfully.")
@@ -246,21 +250,19 @@ function PasswordSection() {
 
 function DangerZone() {
   const router = useRouter()
-  const logout = useSetAtom(logoutAction)
+  const logoutMutation = useLogoutMutation()
+  const deleteAccount = useDeleteAccountMutation()
   const [confirming, setConfirming] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isPending, setIsPending] = useState(false)
 
   const handleDelete = async () => {
     setError(null)
-    setIsPending(true)
     try {
-      await $fetch("/@delete/mock/settings/account")
-      await logout()
+      await deleteAccount.mutateAsync()
+      await logoutMutation.mutateAsync()
       router.push("/auth/sign-in")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete account.")
-      setIsPending(false)
     }
   }
 
@@ -282,8 +284,13 @@ function DangerZone() {
             <p className="text-sm font-medium">Are you sure? This action cannot be reversed.</p>
             {error && <p className="text-destructive text-sm">{error}</p>}
             <div className="flex gap-2">
-              <Button variant="destructive" size="sm" onClick={handleDelete} disabled={isPending}>
-                {isPending ? "Deleting…" : "Yes, delete my account"}
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDelete}
+                disabled={deleteAccount.isPending}
+              >
+                {deleteAccount.isPending ? "Deleting…" : "Yes, delete my account"}
               </Button>
               <Button
                 variant="ghost"

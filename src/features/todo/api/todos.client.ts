@@ -1,12 +1,13 @@
 /**
  * Todo API client — feature-specific fetch wrappers.
+ *
+ * Every call goes through better-fetch ($fetch) to hit the mock API.
+ * No direct store access — always use these API wrappers.
  */
-
-import type { z } from "zod"
 
 import { $fetch } from "@/packages/tanstack/lib/client"
 
-import type { createTodoSchema, Todo, toggleTodoSchema } from "./todos.schema"
+import type { CreateTodoInput, Todo, ToggleTodoInput } from "./todos.schema"
 
 // ─── API calls ────────────────────────────────────────────────────────────
 //
@@ -20,11 +21,11 @@ export async function getTodo(id: string): Promise<Todo> {
   return $fetch("/@get/mock/todos/:id", { params: { id } })
 }
 
-export async function createTodo(input: z.infer<typeof createTodoSchema>): Promise<Todo> {
+export async function createTodo(input: CreateTodoInput): Promise<Todo> {
   return $fetch("/@post/mock/todos", { body: input })
 }
 
-export async function toggleTodo(input: z.infer<typeof toggleTodoSchema>): Promise<Todo> {
+export async function toggleTodo(input: ToggleTodoInput): Promise<Todo> {
   return $fetch("/@patch/mock/todos/:id/toggle", {
     params: { id: input.id },
     body: { done: input.done },

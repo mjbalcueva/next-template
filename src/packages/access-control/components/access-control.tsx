@@ -2,11 +2,7 @@
 
 import type { ReactNode } from "react"
 
-import { useAtomValue } from "jotai"
-
-import { isAuthenticatedAtom, userAtom } from "@/features/auth/lib/atoms"
-
-import type { Role } from "../lib/constants"
+import { selectIsAuthenticated, selectUser, useAuthStore } from "@/features/auth/lib/store"
 
 // ─── Shared prop types ──────────────────────────────────────────────────
 
@@ -26,7 +22,7 @@ interface BlockProps {
  *   </Protected>
  */
 export function Protected({ children, fallback = null }: BlockProps) {
-  const isAuthenticated = useAtomValue(isAuthenticatedAtom)
+  const isAuthenticated = useAuthStore(selectIsAuthenticated)
   return <>{isAuthenticated ? children : fallback}</>
 }
 
@@ -42,7 +38,7 @@ export function Protected({ children, fallback = null }: BlockProps) {
  *   </PublicOnly>
  */
 export function PublicOnly({ children, fallback = null }: BlockProps) {
-  const isAuthenticated = useAtomValue(isAuthenticatedAtom)
+  const isAuthenticated = useAuthStore(selectIsAuthenticated)
   return <>{!isAuthenticated ? children : fallback}</>
 }
 
@@ -50,7 +46,7 @@ export function PublicOnly({ children, fallback = null }: BlockProps) {
 
 type RoleGateProps = BlockProps & {
   /** The role(s) required to see the content. Matches if user has ANY of these. */
-  roles: readonly Role[]
+  roles: readonly string[]
 }
 
 /**
@@ -62,7 +58,7 @@ type RoleGateProps = BlockProps & {
  *   </RoleGate>
  */
 export function RoleGate({ roles, children, fallback = null }: RoleGateProps) {
-  const user = useAtomValue(userAtom)
+  const user = useAuthStore(selectUser)
   const allowed = user !== null && (roles as readonly string[]).includes(user.role)
   return <>{allowed ? children : fallback}</>
 }

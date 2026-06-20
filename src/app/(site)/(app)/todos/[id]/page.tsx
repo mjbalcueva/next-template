@@ -1,27 +1,17 @@
-import { notFound } from "next/navigation"
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
 
-import { z } from "zod"
-
-import { getTodo } from "@/features/todo/api/todos.server"
 import { TodoDetails } from "@/features/todo/components/todo-details"
-
-const paramsSchema = z.object({
-  id: z.uuid(),
-})
+import { todoDetailQueryOptions } from "@/features/todo/lib/query-options"
 
 export default async function TodoPage(props: { params: Promise<{ id: string }> }) {
-  const rawParams = await props.params
-  const parsedParams = paramsSchema.safeParse(rawParams)
+  const { id } = await props.params
+  const queryClient = new QueryClient()
 
-  if (!parsedParams.success) {
-    notFound()
-  }
+  await queryClient.prefetchQuery(todoDetailQueryOptions(id))
 
-  const todo = getTodo(parsedParams.data.id)
-
-  if (!todo) {
-    notFound()
-  }
-
-  return <TodoDetails todo={todo} />
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <TodoDetails id={id} />
+    </HydrationBoundary>
+  )
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 
 import { Delete02Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
+import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
 
 import { Badge } from "@/core/components/ui/badge"
@@ -14,17 +15,20 @@ import { Checkbox } from "@/core/components/ui/checkbox"
 
 import { Can } from "@/packages/access-control/components/can"
 
-import type { Todo } from "../api/todos.schema"
 import { useRemoveTodo, useToggleTodo } from "../lib/mutations"
+import { todoDetailQueryOptions } from "../lib/query-options"
 
 interface TodoDetailsProps {
-  todo: Todo
+  id: string
 }
 
-export function TodoDetails({ todo: initialTodo }: TodoDetailsProps) {
+export function TodoDetails({ id }: TodoDetailsProps) {
   const router = useRouter()
+  const { data: todo } = useQuery(todoDetailQueryOptions(id))
   const toggle = useToggleTodo()
   const remove = useRemoveTodo({ onSuccess: () => router.push("/") })
+
+  if (!todo) return null
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-6 pt-8 pb-16">
@@ -36,32 +40,32 @@ export function TodoDetails({ todo: initialTodo }: TodoDetailsProps) {
         <CardHeader>
           <div className="flex items-start justify-between gap-3">
             <CardTitle className="text-base leading-snug font-medium wrap-break-word">
-              {initialTodo.text}
+              {todo.text}
             </CardTitle>
-            <Badge variant={initialTodo.done ? "secondary" : "default"} className="shrink-0">
-              {initialTodo.done ? "Completed" : "Open"}
+            <Badge variant={todo.done ? "secondary" : "default"} className="shrink-0">
+              {todo.done ? "Completed" : "Open"}
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <p className="text-muted-foreground text-xs">
-            Created {format(new Date(initialTodo.createdAt), "MMMM d, yyyy 'at' h:mm a")}
+            Created {format(new Date(todo.createdAt), "MMMM d, yyyy 'at' h:mm a")}
           </p>
           <div className="flex items-center justify-between">
             <label className="flex cursor-pointer items-center gap-2 text-sm select-none">
               <Checkbox
-                checked={initialTodo.done}
+                checked={todo.done}
                 disabled={toggle.isPending}
-                onCheckedChange={checked => toggle.mutate({ id: initialTodo.id, done: !!checked })}
+                onCheckedChange={checked => toggle.mutate({ id: todo.id, done: !!checked })}
               />
-              Mark as {initialTodo.done ? "incomplete" : "complete"}
+              Mark as {todo.done ? "incomplete" : "complete"}
             </label>
-            <Can permission="todos:delete">
+            <Can resource="todos" action="delete">
               <Button
                 variant="ghost"
                 size="icon-sm"
                 disabled={remove.isPending}
-                onClick={() => remove.mutate(initialTodo.id)}
+                onClick={() => remove.mutate(todo.id)}
                 aria-label="Delete todo"
               >
                 <HugeiconsIcon icon={Delete02Icon} size={16} />

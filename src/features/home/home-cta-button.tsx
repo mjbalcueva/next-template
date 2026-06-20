@@ -7,12 +7,11 @@ import { useRouter } from "next/navigation"
 
 import { ArrowRight01Icon, Logout01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { useSetAtom } from "jotai"
 
 import { Button, buttonVariants } from "@/core/components/ui/button"
 import { cn } from "@/core/lib/utils"
 
-import { logoutAction } from "@/features/auth/lib/atoms"
+import { useLogoutMutation } from "@/features/auth/lib/mutations"
 
 type HomeCtaButtonProps = {
   href: string
@@ -22,7 +21,7 @@ type HomeCtaButtonProps = {
 export function HomeCtaButton({ href, isLoggedIn }: HomeCtaButtonProps) {
   const router = useRouter()
   const [isPending, setIsPending] = useState(false)
-  const logout = useSetAtom(logoutAction)
+  const logoutMutation = useLogoutMutation()
 
   if (isLoggedIn) {
     return (
@@ -30,7 +29,7 @@ export function HomeCtaButton({ href, isLoggedIn }: HomeCtaButtonProps) {
         size="lg"
         onClick={async () => {
           setIsPending(true)
-          await logout()
+          await logoutMutation.mutateAsync()
           router.push("/")
           setIsPending(false)
         }}

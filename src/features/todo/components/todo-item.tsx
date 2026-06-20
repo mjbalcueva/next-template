@@ -52,7 +52,7 @@ export function TodoItem({ todo }: { todo: Todo }) {
           {formatDistanceToNow(new Date(todo.createdAt), { addSuffix: true })}
         </span>
       </div>
-      <Can permission="todos:delete">
+      <Can resource="todos" action="delete">
         <Button
           variant="ghost"
           size="icon-sm"

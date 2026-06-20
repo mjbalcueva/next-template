@@ -1,6 +1,6 @@
 ---
 name: next-template
-description: Frontend-first Next.js template with RBAC/ABAC permissions, TanStack Query, better-fetch, Jotai, and shadcn/ui. Created by mjbalcueva.
+description: Frontend-first Next.js template with RBAC/ABAC permissions, TanStack Query, better-fetch, Zustand, and shadcn/ui. Created by mjbalcueva.
 ---
 
 # next-template
@@ -12,7 +12,7 @@ A production-ready, frontend-first Next.js template designed for enterprise appl
 - **Next.js 16** (App Router) with React 19
 - **TanStack Query** — server state, caching, mutations
 - **better-fetch** — type-safe fetch with Zod runtime validation
-- **Jotai** — atomic UI state (auth, permissions)
+- **Zustand** — lightweight client state (auth, permissions)
 - **shadcn/ui** — accessible, customizable UI components
 - **Tailwind CSS 4** — utility-first styling
 
@@ -53,7 +53,7 @@ src/
 
 Component → TanStack Query hook → feature client ($fetch) → Backend API
 ↕ ↕
-Jotai atoms better-fetch
+Zustand stores   better-fetch
 (auth state, (schema validation,
 permissions) auth token injection)
 
@@ -86,4 +86,4 @@ const canManage = useCanAll(["todos:update", "todos:delete"])
 4. Use `$fetch` from `@/services/tanstack/client` for all API calls — never use raw `fetch`.
 5. Permission checks go in components via `<Can>` or `useCan()` — never in the proxy.
 6. The proxy only checks for token existence — actual auth validation happens in the backend API.
-7. Jotai atoms for UI state only — server data stays in TanStack Query.
+7. Zustand stores for client state only — server data stays in TanStack Query.

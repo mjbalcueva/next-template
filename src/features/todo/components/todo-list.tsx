@@ -12,22 +12,13 @@ import {
 } from "@/core/components/ui/empty"
 import { Input } from "@/core/components/ui/input"
 
-import type { Todo } from "../api/todos.schema"
 import { todoListQueryOptions } from "../lib/query-options"
 
 import { TodoForm } from "./todo-form"
 import { TodoItem } from "./todo-item"
 
-interface TodoListProps {
-  /** Initial data fetched server-side via SSR. */
-  initialTodos: Todo[]
-}
-
-export function TodoList({ initialTodos }: TodoListProps) {
-  const todos = useQuery({
-    ...todoListQueryOptions(),
-    initialData: initialTodos,
-  })
+export function TodoList() {
+  const todos = useQuery(todoListQueryOptions())
   const [query, setQuery] = useQueryState(
     "q",
     parseAsString.withDefault("").withOptions({ history: "replace", shallow: false })

@@ -4,20 +4,19 @@ import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
 import { useForm } from "@tanstack/react-form"
-import { useSetAtom } from "jotai"
 
 import { Button } from "@/core/components/ui/button"
 import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
 
 import { loginInputSchema } from "@/features/auth/api/auth.schema"
-import { loginAction } from "@/features/auth/lib/atoms"
+import { useLoginMutation } from "@/features/auth/lib/mutations"
 
 function SignInFormInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [authError, setAuthError] = useState<string | null>(null)
-  const login = useSetAtom(loginAction)
+  const loginMutation = useLoginMutation()
 
   const redirectUrl = searchParams.get("redirect") ?? "/todos"
 
@@ -27,7 +26,7 @@ function SignInFormInner() {
     onSubmit: async ({ value }) => {
       setAuthError(null)
       try {
-        await login(value)
+        await loginMutation.mutateAsync(value)
         router.push(redirectUrl)
       } catch (err) {
         setAuthError(err instanceof Error ? err.message : "Failed to sign in. Please try again.")

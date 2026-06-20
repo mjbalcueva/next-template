@@ -1,6 +1,6 @@
 # Next Template
 
-A **frontend-first Next.js template** for enterprise applications. Built with RBAC/ABAC permissions, TanStack Query, better-fetch, Jotai, and shadcn/ui.
+A **frontend-first Next.js template** for enterprise applications. Built with RBAC/ABAC permissions, TanStack Query, better-fetch, Zustand, and shadcn/ui.
 
 Created by [@mjbalcueva](https://github.com/mjbalcueva).
 
@@ -10,7 +10,7 @@ Created by [@mjbalcueva](https://github.com/mjbalcueva).
 | ------------- | ---------------------------------------------------------------------------------------------- |
 | Framework     | Next.js 16 (App Router) + React 19                                                             |
 | Data Fetching | [TanStack Query](https://tanstack.com/query) + [better-fetch](https://better-fetch.vercel.app) |
-| State         | [Jotai](https://jotai.org) (auth, permissions, UI state)                                       |
+| State         | [Zustand](https://zustand.docs.pmnd.rs) (auth, permissions, client state)                    |
 | Validation    | [Zod](https://zod.dev) (runtime schema validation)                                             |
 | UI            | [shadcn/ui](https://ui.shadcn.com) + [Tailwind CSS 4](https://tailwindcss.com)                 |
 | Auth          | Backend-agnostic (token-based, works with any REST API)                                        |
@@ -52,10 +52,10 @@ src/
 │   └── styles/             # globals.css
 ├── packages/               # Internal shared libraries (reused everywhere)
 │   ├── tanstack/           # better-fetch client, QueryClient provider, query-factory
-│   └── permissions/        # RBAC/ABAC — constants, atoms, <Can>, hooks, routes
+│   └── access-control/     # RBAC/ABAC — store, constants, <Can>, hooks, routes
 ├── services/               # Third-party service integrations (payment, email, etc.)
 ├── features/               # Self-contained feature modules
-│   ├── auth/               # Jotai auth atoms (login, logout, session, token)
+│   ├── auth/               # Zustand auth store (login, logout, session, token)
 │   ├── todo/               # Example feature
 │   │   ├── api/            # Zod schemas + API client
 │   │   ├── lib/            # TanStack Query (query-options + mutations)

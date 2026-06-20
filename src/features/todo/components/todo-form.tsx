@@ -26,7 +26,7 @@ export function TodoForm() {
   })
 
   return (
-    <Can permission="todos:create">
+    <Can resource="todos" action="create">
       <form
         onSubmit={e => {
           e.preventDefault()

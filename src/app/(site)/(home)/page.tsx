@@ -27,7 +27,7 @@ export default async function HomePage() {
 
       <p className="text-muted-foreground max-w-2xl text-base leading-7 md:text-xl">
         A clean, fast, frontend-first starter built with Next.js, TanStack Query, better-fetch,
-        Jotai, and shadcn/ui. Ships with RBAC permissions, mock API, and a feature-based
+        Zustand, and shadcn/ui. Ships with RBAC permissions, mock API, and a feature-based
         architecture ready for any backend.
       </p>
 

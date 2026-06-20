@@ -1,14 +1,12 @@
 "use client"
 
-import { useAtomValue } from "jotai"
+import { selectUser, useAuthStore } from "@/features/auth/lib/store"
 
-import { userAtom } from "@/features/auth/lib/atoms"
-
-import { ROLES, type Role } from "../lib/constants"
+import type { Role } from "../lib/constants"
 
 /** Get the current user's role. */
 export function useRole(): Role | null {
-  const user = useAtomValue(userAtom)
+  const user = useAuthStore(selectUser)
   return user?.role ?? null
 }
 
@@ -23,7 +21,5 @@ export function useHasAnyRole(roles: readonly Role[]): boolean {
   return currentRole !== null && (roles as readonly string[]).includes(currentRole)
 }
 
-/** Available roles (for dropdowns, admin panels, etc.). */
-export function useAvailableRoles(): readonly Role[] {
-  return ROLES
-}
+/** Available roles (for dropdowns, admin panels, etc.) — sourced from the backend. */
+export { useAvailableRoles } from "../lib/store"
