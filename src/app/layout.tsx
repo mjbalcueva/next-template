@@ -1,13 +1,12 @@
 import type { Metadata } from "next"
 import { Figtree, Geist, Geist_Mono } from "next/font/google"
-
 import { NuqsAdapter } from "nuqs/adapters/next/app"
 
 import { ThemeProvider } from "@/core/components/providers/theme-provider"
 import { TooltipProvider } from "@/core/components/ui/tooltip"
 import { cn } from "@/core/lib/utils"
-
-import { TanStackProvider } from "@/packages/tanstack/providers/provider"
+import { ReactQueryProvider } from "@/packages/tanstack/providers/provider"
+import { AuthProvider } from "@/features/auth/components/auth-provider"
 
 import "@/core/styles/globals.css"
 
@@ -55,9 +54,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <NuqsAdapter>
-            <TanStackProvider>
-              <TooltipProvider>{children}</TooltipProvider>
-            </TanStackProvider>
+            <ReactQueryProvider>
+              <TooltipProvider>
+                <AuthProvider>{children}</AuthProvider>
+              </TooltipProvider>
+            </ReactQueryProvider>
           </NuqsAdapter>
         </ThemeProvider>
       </body>

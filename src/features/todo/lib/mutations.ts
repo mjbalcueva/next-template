@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
-import { createTodo, removeTodo, toggleTodo } from "../api/todos.client"
+import { createTodo, removeTodo, toggleTodo } from "../api/todos.api"
 
 import { todoKeys } from "./query-options"
 

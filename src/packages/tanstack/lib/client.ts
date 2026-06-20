@@ -1,28 +1,21 @@
 /**
- * better-fetch client with TanStack Query integration.
+ * better-fetch client WITH schema validation.
  *
- * This is the central fetch layer — every feature's API client
- * builds on top of this `$fetch` instance.
- *
- * API schemas are defined in `api-schema.ts` — edit that file
- * when adding new features.
+ * Builds on top of `client-core.ts` by adding the merged API schema.
+ * Feature `api.ts` files should import from `client-core.ts` to avoid
+ * circular dependencies with `api-schema.ts`.
  */
 
+import { env } from "@/env"
 import { createFetch } from "@better-fetch/fetch"
 
-import { env } from "@/env"
-
 import { apiSchema } from "./api-schema"
+import { getTokenValue } from "./client-core"
 
-// ─── Auth token injection ────────────────────────────────────────────────
+// Re-export the core pieces so existing consumers don't need to change.
+export { setTokenGetter } from "./client-core"
 
-let getToken: (() => string | null) | null = null
-
-export function setTokenGetter(fn: () => string | null) {
-  getToken = fn
-}
-
-// ─── Fetch instance ──────────────────────────────────────────────────────
+// ─── Fetch instance (with full schema validation) ────────────────────────
 
 export const $fetch = createFetch({
   baseURL: env.NEXT_PUBLIC_API_URL,
@@ -30,7 +23,7 @@ export const $fetch = createFetch({
   throw: true,
   hooks: {
     onRequest: (ctx: { options: RequestInit }) => {
-      const token = getToken?.()
+      const token = getTokenValue()
       if (token) {
         const headers = ctx.options.headers as Headers
         headers.set("Authorization", `Bearer ${token}`)

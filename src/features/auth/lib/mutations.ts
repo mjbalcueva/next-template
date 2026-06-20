@@ -8,7 +8,7 @@
 
 import { useMutation } from "@tanstack/react-query"
 
-import { fetchUser, login, logout, register } from "../api/auth.client"
+import { fetchUser, login, logout, register } from "../api/auth.api"
 import type { LoginInput, RegisterInput } from "../api/auth.schema"
 
 import { useAuthStore } from "./store"

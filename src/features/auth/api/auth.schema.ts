@@ -37,23 +37,3 @@ export type RegisterInput = z.infer<typeof registerInputSchema>
 export type User = z.infer<typeof userSchema>
 export type AuthUser = z.infer<typeof authUserSchema>
 export type TokenResponse = z.infer<typeof tokenResponseSchema>
-
-// ─── API schema slice (merged into the central $fetch schema) ────────────
-
-export const authApiSchema = {
-  "@post/mock/auth/login": {
-    input: loginInputSchema,
-    output: tokenResponseSchema,
-  },
-  "@post/mock/auth/register": {
-    input: registerInputSchema,
-    output: tokenResponseSchema,
-  },
-  "@get/mock/user": {
-    output: authUserSchema,
-  },
-  "@post/mock/auth/logout": {
-    input: z.object({}).optional(),
-    output: z.object({ success: z.literal(true) }),
-  },
-} as const

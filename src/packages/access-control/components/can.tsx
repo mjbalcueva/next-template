@@ -2,23 +2,23 @@
 
 import type { ReactNode } from "react"
 
-import type { Permission } from "../lib/constants"
-import {
-  useCan,
-  useCanAbac,
-  useCanAction,
-  useCanAll,
-  useCanAny,
-  useCanResource,
-  type AbacRequest,
-} from "../lib/store"
+import { useResolvedPermissions } from "../lib/hooks"
 
-// ─── Props ────────────────────────────────────────────────────────────────
+// ─── ABAC request shape ─────────────────────────────────────────────
+
+interface AbacRequest {
+  resource: string
+  action: string
+}
+
+// ─── Props ───────────────────────────────────────────────────────────
 
 type BaseProps = {
   children: ReactNode
   fallback?: ReactNode
 }
+
+type Permission = string
 
 /** Single `"resource:action"` string. */
 type StringPermissionProps = BaseProps & {
@@ -60,7 +60,7 @@ type ActionOnlyProps = BaseProps & {
   anyOf?: never
 }
 
-/** ABAC check with optional attributes (exact match or `"resource:manage"` wildcard). */
+/** ABAC check (exact match or `"resource:manage"` wildcard). */
 type AbacProps = BaseProps & {
   permission?: never
   resource?: never
@@ -99,10 +99,14 @@ export type CanComponentProps =
   | AllOfProps
   | AnyOfProps
 
-// ─── Component ────────────────────────────────────────────────────────────
+// ─── Component ───────────────────────────────────────────────────────
 
 /**
  * Declarative permission guard (JSX-based).
+ *
+ * Only calls ONE hook (`useResolvedPermissions`), then evaluates
+ * all logic in pure JavaScript.  500 instances = 1 network request
+ * thanks to React Query deduplication.
  *
  * @example String form
  *   <Can permission="todos:delete" fallback={<LockIcon />}>
@@ -142,47 +146,27 @@ export type CanComponentProps =
 export function Can(props: CanComponentProps) {
   const { children, fallback = null } = props
 
-  // Call ALL hooks unconditionally (Rules of Hooks), then pick the right one.
-  const stringResult = useCan("permission" in props ? props.permission : undefined)
-  const splitResult = useCan(
-    "resource" in props && "action" in props && props.resource && props.action
-      ? { resource: props.resource, action: props.action }
-      : undefined
-  )
-  const resourceResult = useCanResource(
-    "resource" in props && props.resource && !("action" in props && props.action)
-      ? props.resource
-      : ""
-  )
-  const actionResult = useCanAction(
-    "action" in props && props.action && !("resource" in props && props.resource)
-      ? props.action
-      : ""
-  )
-  const abacResult = useCanAbac(
-    "abac" in props && props.abac ? props.abac : { resource: "", action: "" }
-  )
-  const allResult = useCanAll("permissions" in props ? props.permissions : undefined)
-  const anyResult = useCanAny("anyOf" in props ? props.anyOf : undefined)
+  const perms = useResolvedPermissions()
 
-  let allowed: boolean
+  // Pure JS evaluation — zero extra hook overhead
+  let allowed = false
 
   if ("permission" in props && props.permission) {
-    allowed = stringResult
+    allowed = perms.includes(props.permission)
   } else if ("resource" in props && "action" in props && props.resource && props.action) {
-    allowed = splitResult
+    allowed = perms.includes(`${props.resource}:${props.action}`)
   } else if ("resource" in props && props.resource && !("action" in props && props.action)) {
-    allowed = resourceResult
+    allowed = perms.some(p => p.startsWith(`${props.resource}:`))
   } else if ("action" in props && props.action && !("resource" in props && props.resource)) {
-    allowed = actionResult
+    allowed = perms.some(p => p.endsWith(`:${props.action}`))
   } else if ("abac" in props && props.abac) {
-    allowed = abacResult
+    const required = `${props.abac.resource}:${props.abac.action}`
+    const wildcard = `${props.abac.resource}:manage`
+    allowed = perms.includes(required) || perms.includes(wildcard)
   } else if ("permissions" in props && props.permissions) {
-    allowed = allResult
+    allowed = props.permissions.every(p => perms.includes(p))
   } else if ("anyOf" in props && props.anyOf) {
-    allowed = anyResult
-  } else {
-    allowed = false
+    allowed = props.anyOf.some(p => perms.includes(p))
   }
 
   return <>{allowed ? children : fallback}</>

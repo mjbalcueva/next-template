@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
-import { Delete02Icon } from "@hugeicons/core-free-icons"
+import { Delete02Icon, InformationCircleIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { useQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
@@ -52,14 +52,16 @@ export function TodoDetails({ id }: TodoDetailsProps) {
             Created {format(new Date(todo.createdAt), "MMMM d, yyyy 'at' h:mm a")}
           </p>
           <div className="flex items-center justify-between">
-            <label className="flex cursor-pointer items-center gap-2 text-sm select-none">
-              <Checkbox
-                checked={todo.done}
-                disabled={toggle.isPending}
-                onCheckedChange={checked => toggle.mutate({ id: todo.id, done: !!checked })}
-              />
-              Mark as {todo.done ? "incomplete" : "complete"}
-            </label>
+            <Can resource="todos" action="update">
+              <label className="flex cursor-pointer items-center gap-2 text-sm select-none">
+                <Checkbox
+                  checked={todo.done}
+                  disabled={toggle.isPending}
+                  onCheckedChange={checked => toggle.mutate({ id: todo.id, done: !!checked })}
+                />
+                Mark as {todo.done ? "incomplete" : "complete"}
+              </label>
+            </Can>
             <Can resource="todos" action="delete">
               <Button
                 variant="ghost"
@@ -74,6 +76,28 @@ export function TodoDetails({ id }: TodoDetailsProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* ── Admin-only audit card ──────────────────────────────────── */}
+      <Can resource="admin" action="access">
+        <Card className="border-dashed">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm font-medium">
+              <HugeiconsIcon icon={InformationCircleIcon} size={16} />
+              Admin audit
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-muted-foreground flex flex-col gap-2 text-xs">
+            <div className="flex justify-between">
+              <span>Todo ID</span>
+              <code className="text-foreground font-mono">{todo.id}</code>
+            </div>
+            <div className="flex justify-between">
+              <span>Created</span>
+              <code className="text-foreground">{todo.createdAt}</code>
+            </div>
+          </CardContent>
+        </Card>
+      </Can>
     </div>
   )
 }

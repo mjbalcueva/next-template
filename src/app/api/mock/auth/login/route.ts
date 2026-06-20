@@ -12,6 +12,8 @@ export async function POST(request: Request) {
   const user = store.users.find(u => u.email === body.email)
   if (!user) return jsonError("Invalid credentials", 401)
 
+  if (user.password !== body.password) return jsonError("Invalid credentials", 401)
+
   const { plainTextToken } = createToken(user.id, ["*"])
 
   return json({ token: plainTextToken })

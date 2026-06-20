@@ -1,18 +1,13 @@
-import { json } from "../store"
+import { AuthError, json, requireAuth } from "../store"
 
-export function GET() {
-  const permissions = [
-    "todos:create",
-    "todos:read",
-    "todos:update",
-    "todos:delete",
-    "settings:read",
-    "settings:write",
-    "admin:access",
-  ] as const
-
-  const roles = ["admin", "moderator", "member", "viewer"] as const
-
+/**
+ * GET /api/mock/permissions
+ *
+ * Returns ONLY the current user's resolved permissions.
+ * The backend evaluates the user's role server-side — the
+ * client never sees the full permission matrix.
+ */
+export function GET(request: Request) {
   const rolePermissions: Record<string, readonly string[]> = {
     admin: [
       "todos:create",
@@ -28,5 +23,14 @@ export function GET() {
     viewer: ["todos:read"],
   }
 
-  return json({ permissions, roles, rolePermissions })
+  try {
+    const user = requireAuth(request)
+    const permissions = rolePermissions[user.role] ?? []
+    return json({ permissions })
+  } catch (err) {
+    if (err instanceof AuthError) {
+      return Response.json({ error: err.message }, { status: err.status })
+    }
+    throw err
+  }
 }

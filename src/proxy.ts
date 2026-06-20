@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server"
-
-import { isProtectedProxyPath } from "@/packages/access-control/lib/routes"
+import { isProtectedProxyPath } from "@/proxy-routes"
 
 /**
  * Next.js Proxy (formerly middleware).
@@ -10,7 +9,7 @@ import { isProtectedProxyPath } from "@/packages/access-control/lib/routes"
  * and permission enforcement happens via `<Can>` components.
  *
  * To configure which routes are protected, edit:
- *   `src/core/config/proxy-routes.ts`
+ *   `src/proxy-routes.ts`
  */
 export function proxy(request: NextRequest) {
   if (!isProtectedProxyPath(request.nextUrl.pathname)) {

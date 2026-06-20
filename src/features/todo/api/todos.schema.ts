@@ -31,31 +31,11 @@ export interface Todo {
   createdAt: string
 }
 
-// ─── API schema slice (merged into the central $fetch schema) ────────────
+// ─── Output schema (used by the API schema slice) ──────────────────────
 
-const todoOutputSchema = z.object({
+export const todoOutputSchema = z.object({
   id: z.string(),
   text: z.string(),
   done: z.boolean(),
   createdAt: z.string(),
 })
-
-export const todoApiSchema = {
-  "@get/mock/todos": {
-    output: todoOutputSchema.array(),
-  },
-  "@post/mock/todos": {
-    input: createTodoSchema,
-    output: todoOutputSchema,
-  },
-  "@get/mock/todos/:id": {
-    output: todoOutputSchema,
-  },
-  "@patch/mock/todos/:id/toggle": {
-    input: toggleTodoSchema.omit({ id: true }),
-    output: todoOutputSchema,
-  },
-  "@delete/mock/todos/:id": {
-    output: z.object({ id: z.string() }),
-  },
-} as const

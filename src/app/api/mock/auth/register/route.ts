@@ -23,7 +23,13 @@ export async function POST(request: Request) {
   const existing = store.users.find(u => u.email === body.email)
   if (existing) return jsonError("Email already registered", 409)
 
-  const user = { id: uid(), name: body.name, email: body.email, role: "member" as const }
+  const user = {
+    id: uid(),
+    name: body.name,
+    email: body.email,
+    password: body.password,
+    role: "member" as const,
+  }
   store.users.push(user)
 
   const { plainTextToken } = createToken(user.id, ["*"])

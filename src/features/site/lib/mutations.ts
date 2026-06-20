@@ -9,11 +9,13 @@ import { useMutation } from "@tanstack/react-query"
 
 import { $fetch } from "@/packages/tanstack/lib/client"
 
+import { SITE_ENDPOINTS } from "../api/site.api"
+
 // ─── Profile ──────────────────────────────────────────────────────────
 
 export function useUpdateProfileMutation() {
   return useMutation({
-    mutationFn: (body: { name: string }) => $fetch("/@patch/mock/settings/profile", { body }),
+    mutationFn: (body: { name: string }) => $fetch(`/${SITE_ENDPOINTS.profile}`, { body }),
   })
 }
 
@@ -22,7 +24,7 @@ export function useUpdateProfileMutation() {
 export function useChangePasswordMutation() {
   return useMutation({
     mutationFn: (body: { currentPassword: string; newPassword: string }) =>
-      $fetch("/@patch/mock/settings/password", { body }),
+      $fetch(`/${SITE_ENDPOINTS.password}`, { body }),
   })
 }
 
@@ -30,6 +32,6 @@ export function useChangePasswordMutation() {
 
 export function useDeleteAccountMutation() {
   return useMutation({
-    mutationFn: () => $fetch("/@delete/mock/settings/account"),
+    mutationFn: () => $fetch(`/${SITE_ENDPOINTS.account}`),
   })
 }

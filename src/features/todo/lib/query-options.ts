@@ -10,7 +10,7 @@ import { queryOptions } from "@tanstack/react-query"
 
 import { createQueryKeys } from "@/packages/tanstack/lib/query-factory"
 
-import { getTodo, listTodos } from "../api/todos.client"
+import { getTodo, listTodos } from "../api/todos.api"
 
 // ─── Query key factory ──────────────────────────────────────────────────
 

@@ -22,6 +22,7 @@ interface MockUser {
   id: string
   name: string
   email: string
+  password: string
   role: "admin" | "moderator" | "member" | "viewer"
 }
 
@@ -35,9 +36,27 @@ interface TokenEntry {
 
 export const store = {
   users: [
-    { id: "u1", name: "Admin User", email: "admin@template.dev", role: "admin" as const },
-    { id: "u2", name: "Jane Member", email: "jane@template.dev", role: "member" as const },
-    { id: "u3", name: "Bob Viewer", email: "bob@template.dev", role: "viewer" as const },
+    {
+      id: "u1",
+      name: "Admin User",
+      email: "admin@template.dev",
+      password: "admin123",
+      role: "admin" as const,
+    },
+    {
+      id: "u2",
+      name: "Jane Member",
+      email: "jane@template.dev",
+      password: "member123",
+      role: "member" as const,
+    },
+    {
+      id: "u3",
+      name: "Bob Viewer",
+      email: "bob@template.dev",
+      password: "viewer123",
+      role: "viewer" as const,
+    },
   ] as MockUser[],
 
   todos: [

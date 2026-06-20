@@ -1,3 +1,5 @@
+"use client"
+
 /**
  * Zustand auth store — the single source of truth for auth state.
  *
@@ -8,7 +10,6 @@
  *   - Derived values (`isAuthenticated`, `session`) are computed via selectors,
  *     not stored redundantly.
  */
-
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
