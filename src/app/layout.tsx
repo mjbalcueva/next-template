@@ -1,12 +1,14 @@
 import type { Metadata } from "next"
 import { Figtree, Geist, Geist_Mono } from "next/font/google"
+
+import { Provider as JotaiProvider } from "jotai"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
 
 import { ThemeProvider } from "@/core/components/providers/theme-provider"
 import { TooltipProvider } from "@/core/components/ui/tooltip"
 import { cn } from "@/core/lib/utils"
 
-import { AppProviders } from "@/packages/tanstack/providers/provider"
+import { TanStackProvider } from "@/packages/tanstack/providers/provider"
 
 import "@/core/styles/globals.css"
 
@@ -54,9 +56,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <NuqsAdapter>
-            <AppProviders>
-              <TooltipProvider>{children}</TooltipProvider>
-            </AppProviders>
+            <JotaiProvider>
+              <TanStackProvider>
+                <TooltipProvider>{children}</TooltipProvider>
+              </TanStackProvider>
+            </JotaiProvider>
           </NuqsAdapter>
         </ThemeProvider>
       </body>

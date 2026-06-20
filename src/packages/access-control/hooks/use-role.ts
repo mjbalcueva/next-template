@@ -2,7 +2,7 @@
 
 import { useAtomValue } from "jotai"
 
-import { userAtom } from "@/features/auth/atoms"
+import { userAtom } from "@/features/auth/lib/atoms"
 
 import { ROLES, type Role } from "../lib/constants"
 

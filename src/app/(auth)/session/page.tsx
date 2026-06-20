@@ -2,7 +2,7 @@
 
 import { useAtomValue } from "jotai"
 
-import { sessionAtom } from "@/features/auth/atoms"
+import { sessionAtom } from "@/features/auth/lib/atoms"
 
 export default function SessionPage() {
   const session = useAtomValue(sessionAtom)

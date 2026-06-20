@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+
 import { useForm } from "@tanstack/react-form"
 import { useAtomValue, useSetAtom } from "jotai"
 import { z } from "zod"
@@ -18,9 +19,9 @@ import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
 import { Separator } from "@/core/components/ui/separator"
 
-import { logoutAction, userAtom } from "@/features/auth/atoms"
+import { logoutAction, userAtom } from "@/features/auth/lib/atoms"
 
-import { RoleGate } from "@/packages/permissions/components/blocks"
+import { RoleGate } from "@/packages/access-control/components/access-control"
 import { $fetch } from "@/packages/tanstack/lib/client"
 
 // ─── Profile Section ─────────────────────────────────────────────────────────

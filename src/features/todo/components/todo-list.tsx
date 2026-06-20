@@ -11,15 +11,23 @@ import {
   EmptyTitle,
 } from "@/core/components/ui/empty"
 import { Input } from "@/core/components/ui/input"
-import { Skeleton } from "@/core/components/ui/skeleton"
 
+import type { Todo } from "../api/todos.schema"
 import { todoListQueryOptions } from "../lib/query-options"
 
 import { TodoForm } from "./todo-form"
 import { TodoItem } from "./todo-item"
 
-export function TodoList() {
-  const todos = useQuery(todoListQueryOptions())
+interface TodoListProps {
+  /** Initial data fetched server-side via SSR. */
+  initialTodos: Todo[]
+}
+
+export function TodoList({ initialTodos }: TodoListProps) {
+  const todos = useQuery({
+    ...todoListQueryOptions(),
+    initialData: initialTodos,
+  })
   const [query, setQuery] = useQueryState(
     "q",
     parseAsString.withDefault("").withOptions({ history: "replace", shallow: false })
@@ -55,13 +63,7 @@ export function TodoList() {
         />
       </div>
 
-      {todos.isLoading ? (
-        <ul className="flex flex-col gap-2">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-11 w-full rounded-xl" />
-          ))}
-        </ul>
-      ) : todos.data?.length === 0 ? (
+      {todos.data?.length === 0 ? (
         <Empty className="border">
           <EmptyHeader>
             <EmptyMedia variant="icon">

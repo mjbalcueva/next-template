@@ -1,9 +1,10 @@
 "use client"
 
 import type { ReactNode } from "react"
+
 import { useAtomValue } from "jotai"
 
-import { isAuthenticatedAtom, userAtom } from "@/features/auth/atoms"
+import { isAuthenticatedAtom, userAtom } from "@/features/auth/lib/atoms"
 
 import type { Role } from "../lib/constants"
 
@@ -14,17 +15,17 @@ interface BlockProps {
   fallback?: ReactNode
 }
 
-// ─── Authenticated ─────────────────────────────────────────────────────
+// ─── Protected ─────────────────────────────────────────────────────
 
 /**
  * Render children only when the user is authenticated.
  *
  * @example
- *   <Authenticated fallback={<SignInPrompt />}>
+ *   <Protected fallback={<SignInPrompt />}>
  *     <Dashboard />
- *   </Authenticated>
+ *   </Protected>
  */
-export function Authenticated({ children, fallback = null }: BlockProps) {
+export function Protected({ children, fallback = null }: BlockProps) {
   const isAuthenticated = useAtomValue(isAuthenticatedAtom)
   return <>{isAuthenticated ? children : fallback}</>
 }

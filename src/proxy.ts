@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 
-import { isProtectedProxyPath } from "@/packages/permissions/lib/routes"
+import { isProtectedProxyPath } from "@/packages/access-control/lib/routes"
 
 /**
  * Next.js Proxy (formerly middleware).

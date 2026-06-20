@@ -6,16 +6,7 @@ import type { z } from "zod"
 
 import { $fetch } from "@/packages/tanstack/lib/client"
 
-import type { createTodoSchema, toggleTodoSchema } from "./todos.schema"
-
-// ─── Types ────────────────────────────────────────────────────────────────
-
-export interface Todo {
-  id: string
-  text: string
-  done: boolean
-  createdAt: string
-}
+import type { createTodoSchema, Todo, toggleTodoSchema } from "./todos.schema"
 
 // ─── API calls ────────────────────────────────────────────────────────────
 //

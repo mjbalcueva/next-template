@@ -4,24 +4,15 @@
  * This is the central fetch layer — every feature's API client
  * builds on top of this `$fetch` instance.
  *
- * API schemas are defined per-feature and merged here.
+ * API schemas are defined in `api-schema.ts` — edit that file
+ * when adding new features.
  */
 
-import { createFetch, createSchema } from "@better-fetch/fetch"
-
-import { authApiSchema } from "@/features/auth/api/auth.schema"
-import { siteApiSchema } from "@/features/site/api/site.schema"
-import { todoApiSchema } from "@/features/todo/api/todos.schema"
+import { createFetch } from "@better-fetch/fetch"
 
 import { env } from "@/env"
 
-// ─── API schema (merged from feature slices) ─────────────────────────────
-
-export const apiSchema = createSchema({
-  ...authApiSchema,
-  ...todoApiSchema,
-  ...siteApiSchema,
-})
+import { apiSchema } from "./api-schema"
 
 // ─── Auth token injection ────────────────────────────────────────────────
 

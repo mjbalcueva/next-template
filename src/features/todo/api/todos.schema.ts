@@ -22,6 +22,15 @@ export type ToggleTodoInput = z.infer<typeof toggleTodoSchema>
 export type RemoveTodoInput = z.infer<typeof removeTodoSchema>
 export type TodoIdInput = z.infer<typeof todoIdSchema>
 
+// ─── Shared Todo type (safe for both client and server) ────────────────
+
+export interface Todo {
+  id: string
+  text: string
+  done: boolean
+  createdAt: string
+}
+
 // ─── API schema slice (merged into the central $fetch schema) ────────────
 
 const todoOutputSchema = z.object({

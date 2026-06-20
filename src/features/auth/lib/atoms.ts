@@ -11,22 +11,20 @@
 // better-fetch needs a way to get the current auth token for every request.
 // We register a getter that reads from the Jotai atom store.
 
-// We use a module-level store reference that gets set on first atom read.
-// This avoids circular dependencies between better-fetch and Jotai.
 import { atom, getDefaultStore } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 
 import { setTokenGetter } from "@/packages/tanstack/lib/client"
 
-import { fetchUser, login, logout, register } from "./api/auth.client"
-import type { LoginInput, RegisterInput, User } from "./api/auth.schema"
+import { fetchUser, login, logout, register } from "../api/auth.client"
+import type { LoginInput, RegisterInput, User } from "../api/auth.schema"
 
 // ─── Primitive atoms ──────────────────────────────────────────────────
 
 /** Persisted auth token (survives page reloads). */
 export const authTokenAtom = atomWithStorage<string | null>("auth_token", null)
 
-/** Current user info (not persisted — re-fetched from /auth/me on reload). */
+/** Current user info (not persisted — re-fetched from /api/user on reload). */
 export const userAtom = atom<User | null>(null)
 
 // ─── Derived atoms ────────────────────────────────────────────────────
@@ -45,22 +43,34 @@ export const sessionAtom = atom(get => ({
 
 /**
  * Log in with email + password.
- * On success, stores the token and user in Jotai atoms.
+ *
+ * Sanctum-style: stores the token, then fetches the user from /api/user.
  */
 export const loginAction = atom(null, async (_get, set, input: LoginInput) => {
   const data = await login(input)
   set(authTokenAtom, data.token)
-  set(userAtom, data.user)
+  try {
+    const user = await fetchUser()
+    set(userAtom, user)
+  } catch {
+    // User fetch failed — token might still be valid, try on next page load
+  }
 })
 
 /**
  * Register a new account.
- * On success, stores the token and user in Jotai atoms.
+ *
+ * Sanctum-style: stores the token, then fetches the user from /api/user.
  */
 export const registerAction = atom(null, async (_get, set, input: RegisterInput) => {
   const data = await register(input)
   set(authTokenAtom, data.token)
-  set(userAtom, data.user)
+  try {
+    const user = await fetchUser()
+    set(userAtom, user)
+  } catch {
+    // User fetch failed — token might still be valid, try on next page load
+  }
 })
 
 /** Log out — clears server-side token, then local state. */
@@ -74,7 +84,7 @@ export const logoutAction = atom(null, async (_get, set) => {
   set(userAtom, null)
 })
 
-/** Fetch the current user from /auth/me (used on app startup). */
+/** Fetch the current user from /api/user (used on app startup). */
 export const fetchUserAction = atom(null, async (get, set) => {
   const token = get(authTokenAtom)
   if (!token) return

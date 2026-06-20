@@ -2,11 +2,12 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+
 import { useSetAtom } from "jotai"
 
 import { Button } from "@/core/components/ui/button"
 
-import { logoutAction } from "@/features/auth/atoms"
+import { logoutAction } from "@/features/auth/lib/atoms"
 
 type SiteHeaderProps = {
   user: {

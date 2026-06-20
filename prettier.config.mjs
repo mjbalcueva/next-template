@@ -36,47 +36,47 @@ const config = {
 
   // Universal import order that works for all project types
   importOrder: [
-    // 1. Framework imports (React, Next.js, Expo, NestJS)
+    // Framework imports (React, Next.js, Expo, NestJS)
     "^(react/(.*)$)|^(react$)|^(react-native(.*)$)",
     "^(next/(.*)$)|^(next$)",
     "^(expo(.*)$)|^(expo$)",
     "^@nestjs/(.*)$",
-    // 2. Node.js built-in modules
+    "",
+    // Node.js built-in & third-party modules (fs, path, etc.)
     "<BUILTIN_MODULES>",
-    // 3. Third-party packages
     "<THIRD_PARTY_MODULES>",
     "",
-    // 4. Internal path aliases — @/app (route layer)
+    // Internal path aliases — @/app (route layer)
     "^@/app/(.*)$",
     "",
-    // 5. Internal path aliases — @/core (shared primitives)
+    // Internal path aliases — @/core (shared primitives)
     "^@/core/(.*)$",
     "",
-    // 6. Internal path aliases — @/features (feature modules)
+    // Internal path aliases — @/features (feature modules)
     "^@/features/(.*)$",
     "",
-    // 7. Internal path aliases — @/packages (shared libraries)
+    // Internal path aliases — @/packages (shared libraries)
     "^@/packages/(.*)$",
     "",
-    // 8. Internal path aliases — @/services (third-party integrations)
+    // Internal path aliases — @/services (third-party integrations)
     "^@/services/(.*)$",
     "",
-    // 9. Internal path aliases — catch-all @/
+    // Internal path aliases — catch-all @/
     "^@/(.*)$",
     "",
-    // 10. Parent directory imports (deep)
+    // Parent directory imports (deep)
     "^(?:[.][.]/){2,}(?!.*[.]css$)(.*)$",
     "",
-    // 11. Parent directory imports
+    // Parent directory imports
     "^[.][.]/(?!.*[.]css$)(.*)$",
     "",
-    // 12. Private module imports
+    // Private module imports
     "^[.]/(?:[(][^)]+[)]/)?_(?!.*[.]css$)(.*)$",
     "",
-    // 13. Sibling imports
+    // Sibling imports
     "^[.]/(?!.*[.]css$)(.*)$",
     "",
-    // 14. Style imports
+    // Style imports
     "[.]css$",
   ],
 

@@ -9,9 +9,13 @@ export const userSchema = z.object({
   role: z.enum(["admin", "moderator", "member", "viewer"]),
 })
 
-export const authResponseSchema = z.object({
+/** User + Sanctum token abilities (returned by GET /api/user). */
+export const authUserSchema = userSchema.extend({
+  abilities: z.string().array(),
+})
+
+export const tokenResponseSchema = z.object({
   token: z.string(),
-  user: userSchema,
 })
 
 // ─── Input schemas ───────────────────────────────────────────────────────
@@ -25,26 +29,28 @@ export const registerInputSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(50),
   email: z.string().email(),
   password: z.string().min(8, "Password must be at least 8 characters").max(100),
+  password_confirmation: z.string().min(1, "Please confirm your password"),
 })
 
 export type LoginInput = z.infer<typeof loginInputSchema>
 export type RegisterInput = z.infer<typeof registerInputSchema>
 export type User = z.infer<typeof userSchema>
-export type AuthResponse = z.infer<typeof authResponseSchema>
+export type AuthUser = z.infer<typeof authUserSchema>
+export type TokenResponse = z.infer<typeof tokenResponseSchema>
 
 // ─── API schema slice (merged into the central $fetch schema) ────────────
 
 export const authApiSchema = {
   "@post/mock/auth/login": {
     input: loginInputSchema,
-    output: authResponseSchema,
+    output: tokenResponseSchema,
   },
   "@post/mock/auth/register": {
     input: registerInputSchema,
-    output: authResponseSchema,
+    output: tokenResponseSchema,
   },
-  "@get/mock/auth/me": {
-    output: userSchema,
+  "@get/mock/user": {
+    output: authUserSchema,
   },
   "@post/mock/auth/logout": {
     input: z.object({}).optional(),

@@ -1,6 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
+
 import { useAtomValue } from "jotai"
 
 import { canAllAtom, canAnyAtom, canAtom } from "../lib/atoms"
@@ -60,9 +61,9 @@ export function Can({
   children,
   fallback = null,
 }: CanComponentProps) {
-  const singleResult = useAtomValue(canAtom(permission ?? ("todos:read" as Permission)))
-  const allResult = useAtomValue(canAllAtom(permissions ?? ([] as readonly Permission[])))
-  const anyResult = useAtomValue(canAnyAtom(anyOf ?? ([] as readonly Permission[])))
+  const singleResult = useAtomValue(canAtom(permission))
+  const allResult = useAtomValue(canAllAtom(permissions))
+  const anyResult = useAtomValue(canAnyAtom(anyOf))
 
   const allowed = permission ? singleResult : permissions ? allResult : anyOf ? anyResult : false
 

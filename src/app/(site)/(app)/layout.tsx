@@ -2,12 +2,13 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
+
 import { useAtomValue, useSetAtom } from "jotai"
 
-import { fetchUserAction, isAuthenticatedAtom, userAtom } from "@/features/auth/atoms"
+import { fetchUserAction, isAuthenticatedAtom, userAtom } from "@/features/auth/lib/atoms"
 import { SiteHeader } from "@/features/site/components/site-header"
 
-import { Authenticated } from "@/packages/permissions/components/blocks"
+import { Protected } from "@/packages/access-control/components/access-control"
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -30,9 +31,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [isAuthenticated, router])
 
   return (
-    <Authenticated>
+    <Protected>
       {user && <SiteHeader user={{ name: user.name, email: user.email }} />}
       {children}
-    </Authenticated>
+    </Protected>
   )
 }

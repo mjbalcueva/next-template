@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+
 import { Delete02Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { formatDistanceToNow } from "date-fns"
@@ -8,16 +9,10 @@ import { formatDistanceToNow } from "date-fns"
 import { Button } from "@/core/components/ui/button"
 import { Checkbox } from "@/core/components/ui/checkbox"
 
-import { Can } from "@/packages/permissions/components/Can"
+import { Can } from "@/packages/access-control/components/can"
 
+import type { Todo } from "../api/todos.schema"
 import { useRemoveTodo, useToggleTodo } from "../lib/mutations"
-
-interface Todo {
-  id: string
-  text: string
-  done: boolean
-  createdAt: string
-}
 
 export function TodoItem({ todo }: { todo: Todo }) {
   const router = useRouter()

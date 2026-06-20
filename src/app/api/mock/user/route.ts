@@ -1,10 +1,10 @@
-import { AuthError, json, requireAuth, store } from "../../store"
+import { AuthError, json, requireAuth, store } from "../store"
 
 /**
- * GET /api/mock/auth/me
+ * GET /api/mock/user
  *
- * Deprecated — use GET /api/mock/user for Sanctum conventions.
- * Kept for backward compatibility during migration.
+ * Sanctum-style: returns the authenticated user with token abilities.
+ * Requires a valid Bearer token.
  */
 export function GET(request: Request) {
   try {

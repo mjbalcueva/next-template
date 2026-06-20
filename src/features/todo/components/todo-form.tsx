@@ -6,7 +6,7 @@ import { Button } from "@/core/components/ui/button"
 import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
 
-import { Can } from "@/packages/permissions/components/Can"
+import { Can } from "@/packages/access-control/components/can"
 
 import { createTodoSchema } from "../api/todos.schema"
 import { useCreateTodo } from "../lib/mutations"

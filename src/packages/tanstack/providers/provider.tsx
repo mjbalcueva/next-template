@@ -1,11 +1,31 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import { Provider as JotaiProvider } from "jotai"
+import { useSetAtom } from "jotai"
 
-export function AppProviders({ children }: { children: React.ReactNode }) {
+import {
+  fetchPermissionsMapping,
+  permissionsMappingAtom,
+} from "@/packages/access-control/lib/fetch-permissions"
+
+function PermissionsLoader({ children }: { children: React.ReactNode }) {
+  const setMapping = useSetAtom(permissionsMappingAtom)
+
+  useEffect(() => {
+    fetchPermissionsMapping()
+      .then(setMapping)
+      .catch(() => {
+        // Permissions endpoint unavailable — RBAC will be empty
+      })
+  }, [setMapping])
+
+  return <>{children}</>
+}
+
+export function TanStackProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -18,14 +38,12 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <JotaiProvider>
-      <QueryClientProvider client={queryClient}>
-        {children}
-        {/* eslint-disable-next-line no-restricted-properties */}
-        {typeof process !== "undefined" && process.env.NODE_ENV !== "production" && (
-          <ReactQueryDevtools initialIsOpen={false} />
-        )}
-      </QueryClientProvider>
-    </JotaiProvider>
+    <QueryClientProvider client={queryClient}>
+      <PermissionsLoader>{children}</PermissionsLoader>
+      {/* eslint-disable-next-line no-restricted-properties */}
+      {typeof process !== "undefined" && process.env.NODE_ENV !== "production" && (
+        <ReactQueryDevtools initialIsOpen={false} />
+      )}
+    </QueryClientProvider>
   )
 }

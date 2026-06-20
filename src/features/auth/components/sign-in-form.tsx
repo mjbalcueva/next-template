@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+
 import { useForm } from "@tanstack/react-form"
 import { useSetAtom } from "jotai"
 
@@ -10,7 +11,7 @@ import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
 
 import { loginInputSchema } from "@/features/auth/api/auth.schema"
-import { loginAction } from "@/features/auth/atoms"
+import { loginAction } from "@/features/auth/lib/atoms"
 
 function SignInFormInner() {
   const router = useRouter()
