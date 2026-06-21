@@ -56,6 +56,93 @@ function loadSide(): Side {
   return "right"
 }
 
+// ─── Storage helpers ──────────────────────────────────────────────────
+
+type StorageItem = { key: string; value: string }
+
+function getLocalStorageItems(): StorageItem[] {
+  if (typeof window === "undefined") return []
+  return Array.from({ length: localStorage.length }, (_, i) => {
+    const key = localStorage.key(i) ?? ""
+    return { key, value: localStorage.getItem(key) ?? "" }
+  })
+}
+
+function getCookieItems(): StorageItem[] {
+  if (typeof document === "undefined") return []
+  return document.cookie
+    .split(";")
+    .filter(Boolean)
+    .map(pair => {
+      const [key, ...rest] = pair.split("=")
+      return { key: key.trim(), value: decodeURIComponent(rest.join("=").trim()) }
+    })
+}
+
+function StorageViewer({ items }: { items: StorageItem[] }) {
+  const [selected, setSelected] = useState<StorageItem | null>(null)
+
+  function formatValue(raw: string): string {
+    try {
+      return JSON.stringify(JSON.parse(raw), null, 2)
+    } catch {
+      return raw
+    }
+  }
+
+  return (
+    <div className="flex h-full gap-3">
+      {/* List */}
+      <div className="w-2/5 shrink-0 overflow-auto rounded-md border">
+        {items.length === 0 ? (
+          <p className="text-muted-foreground p-4 text-xs italic">Empty</p>
+        ) : (
+          <table className="w-full table-auto text-xs">
+            <thead>
+              <tr className="bg-muted/50 text-muted-foreground border-b text-left text-[10px] tracking-wider uppercase">
+                <th className="px-3 py-1.5 font-medium">Key</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map(item => (
+                <tr
+                  key={item.key}
+                  onClick={() => setSelected(item)}
+                  className={`border-border/50 cursor-pointer border-b font-mono transition-colors ${
+                    selected?.key === item.key
+                      ? "bg-accent text-accent-foreground"
+                      : "hover:bg-muted/50 text-muted-foreground"
+                  }`}
+                >
+                  <td className="max-w-0 truncate px-3 py-2">{item.key}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Detail */}
+      <div className="flex min-w-0 flex-1 flex-col rounded-md border">
+        {selected ? (
+          <>
+            <div className="text-muted-foreground truncate border-b px-3 py-1.5 text-[10px] font-medium tracking-wider uppercase">
+              {selected.key}
+            </div>
+            <pre className="text-foreground/80 flex-1 overflow-auto p-3 font-mono text-xs leading-relaxed">
+              {formatValue(selected.value)}
+            </pre>
+          </>
+        ) : (
+          <div className="text-muted-foreground flex flex-1 items-center justify-center text-xs italic">
+            Select a key to view
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ─── Component ────────────────────────────────────────────────────────
 
 function DevToolsPanel() {
@@ -192,6 +279,12 @@ function DevToolsPanel() {
                 <TabsTrigger value="session" className="text-xs">
                   Session
                 </TabsTrigger>
+                <TabsTrigger value="localStorage" className="text-xs">
+                  localStorage
+                </TabsTrigger>
+                <TabsTrigger value="cookies" className="text-xs">
+                  Cookies
+                </TabsTrigger>
               </TabsList>
             </div>
 
@@ -209,6 +302,14 @@ function DevToolsPanel() {
               <pre className="bg-muted/50 text-foreground/80 h-full overflow-auto rounded-md border p-4 font-mono text-xs">
                 {user ? JSON.stringify(user, null, 2) : "No active session."}
               </pre>
+            </TabsContent>
+
+            <TabsContent value="localStorage" className="flex-1 overflow-hidden p-4">
+              <StorageViewer items={getLocalStorageItems()} />
+            </TabsContent>
+
+            <TabsContent value="cookies" className="flex-1 overflow-hidden p-4">
+              <StorageViewer items={getCookieItems()} />
             </TabsContent>
           </Tabs>
         </SheetContent>
