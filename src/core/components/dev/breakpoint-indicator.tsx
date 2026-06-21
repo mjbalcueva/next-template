@@ -279,6 +279,31 @@ function DetailsTab() {
         </div>
       </section>
 
+      {/* Breakpoints */}
+      <section className="mb-0">
+        <h3 className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
+          Breakpoints
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {BREAKPOINTS.map(function (bp) {
+            const [min, max] = bp.range.split("–").map(s => parseInt(s, 10))
+            const isActive = vp.w >= (min || 0) && vp.w <= (max || Infinity)
+            return (
+              <span
+                key={bp.name}
+                className={cn(
+                  "rounded-md px-2.5 py-1 font-mono text-xs font-medium",
+                  isActive ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"
+                )}
+              >
+                {bp.name}
+                <span className="ml-1.5 opacity-60">{bp.range}</span>
+              </span>
+            )
+          })}
+        </div>
+      </section>
+
       {/* Viewport */}
       <section>
         <h3 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
@@ -319,24 +344,6 @@ function DetailsTab() {
             {typeof window !== "undefined" ? window.devicePixelRatio.toFixed(2) : "1"}
             <span className="text-muted-foreground ml-0.5 text-xs font-normal">dppx</span>
           </p>
-        </div>
-      </section>
-
-      {/* Breakpoints */}
-      <section className="mb-0">
-        <h3 className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
-          Breakpoints
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {BREAKPOINTS.map(bp => (
-            <span
-              key={bp.name}
-              className="bg-muted text-muted-foreground rounded-md px-2.5 py-1 font-mono text-xs font-medium"
-            >
-              {bp.name}
-              <span className="ml-1.5 opacity-60">{bp.range}</span>
-            </span>
-          ))}
         </div>
       </section>
     </div>
@@ -487,7 +494,7 @@ function DevToolsPanel() {
                   Session
                 </TabsTrigger>
                 <TabsTrigger value="localStorage" className="text-xs">
-                  localStorage
+                  Local Storage
                 </TabsTrigger>
                 <TabsTrigger value="cookies" className="text-xs">
                   Cookies
