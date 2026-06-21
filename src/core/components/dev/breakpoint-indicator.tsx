@@ -18,6 +18,7 @@ import { useTheme } from "next-themes"
 import { Button } from "@/core/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/core/components/ui/sheet"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/core/components/ui/tabs"
+import { cn } from "@/core/lib/utils"
 
 import { selectUser, useAuthStore } from "@/features/auth/lib/store"
 
@@ -108,11 +109,12 @@ function StorageViewer({ items }: { items: StorageItem[] }) {
                 <tr
                   key={item.key}
                   onClick={() => setSelected(item)}
-                  className={`border-border/50 cursor-pointer border-b font-mono transition-colors ${
+                  className={cn(
+                    "border-border/50 cursor-pointer border-b font-mono transition-colors",
                     selected?.key === item.key
                       ? "bg-accent text-accent-foreground"
                       : "hover:bg-muted/50 text-muted-foreground"
-                  }`}
+                  )}
                 >
                   <td className="max-w-0 truncate px-3 py-2">{item.key}</td>
                 </tr>
@@ -218,7 +220,11 @@ function DevToolsPanel() {
         onPointerMove={pm}
         onPointerUp={pu}
         onPointerCancel={pu}
-        className={`bg-background hover:bg-muted fixed z-9999 flex size-8 cursor-grab touch-none items-center justify-center rounded-full border font-mono text-xs font-semibold shadow-lg backdrop-blur-sm select-none active:cursor-grabbing ${CORNERS[corner]} ${open ? "invisible" : ""}`}
+        className={cn(
+          "bg-background hover:bg-muted fixed z-9999 flex size-8 cursor-grab touch-none items-center justify-center rounded-full border font-mono text-xs font-semibold shadow-lg backdrop-blur-sm select-none active:cursor-grabbing",
+          CORNERS[corner],
+          open && "invisible"
+        )}
       >
         <span className="sm:hidden">xs</span>
         <span className="hidden sm:inline md:hidden">sm</span>
