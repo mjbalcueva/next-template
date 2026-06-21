@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 
 import {
@@ -145,7 +145,165 @@ function StorageViewer({ items }: { items: StorageItem[] }) {
   )
 }
 
-// ─── Component ────────────────────────────────────────────────────────
+// ─── Details (viewport + route) ───────────────────────────────────────
+
+const BREAKPOINTS = [
+  { name: "xs", range: "0–639" },
+  { name: "sm", range: "640–767" },
+  { name: "md", range: "768–1023" },
+  { name: "lg", range: "1024–1279" },
+  { name: "xl", range: "1280–1535" },
+  { name: "2xl", range: "1536+" },
+] as const
+
+function DetailsTab() {
+  const [vp, setVp] = useState(() =>
+    typeof window !== "undefined"
+      ? { w: window.innerWidth, h: window.innerHeight }
+      : { w: 800, h: 600 }
+  )
+  const [url, setUrl] = useState(() =>
+    typeof window !== "undefined" ? new URL(window.location.href) : null
+  )
+
+  useEffect(() => {
+    const onResize = () => setVp({ w: window.innerWidth, h: window.innerHeight })
+    const onLocation = () => setUrl(new URL(window.location.href))
+    window.addEventListener("resize", onResize)
+    window.addEventListener("popstate", onLocation)
+    const origPush = history.pushState
+    const origReplace = history.replaceState
+    history.pushState = (...args) => {
+      origPush.apply(history, args)
+      onLocation()
+    }
+    history.replaceState = (...args) => {
+      origReplace.apply(history, args)
+      onLocation()
+    }
+    return () => {
+      window.removeEventListener("resize", onResize)
+      window.removeEventListener("popstate", onLocation)
+      history.pushState = origPush
+      history.replaceState = origReplace
+    }
+  }, [])
+
+  const params = url ? [...url.searchParams.entries()] : []
+
+  return (
+    <div className="flex min-h-full flex-col gap-5">
+      {/* Route */}
+      <section>
+        <h3 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
+          Route
+        </h3>
+        <div className="rounded-lg border">
+          {/* Path */}
+          <div className="bg-muted/40 flex items-center gap-2 border-b px-3 py-2">
+            <span className="text-foreground/80 flex flex-wrap items-center gap-1 font-mono text-xs">
+              {url?.pathname === "/"
+                ? "/"
+                : url?.pathname
+                    .split("/")
+                    .filter(Boolean)
+                    .map((seg, i, arr) => (
+                      <span key={seg} className="flex items-center gap-1">
+                        <span className="bg-muted rounded px-1.5 py-0.5 font-medium">{seg}</span>
+                        {i < arr.length - 1 && <span className="text-muted-foreground">/</span>}
+                      </span>
+                    ))}
+            </span>
+          </div>
+          {/* Query params table */}
+          {params.length > 0 && (
+            <table className="w-full table-auto text-xs">
+              <thead>
+                <tr className="bg-muted/50 text-muted-foreground border-b text-left text-[10px] tracking-wider uppercase">
+                  <th className="w-1/3 px-3 py-1.5 font-medium">Params</th>
+                  <th className="px-3 py-1.5 font-medium">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {params.map(([key, value]) => (
+                  <tr key={key} className="border-border/50 hover:bg-muted/30 border-b font-mono">
+                    <td className="text-foreground/80 max-w-0 truncate px-3 py-2 font-semibold">
+                      {key}
+                    </td>
+                    <td className="text-muted-foreground max-w-0 truncate px-3 py-2">{value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </section>
+
+      {/* Viewport */}
+      <section>
+        <h3 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
+          Viewport
+        </h3>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-muted/40 rounded-lg border p-3">
+            <p className="text-muted-foreground mb-1 text-[10px] font-medium tracking-wider uppercase">
+              Width
+            </p>
+            <p className="font-mono text-lg font-semibold tabular-nums">
+              {vp.w}
+              <span className="text-muted-foreground ml-0.5 text-xs font-normal">px</span>
+            </p>
+          </div>
+          <div className="bg-muted/40 rounded-lg border p-3">
+            <p className="text-muted-foreground mb-1 text-[10px] font-medium tracking-wider uppercase">
+              Height
+            </p>
+            <p className="font-mono text-lg font-semibold tabular-nums">
+              {vp.h}
+              <span className="text-muted-foreground ml-0.5 text-xs font-normal">px</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Device */}
+      <section>
+        <h3 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
+          Device
+        </h3>
+        <div className="bg-muted/40 rounded-lg border p-3">
+          <p className="text-muted-foreground mb-1 text-[10px] font-medium tracking-wider uppercase">
+            Pixel Ratio
+          </p>
+          <p className="font-mono text-lg font-semibold tabular-nums">
+            {typeof window !== "undefined" ? window.devicePixelRatio.toFixed(2) : "1"}
+            <span className="text-muted-foreground ml-0.5 text-xs font-normal">dppx</span>
+          </p>
+        </div>
+      </section>
+
+      {/* Breakpoints */}
+      <section className="mb-0">
+        <h3 className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
+          Breakpoints
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {BREAKPOINTS.map(bp => (
+            <span
+              key={bp.name}
+              className="bg-muted text-muted-foreground rounded-md px-2.5 py-1 font-mono text-xs font-medium"
+            >
+              {bp.name}
+              <span className="ml-1.5 opacity-60">{bp.range}</span>
+            </span>
+          ))}
+        </div>
+      </section>
+    </div>
+  )
+}
+
+// ─── DevTools Panel ───────────────────────────────────────────────
 
 function DevToolsPanel() {
   const [open, setOpen] = useState(false)
@@ -276,9 +434,12 @@ function DevToolsPanel() {
             </div>
           </SheetHeader>
 
-          <Tabs defaultValue="queries" className="flex flex-1 flex-col overflow-hidden">
+          <Tabs defaultValue="details" className="flex flex-1 flex-col overflow-hidden">
             <div className="flex items-center justify-between px-4 pt-2">
               <TabsList>
+                <TabsTrigger value="details" className="text-xs">
+                  Details
+                </TabsTrigger>
                 <TabsTrigger value="queries" className="text-xs">
                   Queries
                 </TabsTrigger>
@@ -293,6 +454,10 @@ function DevToolsPanel() {
                 </TabsTrigger>
               </TabsList>
             </div>
+
+            <TabsContent value="details" className="flex-1 overflow-auto p-4 pb-4">
+              <DetailsTab />
+            </TabsContent>
 
             <TabsContent value="queries" className="flex-1 overflow-hidden p-4">
               <div className="bg-muted/50 h-full overflow-hidden rounded-md border">
