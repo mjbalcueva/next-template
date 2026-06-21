@@ -1,12 +1,16 @@
 import type { Metadata } from "next"
 import { Figtree, Geist, Geist_Mono } from "next/font/google"
+
 import { NuqsAdapter } from "nuqs/adapters/next/app"
 
+import { DevTools } from "@/core/components/dev/breakpoint-indicator"
 import { ThemeProvider } from "@/core/components/providers/theme-provider"
 import { TooltipProvider } from "@/core/components/ui/tooltip"
 import { cn } from "@/core/lib/utils"
-import { ReactQueryProvider } from "@/packages/tanstack/providers/provider"
+
 import { AuthProvider } from "@/features/auth/providers/auth-provider"
+
+import { ReactQueryProvider } from "@/packages/tanstack/providers/provider"
 
 import "@/core/styles/globals.css"
 
@@ -56,7 +60,10 @@ export default function RootLayout({
           <NuqsAdapter>
             <ReactQueryProvider>
               <TooltipProvider>
-                <AuthProvider>{children}</AuthProvider>
+                <AuthProvider>
+                  {children}
+                  <DevTools />
+                </AuthProvider>
               </TooltipProvider>
             </ReactQueryProvider>
           </NuqsAdapter>
