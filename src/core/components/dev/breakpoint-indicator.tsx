@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 
 import {
@@ -57,6 +57,29 @@ function loadSide(): Side {
   return "right"
 }
 
+// ─── Copy button ──────────────────────────────────────────────────────
+
+function CopyButton({ getValue }: { getValue: () => string }) {
+  const [copied, setCopied] = useState(false)
+
+  const copy = useCallback(() => {
+    navigator.clipboard.writeText(getValue()).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1200)
+    })
+  }, [getValue])
+
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      className="text-muted-foreground hover:text-foreground ml-auto cursor-pointer text-[10px] font-medium tracking-wider uppercase transition-colors"
+    >
+      {copied ? "Copied!" : "Copy"}
+    </button>
+  )
+}
+
 // ─── Storage helpers ──────────────────────────────────────────────────
 
 type StorageItem = { key: string; value: string }
@@ -94,42 +117,58 @@ function StorageViewer({ items }: { items: StorageItem[] }) {
   return (
     <div className="flex h-full gap-3">
       {/* List */}
-      <div className="w-2/5 shrink-0 overflow-auto rounded-md border">
-        {items.length === 0 ? (
-          <p className="text-muted-foreground p-4 text-xs italic">Empty</p>
-        ) : (
-          <table className="w-full table-auto text-xs">
-            <thead>
-              <tr className="bg-muted/50 text-muted-foreground border-b text-left text-[10px] tracking-wider uppercase">
-                <th className="px-3 py-1.5 font-medium">Key</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map(item => (
-                <tr
-                  key={item.key}
-                  onClick={() => setSelected(item)}
-                  className={cn(
-                    "border-border/50 cursor-pointer border-b font-mono transition-colors",
-                    selected?.key === item.key
-                      ? "bg-accent text-accent-foreground"
-                      : "hover:bg-muted/50 text-muted-foreground"
-                  )}
-                >
-                  <td className="max-w-0 truncate px-3 py-2">{item.key}</td>
+      <div className="flex w-2/5 shrink-0 flex-col overflow-hidden rounded-md border">
+        <div className="flex-1 overflow-auto">
+          {items.length === 0 ? (
+            <p className="text-muted-foreground p-4 text-xs italic">Empty</p>
+          ) : (
+            <table className="w-full table-auto text-xs">
+              <thead>
+                <tr className="bg-muted/50 text-muted-foreground border-b text-left text-[10px] tracking-wider uppercase">
+                  <th className="px-3 py-1.5 font-medium">
+                    <span className="flex items-center gap-2">
+                      Key
+                      <CopyButton
+                        getValue={() =>
+                          JSON.stringify(
+                            Object.fromEntries(items.map(i => [i.key, i.value])),
+                            null,
+                            2
+                          )
+                        }
+                      />
+                    </span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {items.map(item => (
+                  <tr
+                    key={item.key}
+                    onClick={() => setSelected(item)}
+                    className={cn(
+                      "border-border/50 cursor-pointer border-b font-mono transition-colors",
+                      selected?.key === item.key
+                        ? "bg-accent text-accent-foreground"
+                        : "hover:bg-muted/50 text-muted-foreground"
+                    )}
+                  >
+                    <td className="max-w-0 truncate px-3 py-2">{item.key}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
 
       {/* Detail */}
       <div className="flex min-w-0 flex-1 flex-col rounded-md border">
         {selected ? (
           <>
-            <div className="text-muted-foreground truncate border-b px-3 py-1.5 text-[10px] font-medium tracking-wider uppercase">
+            <div className="text-muted-foreground flex items-center truncate border-b px-3 py-1.5 text-[10px] font-medium tracking-wider uppercase">
               {selected.key}
+              <CopyButton getValue={() => selected.value} />
             </div>
             <pre className="text-foreground/80 flex-1 overflow-auto p-3 font-mono text-xs leading-relaxed">
               {formatValue(selected.value)}
@@ -200,7 +239,7 @@ function DetailsTab() {
         </h3>
         <div className="rounded-lg border">
           {/* Path */}
-          <div className="bg-muted/40 flex items-center gap-2 border-b px-3 py-2">
+          <div className="bg-muted/40 flex items-center justify-between border-b px-3 py-2">
             <span className="text-foreground/80 flex flex-wrap items-center gap-1 font-mono text-xs">
               {url?.pathname === "/"
                 ? "/"
@@ -214,6 +253,7 @@ function DetailsTab() {
                       </span>
                     ))}
             </span>
+            <CopyButton getValue={() => window.location.href} />
           </div>
           {/* Query params table */}
           {params.length > 0 && (
@@ -470,6 +510,11 @@ function DevToolsPanel() {
             </TabsContent>
 
             <TabsContent value="session" className="flex-1 overflow-auto p-4">
+              {user && (
+                <div className="mb-2 flex items-center justify-end">
+                  <CopyButton getValue={() => JSON.stringify(user, null, 2)} />
+                </div>
+              )}
               <pre className="bg-muted/50 text-foreground/80 h-full overflow-auto rounded-md border p-4 font-mono text-xs">
                 {user ? JSON.stringify(user, null, 2) : "No active session."}
               </pre>
