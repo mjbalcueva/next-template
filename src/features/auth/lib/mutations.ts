@@ -14,19 +14,32 @@ import { changePassword, checkHealth, deleteAccount, updateProfile } from "../ap
 
 import { useAuthStore } from "./store"
 
+// ─── Cookie sync (inlined so it's guaranteed to run synchronously) ────
+
+const AUTH_COOKIE = "auth_token"
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 30 // 30 days
+
+function setAuthCookie(token: string) {
+  if (typeof document === "undefined") return
+  document.cookie = `${AUTH_COOKIE}=${encodeURIComponent(token)}; path=/; max-age=${COOKIE_MAX_AGE}; samesite=lax`
+}
+
 // ─── Login ────────────────────────────────────────────────────────────
 
 export function useLoginMutation() {
   return useMutation({
     mutationFn: async (input: LoginInput) => {
       const { token } = await login(input)
-      // Store token immediately so fetchUser can read it via the getter.
+      // Store token + cookie immediately so fetchUser and the proxy can read them.
       useAuthStore.setState({ token })
+      setAuthCookie(token)
       try {
         const user = await fetchUser()
         useAuthStore.setState({ user })
-      } catch {
+      } catch (err) {
         // User fetch is best-effort — token is still valid.
+        // eslint-disable-next-line no-console
+        console.error("[auth] Failed to fetch user after login:", err)
       }
       return { token }
     },
@@ -40,11 +53,14 @@ export function useRegisterMutation() {
     mutationFn: async (input: RegisterInput) => {
       const { token } = await register(input)
       useAuthStore.setState({ token })
+      setAuthCookie(token)
       try {
         const user = await fetchUser()
         useAuthStore.setState({ user })
-      } catch {
+      } catch (err) {
         // User fetch is best-effort — token is still valid.
+        // eslint-disable-next-line no-console
+        console.error("[auth] Failed to fetch user after register:", err)
       }
       return { token }
     },
@@ -83,8 +99,13 @@ export function useFetchUserMutation() {
 // ─── Profile ──────────────────────────────────────────────────────────
 
 export function useUpdateProfileMutation() {
+  const setUser = useAuthStore(s => s.setUser)
   return useMutation({
     mutationFn: updateProfile,
+    onSuccess: user => {
+      // Sync the updated name to the Zustand store so all consumers see it instantly.
+      setUser(user)
+    },
   })
 }
 

@@ -5,11 +5,11 @@ import { type CreateTodoInput, type Todo, type ToggleTodoInput } from "./todos.s
 // ─── Endpoint path constants ─────────────────────────────────────────
 
 export const TODO_ENDPOINTS = {
-  list: "@get/mock/todos",
-  create: "@post/mock/todos",
-  get: "@get/mock/todos/:id",
-  toggle: "@patch/mock/todos/:id/toggle",
-  remove: "@delete/mock/todos/:id",
+  list: "mock/todos",
+  create: "mock/todos",
+  get: "mock/todos/:id",
+  toggle: "mock/todos/:id/toggle",
+  remove: "mock/todos/:id",
 }
 
 // ─── Fetch wrappers ──────────────────────────────────────────────────
@@ -23,16 +23,17 @@ export async function getTodo(id: string): Promise<Todo> {
 }
 
 export async function createTodo(input: CreateTodoInput): Promise<Todo> {
-  return $fetch(`/${TODO_ENDPOINTS.create}`, { body: input })
+  return $fetch(`/${TODO_ENDPOINTS.create}`, { method: "POST", body: input })
 }
 
 export async function toggleTodo(input: ToggleTodoInput): Promise<Todo> {
   return $fetch(`/${TODO_ENDPOINTS.toggle}`, {
+    method: "PATCH",
     params: { id: input.id },
     body: { done: input.done },
   })
 }
 
 export async function removeTodo(id: string): Promise<{ id: string }> {
-  return $fetch(`/${TODO_ENDPOINTS.remove}`, { params: { id } })
+  return $fetch(`/${TODO_ENDPOINTS.remove}`, { method: "DELETE", params: { id } })
 }

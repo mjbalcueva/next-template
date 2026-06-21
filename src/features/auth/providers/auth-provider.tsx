@@ -15,13 +15,19 @@ import { selectIsAuthenticated, selectUser, useAuthStore } from "@/features/auth
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore(selectIsAuthenticated)
   const user = useAuthStore(selectUser)
-  const fetchUserMutation = useFetchUserMutation()
+  const setInitialized = useAuthStore(s => s.setInitialized)
+  // `mutate` from useMutation is stable across renders — safe in deps.
+  const { mutate: fetchUser } = useFetchUserMutation()
 
   useEffect(() => {
     if (isAuthenticated && !user) {
-      fetchUserMutation.mutate()
+      fetchUser(undefined, {
+        onSettled: () => setInitialized(),
+      })
+    } else {
+      setInitialized()
     }
-  }, [isAuthenticated, user, fetchUserMutation])
+  }, [isAuthenticated, user, fetchUser, setInitialized])
 
   return <>{children}</>
 }

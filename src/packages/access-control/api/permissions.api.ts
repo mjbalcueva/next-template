@@ -4,7 +4,7 @@ import { type PermissionsInput } from "./permissions.schema"
 
 // ─── Endpoint path constants ─────────────────────────────────────────
 
-export const PERMISSIONS_ENDPOINT = "@get/mock/permissions"
+export const PERMISSIONS_ENDPOINT = "mock/permissions"
 
 // ─── Fetch wrappers ──────────────────────────────────────────────────
 

@@ -21,6 +21,9 @@ export const PROXY_PROTECTED_PREFIXES = ["/todos", "/settings"] as const
 /** Paths that are always public (no proxy check). */
 export const PUBLIC_PREFIXES = ["/auth/sign-in", "/auth/sign-up", "/session"] as const
 
+/** Auth pages — redirect authenticated users away from these. */
+export const AUTH_PAGE_PREFIXES = ["/auth/sign-in", "/auth/sign-up"] as const
+
 /**
  * Returns `true` if the given pathname requires authentication.
  */
@@ -34,4 +37,13 @@ export function isProtectedProxyPath(pathname: string): boolean {
   // Check protected prefixes
   const prefixes: readonly string[] = PROXY_PROTECTED_PREFIXES
   return prefixes.some(prefix => pathname === prefix || pathname.startsWith(`${prefix}/`))
+}
+
+/**
+ * Returns `true` if the given pathname is an auth page (sign-in, sign-up).
+ * Authenticated users should be redirected away from these.
+ */
+export function isAuthPagePath(pathname: string): boolean {
+  const prefixes: readonly string[] = AUTH_PAGE_PREFIXES
+  return prefixes.some(p => pathname === p || pathname.startsWith(`${p}/`))
 }

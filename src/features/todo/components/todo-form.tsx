@@ -1,17 +1,18 @@
 "use client"
 
+import { useState } from "react"
 import { useForm } from "@tanstack/react-form"
 
 import { Button } from "@/core/components/ui/button"
 import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
-
 import { Can } from "@/packages/access-control/components/can"
 
 import { createTodoSchema } from "../api/todos.schema"
 import { useCreateTodo } from "../lib/mutations"
 
 export function TodoForm() {
+  const [error, setError] = useState<string | null>(null)
   const create = useCreateTodo()
 
   const form = useForm({
@@ -20,8 +21,13 @@ export function TodoForm() {
       onSubmit: createTodoSchema,
     },
     onSubmit: async ({ value }) => {
-      await create.mutateAsync(value)
-      form.reset()
+      setError(null)
+      try {
+        await create.mutateAsync(value)
+        form.reset()
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to create todo.")
+      }
     },
   })
 
@@ -61,6 +67,7 @@ export function TodoForm() {
             )
           }}
         </form.Field>
+        {error && <p className="text-destructive text-sm">{error}</p>}
       </form>
     </Can>
   )

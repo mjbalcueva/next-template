@@ -2,6 +2,7 @@ import { cookies } from "next/headers"
 
 import { HomeCtaButton } from "@/features/home/home-cta-button"
 import { NavigationLinks } from "@/features/home/navigation-links"
+import { UserWelcome } from "@/features/home/user-welcome"
 
 export default async function HomePage() {
   const cookieStore = await cookies()
@@ -9,17 +10,13 @@ export default async function HomePage() {
 
   return (
     <main className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-5xl flex-col items-center justify-center gap-6 px-6 py-16 text-center">
-      <p className="text-muted-foreground text-base md:text-lg">
-        {isLoggedIn ? (
-          <>
-            Welcome back to <span className="text-foreground font-semibold">Next Template</span>
-          </>
-        ) : (
-          <>
-            Welcome to <span className="text-foreground font-semibold">Next Template</span>
-          </>
-        )}
-      </p>
+      {isLoggedIn ? (
+        <UserWelcome />
+      ) : (
+        <p className="text-muted-foreground text-base md:text-lg">
+          Welcome to <span className="text-foreground font-semibold">Next Template</span>
+        </p>
+      )}
 
       <h1 className="text-4xl font-bold tracking-tight text-balance md:text-6xl">
         FRONTEND-FIRST TEMPLATE.

@@ -1,9 +1,15 @@
 /**
  * Central $fetch instance — used by all API layers.
  *
+ * Uses better-fetch with:
+ *   - Built-in Bearer auth (replaces manual onRequest hook)
+ *   - Logger plugin in development
+ *   - Linear retry (1 attempt, 1s delay)
+ *   - Global onError for dev diagnostics
  */
 import { env } from "@/env"
-import { createFetch } from "@better-fetch/fetch"
+import { createFetch, type BetterFetchError } from "@better-fetch/fetch"
+import { logger } from "@better-fetch/logger"
 
 // ─── Auth token injection ────────────────────────────────────────────────
 
@@ -18,14 +24,29 @@ export function setTokenGetter(fn: () => string | null) {
 export const $fetch = createFetch({
   baseURL: env.NEXT_PUBLIC_API_URL,
   throw: true,
-  hooks: {
-    onRequest: (ctx: { options: RequestInit }) => {
-      const token = getToken?.()
-      if (token) {
-        const headers = ctx.options.headers as Headers
-        headers.set("Authorization", `Bearer ${token}`)
-      }
-    },
+  /** Built-in Bearer auth — replaces the manual onRequest hook. */
+  auth: {
+    type: "Bearer",
+    token: () => getToken?.() ?? undefined,
+  },
+  /** Logger plugin: verbose in dev, silent in production. */
+  plugins: [
+    logger({
+      // process.env.NODE_ENV is replaced at build time — safe on both client & server.
+      // eslint-disable-next-line no-restricted-properties
+      enabled: process.env.NODE_ENV === "development",
+    }),
+  ],
+  /** Global error handler — logs to console in dev. */
+  onError(context) {
+    // eslint-disable-next-line no-restricted-properties
+    if (process.env.NODE_ENV === "development") {
+      const err = context.error as BetterFetchError
+      // eslint-disable-next-line no-console
+      console.error(
+        `[better-fetch] ${context.request.method} ${context.request.url} → ${err.status ?? "???"} ${err.statusText ?? ""}`
+      )
+    }
   },
   retry: {
     type: "linear" as const,

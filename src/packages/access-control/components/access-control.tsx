@@ -2,7 +2,12 @@
 
 import type { ReactNode } from "react"
 
-import { selectIsAuthenticated, selectUser, useAuthStore } from "@/features/auth/lib/store"
+import {
+  selectIsAuthenticated,
+  selectIsInitialized,
+  selectUser,
+  useAuthStore,
+} from "@/features/auth/lib/store"
 
 // ─── Shared prop types ──────────────────────────────────────────────────
 
@@ -16,6 +21,10 @@ interface BlockProps {
 /**
  * Render children only when the user is authenticated.
  *
+ * Waits for `isInitialized` to avoid flashing protected content while
+ * AuthProvider validates a stale token (which would then get cleared
+ * and the proxy would redirect to sign-in).
+ *
  * @example
  *   <Protected fallback={<SignInPrompt />}>
  *     <Dashboard />
@@ -23,6 +32,11 @@ interface BlockProps {
  */
 export function Protected({ children, fallback = null }: BlockProps) {
   const isAuthenticated = useAuthStore(selectIsAuthenticated)
+  const isInitialized = useAuthStore(selectIsInitialized)
+
+  // Don't render anything until the initial auth check has completed.
+  if (!isInitialized) return null
+
   return <>{isAuthenticated ? children : fallback}</>
 }
 

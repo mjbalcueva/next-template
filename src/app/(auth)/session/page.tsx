@@ -1,9 +1,11 @@
 "use client"
 
+import { useShallow } from "zustand/react/shallow"
+
 import { selectSession, useAuthStore } from "@/features/auth/lib/store"
 
 export default function SessionPage() {
-  const session = useAuthStore(selectSession)
+  const session = useAuthStore(useShallow(selectSession))
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-6 py-16">
