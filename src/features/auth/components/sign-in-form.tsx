@@ -10,13 +10,13 @@ import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
 
 import { loginInputSchema } from "@/features/auth/api/auth.schema"
-import { useLoginMutation } from "@/features/auth/lib/mutations"
+import { useLogin } from "@/features/auth/hooks/use-login"
 
 export function SignInForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [authError, setAuthError] = useState<string | null>(null)
-  const loginMutation = useLoginMutation()
+  const login = useLogin()
 
   const redirectUrl = searchParams.get("redirect") ?? "/todos"
 
@@ -26,7 +26,7 @@ export function SignInForm() {
     onSubmit: async ({ value }) => {
       setAuthError(null)
       try {
-        await loginMutation.mutateAsync(value)
+        await login.mutateAsync(value)
         router.push(redirectUrl)
       } catch (err) {
         setAuthError(err instanceof Error ? err.message : "Failed to sign in. Please try again.")

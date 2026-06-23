@@ -44,7 +44,7 @@ function createInitialState(): AuthState {
 
 // ─── Store ──────────────────────────────────────────────────────────────
 
-export const useAuthStore = create<AuthState>()(
+const authStore = create<AuthState>()(
   immer(
     persist(() => createInitialState(), {
       name: "auth-storage",
@@ -63,11 +63,13 @@ export const useAuthStore = create<AuthState>()(
   )
 )
 
+export const useAuthStore = authStore
+
 // ─── Wire up the fetch client's token getter ─────────────────────────────
 
 setClientTokenGetter(() => {
   try {
-    return useAuthStore.getState().session?.token ?? null
+    return authStore.getState().session?.token ?? null
   } catch {
     return null
   }

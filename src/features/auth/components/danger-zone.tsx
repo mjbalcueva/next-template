@@ -12,12 +12,13 @@ import {
   CardTitle,
 } from "@/core/components/ui/card"
 
-import { useDeleteAccountMutation, useLogoutMutation } from "@/features/auth/lib/mutations"
+import { useLogout } from "@/features/auth/hooks/use-logout"
+import { useDeleteAccount } from "@/features/auth/hooks/use-profile"
 
 export function DangerZone() {
   const router = useRouter()
-  const logoutMutation = useLogoutMutation()
-  const deleteAccount = useDeleteAccountMutation()
+  const logout = useLogout()
+  const deleteAccount = useDeleteAccount()
   const [confirming, setConfirming] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -25,7 +26,7 @@ export function DangerZone() {
     setError(null)
     try {
       await deleteAccount.mutateAsync()
-      await logoutMutation.mutateAsync()
+      await logout.mutateAsync()
       router.push("/auth/sign-in")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete account.")

@@ -2,11 +2,9 @@
 
 import { useEffect } from "react"
 
-import { useShallow } from "zustand/react/shallow"
-
-import { useFetchUserMutation } from "@/features/auth/lib/mutations"
+import { useFetchUser } from "@/features/auth/hooks/use-fetch-user"
+import { useIsAuthenticated, useUser } from "@/features/auth/hooks/use-session"
 import { setInitialized } from "@/features/auth/store/auth.actions"
-import { useAuthStore } from "@/features/auth/store/auth.store"
 
 /**
  * Handles auth initialization — fetches the current user profile
@@ -16,14 +14,9 @@ import { useAuthStore } from "@/features/auth/store/auth.store"
  * directly in layouts and pages where needed.
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated } = useAuthStore(
-    useShallow(s => ({
-      user: s.session?.user ?? null,
-      isAuthenticated: s.session !== null,
-    }))
-  )
-  // `mutate` from useMutation is stable across renders — safe in deps.
-  const { mutate: fetchUser } = useFetchUserMutation()
+  const isAuthenticated = useIsAuthenticated()
+  const user = useUser()
+  const { mutate: fetchUser } = useFetchUser()
 
   useEffect(() => {
     if (isAuthenticated && !user) {

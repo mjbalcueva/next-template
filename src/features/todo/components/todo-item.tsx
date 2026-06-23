@@ -12,7 +12,7 @@ import { Checkbox } from "@/core/components/ui/checkbox"
 import { Can } from "@/packages/access-control/components/can"
 
 import type { Todo } from "../api/todos.schema"
-import { useRemoveTodo, useToggleTodo } from "../lib/mutations"
+import { useRemoveTodo, useToggleTodo } from "../hooks/use-todo-mutations"
 
 export function TodoItem({ todo }: { todo: Todo }) {
   const router = useRouter()

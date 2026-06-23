@@ -8,9 +8,25 @@ import type { User } from "@/features/auth/api/auth.schema"
 
 import { clearAuthCookie, setAuthCookie } from "../lib/auth-cookie"
 
-import { useAuthStore } from "./auth.store"
+import { useAuthStore, type SessionData } from "./auth.store"
 
 // ── Session mutations ───────────────────────────────────────────────────
+
+/**
+ * Set just the token — used during login before the user profile is fetched.
+ * Follow with {@link updateUser} once the profile arrives.
+ */
+export function setToken(token: string) {
+  useAuthStore.setState(s => {
+    if (s.session) {
+      s.session.token = token
+    } else {
+      // Temporary session — user will be filled in by updateUser() or setSession().
+      s.session = { token } as SessionData
+    }
+  })
+  setAuthCookie(token)
+}
 
 export function setSession(token: string, user: User) {
   useAuthStore.setState(s => {

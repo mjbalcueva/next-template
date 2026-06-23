@@ -11,12 +11,12 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { Button, buttonVariants } from "@/core/components/ui/button"
 import { cn } from "@/core/lib/utils"
 
-import { useLogoutMutation } from "@/features/auth/lib/mutations"
+import { useLogout } from "@/features/auth/hooks/use-logout"
 
 export function HomeCtaButton({ href, isLoggedIn }: { href: string; isLoggedIn: boolean }) {
   const router = useRouter()
   const [isPending, setIsPending] = useState(false)
-  const logoutMutation = useLogoutMutation()
+  const logout = useLogout()
 
   if (isLoggedIn) {
     return (
@@ -24,7 +24,7 @@ export function HomeCtaButton({ href, isLoggedIn }: { href: string; isLoggedIn: 
         size="lg"
         onClick={async () => {
           setIsPending(true)
-          await logoutMutation.mutateAsync()
+          await logout.mutateAsync()
           router.push("/")
           setIsPending(false)
         }}

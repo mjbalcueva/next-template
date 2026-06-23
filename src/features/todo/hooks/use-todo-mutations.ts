@@ -1,8 +1,9 @@
+"use client"
+
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { createTodo, removeTodo, toggleTodo } from "../api/todos.api"
-
-import { todoKeys } from "./query-options"
+import { todoKeys } from "../lib/query-options"
 
 function useInvalidateTodoList() {
   const queryClient = useQueryClient()

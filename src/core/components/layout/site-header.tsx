@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 
 import { Button } from "@/core/components/ui/button"
 
-import { useLogoutMutation } from "@/features/auth/lib/mutations"
+import { useLogout } from "@/features/auth/hooks/use-logout"
 
 type SiteHeaderProps = {
   user: {
@@ -17,10 +17,10 @@ type SiteHeaderProps = {
 export function SiteHeader({ user: _user }: SiteHeaderProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const logoutMutation = useLogoutMutation()
+  const logout = useLogout()
 
   const handleSignOut = async () => {
-    await logoutMutation.mutateAsync()
+    await logout.mutateAsync()
     router.push("/auth/sign-in")
   }
 

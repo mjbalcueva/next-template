@@ -15,7 +15,7 @@ import { Checkbox } from "@/core/components/ui/checkbox"
 
 import { Can } from "@/packages/access-control/components/can"
 
-import { useRemoveTodo, useToggleTodo } from "../lib/mutations"
+import { useRemoveTodo, useToggleTodo } from "../hooks/use-todo-mutations"
 import { todoDetailQueryOptions } from "../lib/query-options"
 
 export function TodoDetails({ id }: { id: string }) {

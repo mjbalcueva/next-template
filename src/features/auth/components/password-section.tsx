@@ -16,7 +16,7 @@ import {
 import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
 
-import { useChangePasswordMutation } from "@/features/auth/lib/mutations"
+import { useChangePassword } from "@/features/auth/hooks/use-profile"
 
 const passwordSchema = z
   .object({
@@ -31,7 +31,7 @@ const passwordSchema = z
 
 export function PasswordSection() {
   const [status, setStatus] = useState<string | null>(null)
-  const changePassword = useChangePasswordMutation()
+  const changePassword = useChangePassword()
 
   const form = useForm({
     defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },

@@ -11,7 +11,7 @@ import { Input } from "@/core/components/ui/input"
 import { Can } from "@/packages/access-control/components/can"
 
 import { createTodoSchema } from "../api/todos.schema"
-import { useCreateTodo } from "../lib/mutations"
+import { useCreateTodo } from "../hooks/use-todo-mutations"
 
 export function TodoForm() {
   const [error, setError] = useState<string | null>(null)

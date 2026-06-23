@@ -10,12 +10,12 @@ import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
 
 import { registerInputSchema } from "@/features/auth/api/auth.schema"
-import { useRegisterMutation } from "@/features/auth/lib/mutations"
+import { useRegister } from "@/features/auth/hooks/use-register"
 
 export function SignUpForm() {
   const router = useRouter()
   const [authError, setAuthError] = useState<string | null>(null)
-  const registerMutation = useRegisterMutation()
+  const register = useRegister()
 
   const form = useForm({
     defaultValues: { name: "", email: "", password: "", password_confirmation: "" },
@@ -23,7 +23,7 @@ export function SignUpForm() {
     onSubmit: async ({ value }) => {
       setAuthError(null)
       try {
-        await registerMutation.mutateAsync(value)
+        await register.mutateAsync(value)
         router.push("/todos")
       } catch (err) {
         setAuthError(
