@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 
 import { Button } from "@/core/components/ui/button"
+
 import { useLogoutMutation } from "@/features/auth/lib/mutations"
 
 type SiteHeaderProps = {

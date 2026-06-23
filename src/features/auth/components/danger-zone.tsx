@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/core/components/ui/card"
+
 import { useDeleteAccountMutation, useLogoutMutation } from "@/features/auth/lib/mutations"
 
 export function DangerZone() {

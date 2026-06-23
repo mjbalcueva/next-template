@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server"
+
 import { isAuthPagePath, isProtectedProxyPath } from "@/proxy-routes"
 
 /**

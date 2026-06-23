@@ -7,9 +7,10 @@
  *   - Linear retry (1 attempt, 1s delay)
  *   - Global onError for dev diagnostics
  */
-import { env } from "@/env"
 import { createFetch, type BetterFetchError } from "@better-fetch/fetch"
 import { logger } from "@better-fetch/logger"
+
+import { env } from "@/env"
 
 // ─── Auth token injection ────────────────────────────────────────────────
 

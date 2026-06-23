@@ -1,6 +1,7 @@
 "use client"
 
 import { Suspense } from "react"
+
 import { useQuery } from "@tanstack/react-query"
 import { parseAsString, useQueryState } from "nuqs"
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+
 import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
 
@@ -14,6 +15,7 @@ import {
 } from "@/core/components/ui/card"
 import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
+
 import { useUpdateProfileMutation } from "@/features/auth/lib/mutations"
 import { selectUser, useAuthStore } from "@/features/auth/lib/store"
 
