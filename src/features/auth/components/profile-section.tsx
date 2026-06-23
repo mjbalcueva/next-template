@@ -17,14 +17,14 @@ import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
 import { Input } from "@/core/components/ui/input"
 
 import { useUpdateProfileMutation } from "@/features/auth/lib/mutations"
-import { selectUser, useAuthStore } from "@/features/auth/lib/store"
+import { useAuthStore } from "@/features/auth/store/auth.store"
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(50),
 })
 
 export function ProfileSection() {
-  const user = useAuthStore(selectUser)
+  const user = useAuthStore(s => s.user)
   const [status, setStatus] = useState<string | null>(null)
   const updateProfile = useUpdateProfileMutation()
 

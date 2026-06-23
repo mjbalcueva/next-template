@@ -20,7 +20,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/core/components/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/core/components/ui/tabs"
 import { cn } from "@/core/lib/utils"
 
-import { selectUser, useAuthStore } from "@/features/auth/lib/store"
+import { useAuthStore } from "@/features/auth/store/auth.store"
 
 const RQDevtoolsPanel = dynamic(
   () => import("@tanstack/react-query-devtools").then(m => m.ReactQueryDevtoolsPanel),
@@ -398,7 +398,7 @@ function DevToolsPanel() {
   }
 
   const qc = useQueryClient()
-  const user = useAuthStore(selectUser)
+  const user = useAuthStore(s => s.user)
 
   function cycleSide() {
     const idx = SIDES.indexOf(side)

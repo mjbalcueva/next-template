@@ -2,12 +2,7 @@
 
 import type { ReactNode } from "react"
 
-import {
-  selectIsAuthenticated,
-  selectIsInitialized,
-  selectUser,
-  useAuthStore,
-} from "@/features/auth/lib/store"
+import { useAuthStore } from "@/features/auth/store/auth.store"
 
 // ─── Shared prop types ──────────────────────────────────────────────────
 
@@ -31,8 +26,8 @@ interface BlockProps {
  *   </Protected>
  */
 export function Protected({ children, fallback = null }: BlockProps) {
-  const isAuthenticated = useAuthStore(selectIsAuthenticated)
-  const isInitialized = useAuthStore(selectIsInitialized)
+  const isAuthenticated = useAuthStore(s => s.token !== null)
+  const isInitialized = useAuthStore(s => s.isInitialized)
 
   // Don't render anything until the initial auth check has completed.
   if (!isInitialized) return null
@@ -52,7 +47,7 @@ export function Protected({ children, fallback = null }: BlockProps) {
  *   </PublicOnly>
  */
 export function PublicOnly({ children, fallback = null }: BlockProps) {
-  const isAuthenticated = useAuthStore(selectIsAuthenticated)
+  const isAuthenticated = useAuthStore(s => s.token !== null)
   return <>{!isAuthenticated ? children : fallback}</>
 }
 
@@ -72,7 +67,7 @@ type RoleGateProps = BlockProps & {
  *   </RoleGate>
  */
 export function RoleGate({ roles, children, fallback = null }: RoleGateProps) {
-  const user = useAuthStore(selectUser)
+  const user = useAuthStore(s => s.user)
   const allowed = user !== null && (roles as readonly string[]).includes(user.role)
   return <>{allowed ? children : fallback}</>
 }

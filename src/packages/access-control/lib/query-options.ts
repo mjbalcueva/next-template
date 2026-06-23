@@ -1,17 +1,20 @@
 /**
  * TanStack Query query options for the permissions feature.
  *
- * Uses the same `createQueryKeys` factory as other features for consistency.
+ * Uses object-based query keys (2026 standard).
  * NOTE: No `"use client"` — this file is used server-side for prefetching.
  */
 
 import { queryOptions } from "@tanstack/react-query"
 
-import { createQueryKeys } from "@/packages/tanstack/lib/query-factory"
+import { k } from "@/packages/tanstack/lib/query-factory"
 
 import { fetchMyPermissions } from "../api/permissions.api"
 
-export const permissionsKeys = createQueryKeys("auth", ["permissions"] as const)
+export const permissionsKeys = {
+  all: k("auth"),
+  permissions: () => k("auth", { entity: "permissions" }),
+}
 
 /**
  * Canonical query options for the current user's permissions.

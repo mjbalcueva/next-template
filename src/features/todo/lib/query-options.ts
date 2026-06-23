@@ -1,20 +1,26 @@
 /**
  * TanStack Query query options for the todos feature.
  *
- * Following Tanner Linsley's best practices:
- *   - `queryOptions()` makes query configs reusable (useQuery, prefetchQuery, etc.)
- *   - Key factory avoids string duplication and ensures type safety.
+ * Uses object-based query keys (2026 standard) for:
+ * - Named destructuring from QueryFunctionContext
+ * - Order-independent fuzzy matching for cache invalidation
  */
 
 import { queryOptions } from "@tanstack/react-query"
 
-import { createQueryKeys } from "@/packages/tanstack/lib/query-factory"
+import { k } from "@/packages/tanstack/lib/query-factory"
 
 import { getTodo, listTodos } from "../api/todos.api"
 
-// ─── Query key factory ──────────────────────────────────────────────────
+// ─── Query key factory (object keys) ────────────────────────────────────
 
-export const todoKeys = createQueryKeys("todos", ["list", "detail"] as const)
+export const todoKeys = {
+  all: k("todos"),
+  lists: () => k("todos", { entity: "list" }),
+  list: (status?: string) => k("todos", { entity: "list", ...(status ? { status } : {}) }),
+  details: () => k("todos", { entity: "detail" }),
+  detail: (id: string) => k("todos", { entity: "detail", id }),
+}
 
 // ─── Query options ──────────────────────────────────────────────────────
 

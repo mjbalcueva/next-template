@@ -1,32 +1,31 @@
 /**
- * TanStack Query key factory helpers.
+ * TanStack Query key factory — 2026 standard (object keys).
  *
- * Following Tanner Linsley's recommended pattern:
- *   - Use key factories to avoid string duplication
- *   - Use `queryOptions()` for reusable query definitions
- *   - Separate query configs from mutation hooks
+ * Object-based keys enable:
+ * - Named destructuring from {@link QueryFunctionContext}
+ * - Order-independent fuzzy matching for cache invalidation
+ * - Better type safety than positional tuples
+ *
+ * @example
+ * const todoKeys = {
+ *   all:     k("todos"),
+ *   lists:   () => k("todos", { entity: "list" }),
+ *   list:    (status?: string) => k("todos", { entity: "list", status }),
+ *   details: () => k("todos", { entity: "detail" }),
+ *   detail:  (id: string) => k("todos", { entity: "detail", id }),
+ * }
+ *
+ * // Invalidation — fuzzy match all lists:
+ * queryClient.invalidateQueries({ queryKey: k("todos", { entity: "list" }) })
+ *
+ * // Invalidation — everything todo-related:
+ * queryClient.invalidateQueries({ queryKey: k("todos") })
  */
-
-/**
- * Creates a typed query key factory for a feature domain.
- */
-export function createQueryKeys<
-  const TBase extends string,
-  const TSubKeys extends readonly string[],
->(base: TBase, subKeys: TSubKeys) {
-  type Factory = {
-    all: readonly [TBase]
-  } & {
-    [K in TSubKeys[number]]: (...args: string[]) => readonly [TBase, K, ...string[]]
-  }
-
-  const factory = {
-    all: [base],
-  } as Factory
-
-  for (const key of subKeys) {
-    ;(factory as Record<string, unknown>)[key] = (...args: string[]) => [base, key, ...args]
-  }
-
-  return factory
+export function k<TScope extends string>(scope: TScope): readonly [{ scope: TScope }]
+export function k<TScope extends string, TExtra extends Record<string, unknown>>(
+  scope: TScope,
+  extra: TExtra
+): readonly [{ scope: TScope } & TExtra]
+export function k(scope: string, extra?: Record<string, unknown>) {
+  return [{ scope, ...extra }] as const
 }

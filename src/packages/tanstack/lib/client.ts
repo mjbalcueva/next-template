@@ -1,34 +1,25 @@
 /**
  * Central $fetch instance — used by all API layers.
  *
- * Uses better-fetch with:
- *   - Built-in Bearer auth (replaces manual onRequest hook)
- *   - Logger plugin in development
- *   - Linear retry (1 attempt, 1s delay)
- *   - Global onError for dev diagnostics
+ * Auth tokens are resolved by {@link getAuthToken} (see `auth-token.ts`):
+ *   - **Server** — reads from the `auth_token` cookie
+ *   - **Client** — reads from Zustand
  */
 import { createFetch, type BetterFetchError } from "@better-fetch/fetch"
 import { logger } from "@better-fetch/logger"
 
 import { env } from "@/env"
 
-// ─── Auth token injection ────────────────────────────────────────────────
-
-let getToken: (() => string | null) | null = null
-
-export function setTokenGetter(fn: () => string | null) {
-  getToken = fn
-}
+import { getAuthToken } from "./auth-token"
 
 // ─── Fetch instance ──────────────────────────────────────────────────────
 
 export const $fetch = createFetch({
   baseURL: env.NEXT_PUBLIC_API_URL,
   throw: true,
-  /** Built-in Bearer auth — replaces the manual onRequest hook. */
   auth: {
     type: "Bearer",
-    token: () => getToken?.() ?? undefined,
+    token: getAuthToken,
   },
   /** Logger plugin: verbose in dev, silent in production. */
   plugins: [

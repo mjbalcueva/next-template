@@ -2,12 +2,12 @@
 
 import { SiteHeader } from "@/core/components/site-header"
 
-import { selectUser, useAuthStore } from "@/features/auth/lib/store"
+import { useAuthStore } from "@/features/auth/store/auth.store"
 
 import { Protected } from "@/packages/access-control/components/access-control"
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const user = useAuthStore(selectUser)
+  const user = useAuthStore(s => s.user)
 
   return (
     <Protected>

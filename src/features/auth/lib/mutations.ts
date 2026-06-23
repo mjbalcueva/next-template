@@ -4,25 +4,18 @@
  * Every mutation calls the API via better-fetch, then updates
  * the Zustand auth store on success.  Components only ever
  * interact with the API through these hooks.
+ *
+ * Cookie sync is handled internally by the store's actions
+ * (`src/store/auth.actions.ts`) — no manual cookie manipulation here.
  */
 
 import { useMutation } from "@tanstack/react-query"
 
+import { clearAuth, setToken, setUser } from "@/features/auth/store/auth.actions"
+
 import { fetchUser, login, logout, register } from "../api/auth.api"
 import type { LoginInput, RegisterInput } from "../api/auth.schema"
 import { changePassword, checkHealth, deleteAccount, updateProfile } from "../api/settings.api"
-
-import { useAuthStore } from "./store"
-
-// ─── Cookie sync (inlined so it's guaranteed to run synchronously) ────
-
-const AUTH_COOKIE = "auth_token"
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 30 // 30 days
-
-function setAuthCookie(token: string) {
-  if (typeof document === "undefined") return
-  document.cookie = `${AUTH_COOKIE}=${encodeURIComponent(token)}; path=/; max-age=${COOKIE_MAX_AGE}; samesite=lax`
-}
 
 // ─── Login ────────────────────────────────────────────────────────────
 
@@ -30,12 +23,10 @@ export function useLoginMutation() {
   return useMutation({
     mutationFn: async (input: LoginInput) => {
       const { token } = await login(input)
-      // Store token + cookie immediately so fetchUser and the proxy can read them.
-      useAuthStore.setState({ token })
-      setAuthCookie(token)
+      setToken(token)
       try {
         const user = await fetchUser()
-        useAuthStore.setState({ user })
+        setUser(user)
       } catch (err) {
         // User fetch is best-effort — token is still valid.
         // eslint-disable-next-line no-console
@@ -52,11 +43,10 @@ export function useRegisterMutation() {
   return useMutation({
     mutationFn: async (input: RegisterInput) => {
       const { token } = await register(input)
-      useAuthStore.setState({ token })
-      setAuthCookie(token)
+      setToken(token)
       try {
         const user = await fetchUser()
-        useAuthStore.setState({ user })
+        setUser(user)
       } catch (err) {
         // User fetch is best-effort — token is still valid.
         // eslint-disable-next-line no-console
@@ -70,7 +60,6 @@ export function useRegisterMutation() {
 // ─── Logout ───────────────────────────────────────────────────────────
 
 export function useLogoutMutation() {
-  const clearAuth = useAuthStore(s => s.clearAuth)
   return useMutation({
     mutationFn: logout,
     onSettled: () => {
@@ -83,9 +72,6 @@ export function useLogoutMutation() {
 // ─── Fetch current user (used on app startup) ─────────────────────────
 
 export function useFetchUserMutation() {
-  const setUser = useAuthStore(s => s.setUser)
-  const clearAuth = useAuthStore(s => s.clearAuth)
-
   return useMutation({
     mutationFn: fetchUser,
     onSuccess: user => setUser(user),
@@ -99,7 +85,6 @@ export function useFetchUserMutation() {
 // ─── Profile ──────────────────────────────────────────────────────────
 
 export function useUpdateProfileMutation() {
-  const setUser = useAuthStore(s => s.setUser)
   return useMutation({
     mutationFn: updateProfile,
     onSuccess: user => {

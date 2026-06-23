@@ -6,7 +6,7 @@ import { todoKeys } from "./query-options"
 
 function useInvalidateTodoList() {
   const queryClient = useQueryClient()
-  return () => queryClient.invalidateQueries({ queryKey: todoKeys.list() })
+  return () => queryClient.invalidateQueries({ queryKey: todoKeys.lists() })
 }
 
 export function useCreateTodo(opts?: { onSuccess?: () => void }) {

@@ -3,7 +3,8 @@
 import { useEffect } from "react"
 
 import { useFetchUserMutation } from "@/features/auth/lib/mutations"
-import { selectIsAuthenticated, selectUser, useAuthStore } from "@/features/auth/lib/store"
+import { setInitialized } from "@/features/auth/store/auth.actions"
+import { useAuthStore } from "@/features/auth/store/auth.store"
 
 /**
  * Handles auth initialization — fetches the current user profile
@@ -13,9 +14,8 @@ import { selectIsAuthenticated, selectUser, useAuthStore } from "@/features/auth
  * directly in layouts and pages where needed.
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const isAuthenticated = useAuthStore(selectIsAuthenticated)
-  const user = useAuthStore(selectUser)
-  const setInitialized = useAuthStore(s => s.setInitialized)
+  const isAuthenticated = useAuthStore(s => s.token !== null)
+  const user = useAuthStore(s => s.user)
   // `mutate` from useMutation is stable across renders — safe in deps.
   const { mutate: fetchUser } = useFetchUserMutation()
 
@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
       setInitialized()
     }
-  }, [isAuthenticated, user, fetchUser, setInitialized])
+  }, [isAuthenticated, user, fetchUser])
 
   return <>{children}</>
 }
