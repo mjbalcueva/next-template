@@ -3,7 +3,7 @@ import { Figtree, Geist, Geist_Mono } from "next/font/google"
 
 import { NuqsAdapter } from "nuqs/adapters/next/app"
 
-import { DevTools } from "@/core/components/dev/breakpoint-indicator"
+import { DevTools } from "@/core/components/dev-tools"
 import { ThemeProvider } from "@/core/components/providers/theme-provider"
 import { TooltipProvider } from "@/core/components/ui/tooltip"
 import { cn } from "@/core/lib/utils"

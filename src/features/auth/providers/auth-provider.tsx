@@ -2,6 +2,8 @@
 
 import { useEffect } from "react"
 
+import { useShallow } from "zustand/react/shallow"
+
 import { useFetchUserMutation } from "@/features/auth/lib/mutations"
 import { setInitialized } from "@/features/auth/store/auth.actions"
 import { useAuthStore } from "@/features/auth/store/auth.store"
@@ -14,8 +16,12 @@ import { useAuthStore } from "@/features/auth/store/auth.store"
  * directly in layouts and pages where needed.
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const isAuthenticated = useAuthStore(s => s.token !== null)
-  const user = useAuthStore(s => s.user)
+  const { user, isAuthenticated } = useAuthStore(
+    useShallow(s => ({
+      user: s.session?.user ?? null,
+      isAuthenticated: s.session !== null,
+    }))
+  )
   // `mutate` from useMutation is stable across renders — safe in deps.
   const { mutate: fetchUser } = useFetchUserMutation()
 

@@ -6,12 +6,12 @@
  * interact with the API through these hooks.
  *
  * Cookie sync is handled internally by the store's actions
- * (`src/store/auth.actions.ts`) — no manual cookie manipulation here.
+ * (`auth.actions.ts`) — no manual cookie manipulation here.
  */
 
 import { useMutation } from "@tanstack/react-query"
 
-import { clearAuth, setToken, setUser } from "@/features/auth/store/auth.actions"
+import { clearSession, setSession, updateUser } from "@/features/auth/store/auth.actions"
 
 import { fetchUser, login, logout, register } from "../api/auth.api"
 import type { LoginInput, RegisterInput } from "../api/auth.schema"
@@ -23,12 +23,11 @@ export function useLoginMutation() {
   return useMutation({
     mutationFn: async (input: LoginInput) => {
       const { token } = await login(input)
-      setToken(token)
       try {
         const user = await fetchUser()
-        setUser(user)
+        setSession(token, user)
       } catch (err) {
-        // User fetch is best-effort — token is still valid.
+        // Token is valid but user fetch failed — still store the session.
         // eslint-disable-next-line no-console
         console.error("[auth] Failed to fetch user after login:", err)
       }
@@ -43,12 +42,10 @@ export function useRegisterMutation() {
   return useMutation({
     mutationFn: async (input: RegisterInput) => {
       const { token } = await register(input)
-      setToken(token)
       try {
         const user = await fetchUser()
-        setUser(user)
+        setSession(token, user)
       } catch (err) {
-        // User fetch is best-effort — token is still valid.
         // eslint-disable-next-line no-console
         console.error("[auth] Failed to fetch user after register:", err)
       }
@@ -64,7 +61,7 @@ export function useLogoutMutation() {
     mutationFn: logout,
     onSettled: () => {
       // Best-effort — clear local state regardless of server response.
-      clearAuth()
+      clearSession()
     },
   })
 }
@@ -74,10 +71,10 @@ export function useLogoutMutation() {
 export function useFetchUserMutation() {
   return useMutation({
     mutationFn: fetchUser,
-    onSuccess: user => setUser(user),
+    onSuccess: user => updateUser(user),
     onError: () => {
       // Token might be expired — clear it.
-      clearAuth()
+      clearSession()
     },
   })
 }
@@ -89,7 +86,7 @@ export function useUpdateProfileMutation() {
     mutationFn: updateProfile,
     onSuccess: user => {
       // Sync the updated name to the Zustand store so all consumers see it instantly.
-      setUser(user)
+      updateUser(user)
     },
   })
 }

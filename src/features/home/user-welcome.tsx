@@ -7,7 +7,7 @@ import { useAuthStore } from "@/features/auth/store/auth.store"
  * Reads from the Zustand auth store (populated after login).
  */
 export function UserWelcome() {
-  const user = useAuthStore(s => s.user)
+  const user = useAuthStore(s => s.session?.user ?? null)
 
   if (!user) return null
 

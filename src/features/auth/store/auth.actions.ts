@@ -6,43 +6,34 @@
  */
 import type { User } from "@/features/auth/api/auth.schema"
 
-import { clearAuthCookie, setAuthCookie } from "./auth-cookie"
+import { clearAuthCookie, setAuthCookie } from "../lib/auth-cookie"
+
 import { useAuthStore } from "./auth.store"
 
-// ── Basic mutations ──────────────────────────────────────────────────────
+// ── Session mutations ───────────────────────────────────────────────────
 
-export function setAuth(token: string, user: User) {
+export function setSession(token: string, user: User) {
   useAuthStore.setState(s => {
-    s.token = token
-    s.user = user
+    s.session = { token, user }
   })
   setAuthCookie(token)
 }
 
-export function setToken(token: string | null) {
+export function updateUser(user: User) {
   useAuthStore.setState(s => {
-    s.token = token
+    if (s.session) s.session.user = user
   })
-  if (token) setAuthCookie(token)
-  else clearAuthCookie()
-}
-
-export function setUser(user: User) {
-  useAuthStore.setState(s => {
-    s.user = user
-  })
-}
-
-export function clearAuth() {
-  useAuthStore.setState(s => {
-    s.token = null
-    s.user = null
-  })
-  clearAuthCookie()
 }
 
 export function setInitialized() {
   useAuthStore.setState(s => {
     s.isInitialized = true
   })
+}
+
+export function clearSession() {
+  useAuthStore.setState(s => {
+    s.session = null
+  })
+  clearAuthCookie()
 }

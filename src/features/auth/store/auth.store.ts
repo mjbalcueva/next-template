@@ -3,6 +3,8 @@
 /**
  * Zustand auth store — state + store + middleware.
  *
+ * Uses a single `session` object — no intermediate "has token but no user" state.
+ *
  * Middleware stack: persist → immer
  * Actions live in `auth.actions.ts` (standalone functions).
  */
@@ -14,13 +16,19 @@ import type { User } from "@/features/auth/api/auth.schema"
 
 import { setClientTokenGetter } from "@/packages/tanstack/lib/auth-token"
 
-import { clearAuthCookie, setAuthCookie } from "./auth-cookie"
+import { clearAuthCookie, setAuthCookie } from "../lib/auth-cookie"
+
+// ─── Session data ───────────────────────────────────────────────────────
+
+export interface SessionData {
+  token: string
+  user: User
+}
 
 // ─── State shape ────────────────────────────────────────────────────────
 
 export interface AuthState {
-  token: string | null
-  user: User | null
+  session: SessionData | null
   /** `true` once AuthProvider has completed the initial auth check. */
   isInitialized: boolean
 }
@@ -29,8 +37,7 @@ export interface AuthState {
 
 function createInitialState(): AuthState {
   return {
-    token: null,
-    user: null,
+    session: null,
     isInitialized: false,
   }
 }
@@ -42,10 +49,14 @@ export const useAuthStore = create<AuthState>()(
     persist(() => createInitialState(), {
       name: "auth-storage",
       /** Only persist the token — user is re-fetched on reload. */
-      partialize: state => ({ token: state.token }),
+      partialize: state => {
+        // Persist only the token — user is re-fetched on reload.
+        if (!state.session) return { session: null }
+        return { session: { token: state.session.token } } as AuthState
+      },
       /** On rehydrate, sync the restored token to a cookie. */
       onRehydrateStorage: () => state => {
-        if (state?.token) setAuthCookie(state.token)
+        if (state?.session?.token) setAuthCookie(state.session.token)
         else clearAuthCookie()
       },
     })
@@ -56,7 +67,7 @@ export const useAuthStore = create<AuthState>()(
 
 setClientTokenGetter(() => {
   try {
-    return useAuthStore.getState().token
+    return useAuthStore.getState().session?.token ?? null
   } catch {
     return null
   }

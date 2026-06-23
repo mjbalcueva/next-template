@@ -7,9 +7,9 @@ import { useAuthStore } from "@/features/auth/store/auth.store"
 export default function SessionPage() {
   const session = useAuthStore(
     useShallow(s => ({
-      token: s.token,
-      user: s.user,
-      isAuthenticated: s.token !== null,
+      token: s.session?.token ?? null,
+      user: s.session?.user ?? null,
+      isAuthenticated: s.session !== null,
     }))
   )
 

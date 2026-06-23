@@ -24,7 +24,7 @@ const profileSchema = z.object({
 })
 
 export function ProfileSection() {
-  const user = useAuthStore(s => s.user)
+  const user = useAuthStore(s => s.session?.user ?? null)
   const [status, setStatus] = useState<string | null>(null)
   const updateProfile = useUpdateProfileMutation()
 

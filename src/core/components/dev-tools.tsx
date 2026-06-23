@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 
 import {
@@ -59,7 +59,7 @@ function loadSide(): Side {
 
 // ─── Copy button ──────────────────────────────────────────────────────
 
-function CopyButton({ getValue }: { getValue: () => string }) {
+const CopyButton = memo(function CopyButton({ getValue }: { getValue: () => string }) {
   const [copied, setCopied] = useState(false)
 
   const copy = useCallback(() => {
@@ -78,7 +78,7 @@ function CopyButton({ getValue }: { getValue: () => string }) {
       {copied ? "Copied!" : "Copy"}
     </button>
   )
-}
+})
 
 // ─── Storage helpers ──────────────────────────────────────────────────
 
@@ -103,7 +103,7 @@ function getCookieItems(): StorageItem[] {
     })
 }
 
-function StorageViewer({ items }: { items: StorageItem[] }) {
+const StorageViewer = memo(function StorageViewer({ items }: { items: StorageItem[] }) {
   const [selected, setSelected] = useState<StorageItem | null>(null)
 
   function formatValue(raw: string): string {
@@ -182,7 +182,7 @@ function StorageViewer({ items }: { items: StorageItem[] }) {
       </div>
     </div>
   )
-}
+})
 
 // ─── Details (viewport + route) ───────────────────────────────────────
 
@@ -195,7 +195,23 @@ const BREAKPOINTS = [
   { name: "2xl", range: "1536+" },
 ] as const
 
-function DetailsTab() {
+const RouteBreadcrumb = memo(function RouteBreadcrumb({ pathname }: { pathname: string }) {
+  const segments = pathname === "/" ? ["/"] : pathname.split("/").filter(Boolean)
+  const crumbs = ["{ localhost }", ...segments]
+
+  return (
+    <div className="text-foreground/80 flex min-w-0 flex-wrap items-center gap-2 font-mono text-xs">
+      {crumbs.map((crumb, i) => (
+        <Fragment key={`${crumb}-${i}`}>
+          <span className={i === 0 ? "text-muted-foreground" : "font-medium"}>{crumb}</span>
+          {i < crumbs.length - 1 && <span className="text-muted-foreground/60">/</span>}
+        </Fragment>
+      ))}
+    </div>
+  )
+})
+
+const DetailsTab = memo(function DetailsTab() {
   const [vp, setVp] = useState(() =>
     typeof window !== "undefined"
       ? { w: window.innerWidth, h: window.innerHeight }
@@ -239,20 +255,8 @@ function DetailsTab() {
         </h3>
         <div className="rounded-lg border">
           {/* Path */}
-          <div className="bg-muted/40 flex items-center justify-between border-b px-3 py-2">
-            <span className="text-foreground/80 flex flex-wrap items-center gap-1 font-mono text-xs">
-              {url?.pathname === "/"
-                ? "/"
-                : url?.pathname
-                    .split("/")
-                    .filter(Boolean)
-                    .map((seg, i, arr) => (
-                      <span key={seg} className="flex items-center gap-1">
-                        <span className="bg-muted rounded px-1.5 py-0.5 font-medium">{seg}</span>
-                        {i < arr.length - 1 && <span className="text-muted-foreground">/</span>}
-                      </span>
-                    ))}
-            </span>
+          <div className="bg-muted/40 flex items-center justify-between px-3 py-2">
+            <RouteBreadcrumb pathname={url?.pathname ?? "/"} />
             <CopyButton getValue={() => window.location.href} />
           </div>
           {/* Query params table */}
@@ -286,18 +290,22 @@ function DetailsTab() {
         </h3>
         <div className="flex flex-wrap gap-2">
           {BREAKPOINTS.map(function (bp) {
-            const [min, max] = bp.range.split("–").map(s => parseInt(s, 10))
-            const isActive = vp.w >= (min || 0) && vp.w <= (max || Infinity)
+            const parts = bp.range.split("+").join("").split("–")
+            const min = parseInt(parts[0], 10)
+            const max = parts[1] ? parseInt(parts[1], 10) : Infinity
+            const isActive = vp.w >= min && vp.w <= max
             return (
               <span
                 key={bp.name}
                 className={cn(
-                  "rounded-md px-2.5 py-1 font-mono text-xs font-medium",
-                  isActive ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"
+                  "rounded-md px-2.5 py-1 font-mono text-xs",
+                  isActive
+                    ? "bg-accent text-accent-foreground font-semibold"
+                    : "text-muted-foreground"
                 )}
               >
                 {bp.name}
-                <span className="ml-1.5 opacity-60">{bp.range}</span>
+                <span className={cn("ml-1.5", !isActive && "opacity-60")}>{bp.range}</span>
               </span>
             )
           })}
@@ -348,7 +356,7 @@ function DetailsTab() {
       </section>
     </div>
   )
-}
+})
 
 // ─── DevTools Panel ───────────────────────────────────────────────
 
@@ -360,17 +368,17 @@ function DevToolsPanel() {
   const drag = useRef({ active: false, x: 0, y: 0 })
   const { resolvedTheme, setTheme } = useTheme()
 
-  function pd(e: React.PointerEvent) {
+  const pd = useCallback((e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
     drag.current = { active: true, x: e.clientX, y: e.clientY }
-  }
+  }, [])
 
-  function pm(e: React.PointerEvent) {
+  const pm = useCallback((e: React.PointerEvent) => {
     if (!drag.current.active || !btn.current) return
     btn.current.style.transform = `translate(${e.clientX - drag.current.x}px, ${e.clientY - drag.current.y}px)`
-  }
+  }, [])
 
-  function pu(e: React.PointerEvent) {
+  const pu = useCallback((e: React.PointerEvent) => {
     if (!drag.current.active || !btn.current) return
     drag.current.active = false
     const dx = e.clientX - drag.current.x
@@ -395,24 +403,29 @@ function DevToolsPanel() {
     el.style.transform = ""
     setCorner(next)
     localStorage.setItem("dev-corner", next)
-  }
+  }, [])
 
   const qc = useQueryClient()
-  const user = useAuthStore(s => s.user)
+  const user = useAuthStore(s => s.session?.user ?? null)
 
-  function cycleSide() {
-    const idx = SIDES.indexOf(side)
-    const next = SIDES[(idx + 1) % SIDES.length]
-    setSide(next)
-    localStorage.setItem("dev-side", next)
-  }
+  const cycleSide = useCallback(() => {
+    setSide(prev => {
+      const idx = SIDES.indexOf(prev)
+      const next = SIDES[(idx + 1) % SIDES.length]
+      localStorage.setItem("dev-side", next)
+      return next
+    })
+  }, [])
 
-  const SIDE_ICONS: Record<Side, React.ReactNode> = {
-    bottom: <HugeiconsIcon icon={ArrowDown01Icon} className="size-4" />,
-    top: <HugeiconsIcon icon={ArrowUp01Icon} className="size-4" />,
-    right: <HugeiconsIcon icon={ArrowRight01Icon} className="size-4" />,
-    left: <HugeiconsIcon icon={ArrowLeft01Icon} className="size-4" />,
-  }
+  const SIDE_ICONS = useMemo(
+    () => ({
+      bottom: <HugeiconsIcon icon={ArrowDown01Icon} className="size-4" />,
+      top: <HugeiconsIcon icon={ArrowUp01Icon} className="size-4" />,
+      right: <HugeiconsIcon icon={ArrowRight01Icon} className="size-4" />,
+      left: <HugeiconsIcon icon={ArrowLeft01Icon} className="size-4" />,
+    }),
+    []
+  )
 
   return (
     <>
@@ -426,7 +439,7 @@ function DevToolsPanel() {
         onPointerUp={pu}
         onPointerCancel={pu}
         className={cn(
-          "bg-background hover:bg-muted fixed z-9999 flex size-8 cursor-grab touch-none items-center justify-center rounded-full border font-mono text-xs font-semibold shadow-lg backdrop-blur-sm select-none active:cursor-grabbing",
+          "bg-background hover:bg-muted fixed z-9999 flex size-8 cursor-pointer touch-none items-center justify-center rounded-full border font-mono text-xs font-semibold shadow-lg backdrop-blur-sm select-none active:cursor-grabbing",
           CORNERS[corner],
           open && "invisible"
         )}
@@ -437,8 +450,6 @@ function DevToolsPanel() {
         <span className="hidden lg:inline xl:hidden">lg</span>
         <span className="hidden xl:inline 2xl:hidden">xl</span>
         <span className="hidden 2xl:inline">2xl</span>
-        <span className="3xl:inline 4xl:hidden hidden">3xl</span>
-        <span className="4xl:inline hidden">4xl</span>
       </button>
 
       {/* ── Sheet ── */}
@@ -446,14 +457,14 @@ function DevToolsPanel() {
         <SheetContent
           side={side}
           showCloseButton={false}
-          className="flex flex-col p-0"
+          className="flex flex-col gap-0 p-0"
           style={
             side === "left" || side === "right"
               ? { width: "75vw", maxWidth: "75vw" }
-              : { height: "50vh" }
+              : { height: "75vh", maxHeight: "75vh" }
           }
         >
-          <SheetHeader className="flex flex-row items-center justify-between px-4 pt-4 pb-0">
+          <SheetHeader className="flex flex-row items-center justify-between px-4 pb-0">
             <SheetTitle className="flex items-center gap-2 text-sm">
               <span className="size-2 animate-pulse rounded-full bg-green-500" />
               Dev Tools
@@ -482,7 +493,7 @@ function DevToolsPanel() {
           </SheetHeader>
 
           <Tabs defaultValue="details" className="flex flex-1 flex-col overflow-hidden">
-            <div className="flex items-center justify-between px-4 pt-2">
+            <div className="flex items-center justify-between px-4">
               <TabsList>
                 <TabsTrigger value="details" className="text-xs">
                   Details
@@ -490,14 +501,14 @@ function DevToolsPanel() {
                 <TabsTrigger value="queries" className="text-xs">
                   Queries
                 </TabsTrigger>
-                <TabsTrigger value="session" className="text-xs">
-                  Session
+                <TabsTrigger value="cookies" className="text-xs">
+                  Cookies
                 </TabsTrigger>
                 <TabsTrigger value="localStorage" className="text-xs">
                   Local Storage
                 </TabsTrigger>
-                <TabsTrigger value="cookies" className="text-xs">
-                  Cookies
+                <TabsTrigger value="session" className="text-xs">
+                  Session
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -516,23 +527,23 @@ function DevToolsPanel() {
               </div>
             </TabsContent>
 
-            <TabsContent value="session" className="flex-1 overflow-auto p-4">
-              {user && (
-                <div className="mb-2 flex items-center justify-end">
-                  <CopyButton getValue={() => JSON.stringify(user, null, 2)} />
-                </div>
-              )}
-              <pre className="bg-muted/50 text-foreground/80 h-full overflow-auto rounded-md border p-4 font-mono text-xs">
-                {user ? JSON.stringify(user, null, 2) : "No active session."}
-              </pre>
+            <TabsContent value="cookies" className="flex-1 overflow-hidden p-4">
+              <StorageViewer items={getCookieItems()} />
             </TabsContent>
 
             <TabsContent value="localStorage" className="flex-1 overflow-hidden p-4">
               <StorageViewer items={getLocalStorageItems()} />
             </TabsContent>
 
-            <TabsContent value="cookies" className="flex-1 overflow-hidden p-4">
-              <StorageViewer items={getCookieItems()} />
+            <TabsContent value="session" className="flex-1 overflow-auto p-4">
+              {user && (
+                <div className="mb-2 flex justify-end">
+                  <CopyButton getValue={() => JSON.stringify(user, null, 2)} />
+                </div>
+              )}
+              <pre className="bg-muted/50 text-foreground/80 h-full overflow-auto rounded-md border p-4 font-mono text-xs">
+                {user ? JSON.stringify(user, null, 2) : "No active session."}
+              </pre>
             </TabsContent>
           </Tabs>
         </SheetContent>
