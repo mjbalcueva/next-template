@@ -1,6 +1,7 @@
 "use client"
 
 import { Suspense, useState } from "react"
+import { type Route } from "next"
 import { useRouter, useSearchParams } from "next/navigation"
 
 import { useForm } from "@tanstack/react-form"
@@ -12,13 +13,15 @@ import { Input } from "@/core/components/ui/input"
 import { loginInputSchema } from "@/features/auth/api/auth.schema"
 import { useLogin } from "@/features/auth/hooks/use-login"
 
+import { DEFAULT_AUTH_REDIRECT } from "@/proxy-routes"
+
 export function SignInForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [authError, setAuthError] = useState<string | null>(null)
   const login = useLogin()
 
-  const redirectUrl = searchParams.get("redirect") ?? "/todos"
+  const redirectUrl = searchParams.get("redirect") ?? DEFAULT_AUTH_REDIRECT
 
   const form = useForm({
     defaultValues: { email: "", password: "" },
@@ -27,7 +30,7 @@ export function SignInForm() {
       setAuthError(null)
       try {
         await login.mutateAsync(value)
-        router.push(redirectUrl)
+        router.push(redirectUrl as Route)
       } catch (err) {
         setAuthError(err instanceof Error ? err.message : "Failed to sign in. Please try again.")
       }

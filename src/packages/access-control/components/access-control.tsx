@@ -1,8 +1,11 @@
 "use client"
 
-import type { ReactNode } from "react"
+import { useEffect, type ReactNode } from "react"
+import { useRouter } from "next/navigation"
 
 import { useIsAuthenticated, useIsInitialized, useUser } from "@/features/auth/hooks/use-session"
+
+import { DEFAULT_AUTH_REDIRECT } from "@/proxy-routes"
 
 // ─── Shared prop types ──────────────────────────────────────────────────
 
@@ -49,6 +52,47 @@ export function Protected({ children, fallback = null }: BlockProps) {
 export function PublicOnly({ children, fallback = null }: BlockProps) {
   const isAuthenticated = useIsAuthenticated()
   return <>{!isAuthenticated ? children : fallback}</>
+}
+
+// ─── RedirectIfAuthenticated ────────────────────────────────────────────
+
+type RedirectIfAuthenticatedProps = {
+  children: ReactNode
+  /** Where to redirect authenticated users. Defaults to `"/"`. */
+  to?: string
+}
+
+/**
+ * Client-side redirect for auth pages (sign-in, sign-up, etc.).
+ *
+ * The proxy only runs on server requests — hitting the back button serves
+ * the cached page without a server round-trip, so we must also guard on
+ * the client.
+ *
+ * A single effect with no dependency array runs after every render,
+ * catching both fresh mounts AND bfcache restores where deps haven't
+ * changed.
+ */
+export function RedirectIfAuthenticated({
+  children,
+  to = DEFAULT_AUTH_REDIRECT,
+}: RedirectIfAuthenticatedProps) {
+  const isAuthenticated = useIsAuthenticated()
+  const isInitialized = useIsInitialized()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (isInitialized && isAuthenticated) {
+      router.replace(to)
+    }
+  })
+
+  if (!isInitialized) return null
+
+  // If already authenticated, render nothing (the effect above will redirect).
+  if (isAuthenticated) return null
+
+  return <>{children}</>
 }
 
 // ─── RoleGate ──────────────────────────────────────────────────────────

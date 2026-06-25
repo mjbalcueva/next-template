@@ -13,19 +13,26 @@ import { fetchMyPermissions } from "../api/permissions.api"
 
 export const permissionsKeys = {
   all: k("auth"),
-  permissions: () => k("auth", { entity: "permissions" }),
+  /** Scoped to a specific user — prevents cross-user cache leaks. */
+  byUser: (userId: string) => k("auth", { entity: "permissions", userId }),
 }
 
 /**
  * Canonical query options for the current user's permissions.
  *
- * `staleTime: Infinity` means calling this 500 times across the UI
- * costs 1 network request. React Query deduplicates automatically.
+ * Keyed by `userId` so switching accounts (logout → login as different
+ * user) triggers a fresh fetch instead of serving the previous user's
+ * stale `Infinity` cache.
+ *
+ * @param userId - The current user's id. When `undefined` the query is
+ *   disabled (no authenticated user).
  */
-export function permissionsQueryOptions() {
+export function permissionsQueryOptions(userId: string | undefined) {
   return queryOptions({
-    queryKey: permissionsKeys.all,
+    queryKey: userId ? permissionsKeys.byUser(userId) : permissionsKeys.all,
     queryFn: fetchMyPermissions,
     staleTime: Infinity,
+    enabled: !!userId,
+    retry: 3,
   })
 }

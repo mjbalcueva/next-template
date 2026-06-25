@@ -34,15 +34,25 @@ export const $fetch = createFetch({
     // eslint-disable-next-line no-restricted-properties
     if (process.env.NODE_ENV === "development") {
       const err = context.error as BetterFetchError
-      // eslint-disable-next-line no-console
-      console.error(
-        `[better-fetch] ${context.request.method} ${context.request.url} → ${err.status ?? "???"} ${err.statusText ?? ""}`
-      )
+      // 401/403 are expected when unauthenticated — log as warning, not error.
+      if (err.status === 401 || err.status === 403) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[better-fetch] ${context.request.method} ${context.request.url} → ${err.status} (auth required)`
+        )
+      } else {
+        // eslint-disable-next-line no-console
+        console.error(
+          `[better-fetch] ${context.request.method} ${context.request.url} → ${err.status ?? "???"} ${err.statusText ?? ""}`
+        )
+      }
     }
   },
   retry: {
     type: "linear" as const,
     attempts: 1,
     delay: 1000,
+    /** Don't retry auth errors — they won't succeed without a valid token. */
+    statusCodes: [408, 409, 425, 429, 500, 502, 503, 504],
   },
 })

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 
-import { isAuthPagePath, isProtectedProxyPath } from "@/proxy-routes"
+import { DEFAULT_AUTH_REDIRECT, isAuthPagePath, isProtectedProxyPath } from "@/proxy-routes"
 
 /**
  * Next.js Proxy (formerly middleware).
@@ -22,7 +22,7 @@ export function proxy(request: NextRequest) {
   // ── Auth pages: redirect to home if already logged in ────────────────
   if (isAuthPagePath(pathname)) {
     if (authToken) {
-      return NextResponse.redirect(new URL("/", request.url))
+      return NextResponse.redirect(new URL(DEFAULT_AUTH_REDIRECT, request.url))
     }
     return NextResponse.next()
   }

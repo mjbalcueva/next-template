@@ -2,16 +2,22 @@
 
 import { useQuery } from "@tanstack/react-query"
 
+import { useUser } from "@/features/auth/hooks/use-session"
+
 import { permissionsQueryOptions } from "./query-options"
 
 /**
  * Universal hook — returns the current user's permissions.
  *
+ * Keyed by `userId` so switching accounts triggers a fresh fetch.
+ * Disabled when no user is loaded (avoids firing without a valid token).
+ *
  * `staleTime: Infinity` means calling this 500 times across the UI
  * costs 1 network request. React Query deduplicates automatically.
  */
 export function useResolvedPermissions(): readonly string[] {
-  const { data } = useQuery(permissionsQueryOptions())
+  const userId = useUser()?.id
+  const { data } = useQuery(permissionsQueryOptions(userId))
   return data?.permissions ?? []
 }
 

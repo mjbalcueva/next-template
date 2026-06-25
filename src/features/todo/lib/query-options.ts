@@ -28,10 +28,20 @@ export const todoListQueryOptions = () =>
   queryOptions({
     queryKey: todoKeys.list(),
     queryFn: listTodos,
+    staleTime: 30_000,
+    retry: (failureCount, error) => {
+      if ((error as { status?: number })?.status === 401) return false
+      return failureCount < 2
+    },
   })
 
 export const todoDetailQueryOptions = (id: string) =>
   queryOptions({
     queryKey: todoKeys.detail(id),
     queryFn: () => getTodo(id),
+    staleTime: 30_000,
+    retry: (failureCount, error) => {
+      if ((error as { status?: number })?.status === 401) return false
+      return failureCount < 2
+    },
   })

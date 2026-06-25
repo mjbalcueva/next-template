@@ -1,85 +1,54 @@
 "use client"
 
-import { flexRender } from "@tanstack/react-table"
+import { useCallback, useState } from "react"
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/core/components/ui/select"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/core/components/ui/table"
+import { useQuery } from "@tanstack/react-query"
 
-import { useTodoTable } from "../hooks/use-todo-table"
+import type { Todo } from "../api/todos.schema"
+import { todoListQueryOptions } from "../lib/query-options"
+import { computeTodoStats } from "../lib/todo-table-utils"
+
+import { todoColumns } from "./columns"
+import { DataTable } from "./data-table"
+import { TodoCharts } from "./todo-charts"
+import { TodoStatsCards } from "./todo-stats-cards"
 
 export function TodoAnalytics() {
-  const { table, active, set } = useTodoTable()
+  const { data: todos, isLoading } = useQuery(todoListQueryOptions())
+
+  const [filtered, setFiltered] = useState<Todo[]>([])
+
+  const stats = computeTodoStats(filtered)
+
+  const handleFilteredChange = useCallback((rows: Todo[]) => {
+    setFiltered(rows)
+  }, [])
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-6 pt-8 pb-16">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 pt-8 pb-16">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Todo Analytics</h1>
-        <div className="flex items-center gap-2">
-          <Select
-            value={active.status}
-            onValueChange={v => set("status", v as (typeof active)["status"])}
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="done">Done</SelectItem>
-              <SelectItem value="open">Open</SelectItem>
-            </SelectContent>
-          </Select>
+        <div>
+          <h1 className="text-2xl font-semibold">Todo Analytics</h1>
+          <p className="text-muted-foreground text-sm">
+            Track your productivity with real-time insights
+          </p>
         </div>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map(hg => (
-              <TableRow key={hg.id}>
-                {hg.headers.map(header => (
-                  <TableHead key={header.id} style={{ width: header.getSize() }}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            ) : (
-              table.getRowModel().rows.map(row => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      {/* Stats Cards */}
+      <TodoStatsCards stats={stats} isLoading={isLoading} />
+
+      {/* Charts */}
+      <TodoCharts todos={filtered} isLoading={isLoading} />
+
+      {/* Data Table with integrated toolbar & filters */}
+      <DataTable
+        columns={todoColumns}
+        data={todos ?? []}
+        isLoading={isLoading}
+        onFilteredChange={handleFilteredChange}
+      />
     </div>
   )
 }

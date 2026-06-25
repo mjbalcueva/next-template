@@ -14,13 +14,14 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useTheme } from "next-themes"
+import { useShallow } from "zustand/react/shallow"
 
 import { Button } from "@/core/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/core/components/ui/sheet"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/core/components/ui/tabs"
 import { cn } from "@/core/lib/utils"
 
-import { useUser } from "@/features/auth/hooks/use-session"
+import { useAuthStore } from "@/features/auth/store/auth.store"
 
 const RQDevtoolsPanel = dynamic(
   () => import("@tanstack/react-query-devtools").then(m => m.ReactQueryDevtoolsPanel),
@@ -362,11 +363,19 @@ const DetailsTab = memo(function DetailsTab() {
 
 function DevToolsPanel() {
   const [open, setOpen] = useState(false)
-  const [corner, setCorner] = useState<Corner>(loadCorner)
-  const [side, setSide] = useState<Side>(loadSide)
+  const [mounted, setMounted] = useState(false)
+  // Start with defaults matching the server render, sync from localStorage after mount.
+  const [corner, setCorner] = useState<Corner>("bottom-left")
+  const [side, setSide] = useState<Side>("right")
   const btn = useRef<HTMLButtonElement>(null)
   const drag = useRef({ active: false, x: 0, y: 0 })
   const { resolvedTheme, setTheme } = useTheme()
+
+  useEffect(() => {
+    setCorner(loadCorner())
+    setSide(loadSide())
+    setMounted(true)
+  }, [])
 
   const pd = useCallback((e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
@@ -406,7 +415,13 @@ function DevToolsPanel() {
   }, [])
 
   const qc = useQueryClient()
-  const user = useUser()
+  const session = useAuthStore(
+    useShallow(s => ({
+      token: s.session?.token ?? null,
+      user: s.session?.user ?? null,
+      isAuthenticated: s.session !== null,
+    }))
+  )
 
   const cycleSide = useCallback(() => {
     setSide(prev => {
@@ -536,13 +551,11 @@ function DevToolsPanel() {
             </TabsContent>
 
             <TabsContent value="session" className="flex-1 overflow-auto p-4">
-              {user && (
-                <div className="mb-2 flex justify-end">
-                  <CopyButton getValue={() => JSON.stringify(user, null, 2)} />
-                </div>
-              )}
+              <div className="mb-2 flex justify-end">
+                <CopyButton getValue={() => JSON.stringify(session, null, 2)} />
+              </div>
               <pre className="bg-muted/50 text-foreground/80 h-full overflow-auto rounded-md border p-4 font-mono text-xs">
-                {user ? JSON.stringify(user, null, 2) : "No active session."}
+                {session.isAuthenticated ? JSON.stringify(session, null, 2) : "No active session."}
               </pre>
             </TabsContent>
           </Tabs>

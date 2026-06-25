@@ -22,13 +22,13 @@ export function TodoDetails({ id }: { id: string }) {
   const router = useRouter()
   const { data: todo } = useQuery(todoDetailQueryOptions(id))
   const toggle = useToggleTodo()
-  const remove = useRemoveTodo({ onSuccess: () => router.push("/") })
+  const remove = useRemoveTodo({ onSuccess: () => router.push("/todos") })
 
   if (!todo) return null
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-6 pt-8 pb-16">
-      <Link href="/" className="text-muted-foreground hover:text-foreground w-fit text-sm">
+      <Link href="/todos" className="text-muted-foreground hover:text-foreground w-fit text-sm">
         ← Back to todos
       </Link>
 

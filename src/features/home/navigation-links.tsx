@@ -1,5 +1,6 @@
 "use client"
 
+import { type Route } from "next"
 import Link from "next/link"
 
 import { buttonVariants } from "@/core/components/ui/button"
@@ -21,7 +22,7 @@ export function NavigationLinks() {
             <Separator orientation="vertical" className="mx-1 hidden h-5 sm:block" />
           ) : null}
           <Link
-            href={link.href}
+            href={link.href as Route}
             className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "rounded-full")}
           >
             {link.label}

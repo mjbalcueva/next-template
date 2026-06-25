@@ -25,6 +25,13 @@ export const PUBLIC_PREFIXES = ["/auth/sign-in", "/auth/sign-up", "/session"] as
 export const AUTH_PAGE_PREFIXES = ["/auth/sign-in", "/auth/sign-up"] as const
 
 /**
+ * Where to redirect authenticated users when they land on an auth page
+ * (sign-in, sign-up, etc.). Change this once to update every redirect
+ * across the proxy, `<RedirectIfAuthenticated>`, and any future guards.
+ */
+export const DEFAULT_AUTH_REDIRECT = "/" as const
+
+/**
  * Returns `true` if the given pathname requires authentication.
  */
 export function isProtectedProxyPath(pathname: string): boolean {
