@@ -17,6 +17,7 @@ Use this skill when working in this template, adding features, connecting a Lara
 3. Do not add barrel files. Import directly from the file that owns the behavior.
 4. Preserve `src/core/components/reui/` as reusable shadcn-like primitives and blocks.
 5. Keep mocks easy to delete. Feature API calls should use resource paths like `todos`, `user`, and `permissions`; backend origin belongs in env.
+6. Do not add static proxy route lists for auth. Put protected pages under the protected route group and let `AuthGate` read the app-level `SessionProvider`.
 
 ## Auth
 

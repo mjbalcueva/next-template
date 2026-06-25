@@ -1,22 +1,12 @@
-import { redirect } from "next/navigation"
-
 import { SiteHeader } from "@/core/components/layout/site-header"
-import { RequestProviders } from "@/core/components/providers/request-providers"
 
-import { SIGN_IN_PATH } from "@/packages/auth/config"
-import { getCurrentSession } from "@/packages/auth/server"
+import { AuthGate } from "@/packages/auth/components/access-control"
 
-export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const session = await getCurrentSession()
-
-  if (!session) {
-    redirect(SIGN_IN_PATH)
-  }
-
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <RequestProviders initialSession={session}>
-      <SiteHeader user={{ name: session.user.name, email: session.user.email }} />
+    <AuthGate>
+      <SiteHeader />
       {children}
-    </RequestProviders>
+    </AuthGate>
   )
 }

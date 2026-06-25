@@ -58,6 +58,7 @@ This template uses Sanctum SPA cookie auth:
 - The `XSRF-TOKEN` cookie is sent back as `X-XSRF-TOKEN`.
 - Server requests forward incoming cookies to Laravel and send app `Origin` / `Referer`.
 - No bearer token is stored in localStorage or a frontend-owned auth cookie.
+- Protected app routes live under the protected route group and are guarded by `AuthGate`, backed by the app-level `SessionProvider`.
 
 Shared auth code lives in `src/packages/auth/`.
 User-facing auth UI and settings flows live in `src/features/auth/`.
@@ -91,8 +92,7 @@ src/
 │   ├── table/              # reusable filter badge/table-state helpers
 │   ├── tanstack/           # Query provider + query-key factory
 │   └── url-state/          # nuqs + optional localStorage persistence
-├── env.ts
-└── proxy.ts
+└── env.ts
 ```
 
 No barrel files are required for app imports; import directly from the file that owns the behavior.
@@ -102,7 +102,8 @@ No barrel files are required for app imports; import directly from the file that
 - `src/packages/api/fetch.ts`: `apiFetch()`
 - `src/packages/api/csrf.ts`: `ensureCsrfCookie()`, `readXsrfToken()`
 - `src/packages/auth/server.ts`: `getCurrentUser()`, `getCurrentSession()`, `requireUser()`, `can()`
-- `src/packages/auth/session-provider.tsx`: `SessionProvider`, `useSession()`
+- `src/packages/auth/session-provider.tsx`: `SessionProvider`, `useSession()`, `useAuth()`
+- `src/packages/auth/components/access-control.tsx`: `AuthGate`, `RedirectIfAuthenticated`, `RoleGate`
 - `src/packages/auth/components/can.tsx`: `<Can />`
 - `src/packages/url-state/use-persistent-query-states.ts`: URL state with optional localStorage hydration
 - `src/core/components/forms/tanstack-form.tsx`: reusable TanStack Form field adapters

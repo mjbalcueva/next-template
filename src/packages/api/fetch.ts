@@ -115,7 +115,7 @@ function getErrorMessage(data: unknown, status: number) {
   }
 
   if (status === 401) {
-    return "Please sign in to continue."
+    return "Please log in to continue."
   }
 
   if (status === 403) {

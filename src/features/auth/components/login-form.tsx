@@ -15,11 +15,10 @@ import {
 
 import { useLogin } from "@/features/auth/hooks/use-login"
 
+import { DEFAULT_AUTH_REDIRECT } from "@/packages/auth/config"
 import { loginInputSchema } from "@/packages/auth/schemas"
 
-import { DEFAULT_AUTH_REDIRECT } from "@/proxy-routes"
-
-export function SignInForm() {
+export function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [authError, setAuthError] = useState<string | null>(null)
@@ -36,7 +35,7 @@ export function SignInForm() {
         await login.mutateAsync(value)
         router.push(redirectUrl as Route)
       } catch (err) {
-        setAuthError(err instanceof Error ? err.message : "Failed to sign in. Please try again.")
+        setAuthError(err instanceof Error ? err.message : "Failed to log in. Please try again.")
       }
     },
   })
@@ -80,8 +79,8 @@ export function SignInForm() {
           {isSubmitting => (
             <SubmitButton
               isSubmitting={isSubmitting}
-              idleLabel="Sign in"
-              submittingLabel="Signing in…"
+              idleLabel="Log in"
+              submittingLabel="Logging in…"
               className="w-full"
             />
           )}

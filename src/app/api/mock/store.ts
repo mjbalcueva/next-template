@@ -84,7 +84,7 @@ export const store = {
     },
     {
       id: "t4",
-      text: "Test the proxy redirect",
+      text: "Test the protected layout redirect",
       done: false,
       createdAt: "2026-06-20T08:00:00.000Z",
       userId: "u1",

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation"
 import { ApiError } from "@/packages/api/errors"
 import { apiFetch } from "@/packages/api/fetch"
 
-import { AUTH_ENDPOINTS, SIGN_IN_PATH } from "./config"
+import { AUTH_ENDPOINTS, LOGIN_PATH } from "./config"
 import {
   authSessionSchema,
   authUserSchema,
@@ -52,7 +52,7 @@ export const getCurrentSession = cache(async (): Promise<AuthSession | null> => 
   return authSessionSchema.parse({ user, permissions })
 })
 
-export async function requireUser(redirectTo = SIGN_IN_PATH, type?: "push" | "replace") {
+export async function requireUser(redirectTo = LOGIN_PATH, type?: "push" | "replace") {
   const user = await getCurrentUser()
 
   if (!user) {
@@ -67,7 +67,7 @@ export async function can(permission: Permission) {
   return permissions.includes(permission)
 }
 
-export async function requirePermission(permission: Permission, redirectTo = SIGN_IN_PATH) {
+export async function requirePermission(permission: Permission, redirectTo = LOGIN_PATH) {
   if (!(await can(permission))) {
     redirect(redirectTo)
   }

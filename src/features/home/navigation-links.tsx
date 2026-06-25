@@ -5,8 +5,11 @@ import { buttonVariants } from "@/core/components/ui/button"
 import { Separator } from "@/core/components/ui/separator"
 import { cn } from "@/core/lib/utils"
 
-const LINKS = [
-  { href: "/todos", label: "Dashboard" },
+const LINKS: Array<{
+  href: Route
+  label: string
+}> = [
+  { href: "/todos/analytics", label: "Dashboard" },
   { href: "/todos", label: "Todos" },
   { href: "/session", label: "Session" },
 ]

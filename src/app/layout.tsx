@@ -1,11 +1,18 @@
 import type { Metadata } from "next"
 import { Figtree, Geist, Geist_Mono } from "next/font/google"
 
+import { NuqsAdapter } from "nuqs/adapters/next/app"
+
+import { DevTools } from "@/core/components/dev-tools"
 import { ThemeProvider } from "@/core/components/providers/theme-provider"
 import { Toaster } from "@/core/components/ui/sonner"
+import { TooltipProvider } from "@/core/components/ui/tooltip"
 import { cn } from "@/core/lib/utils"
 
 import "@/core/styles/globals.css"
+
+import { SessionProvider } from "@/packages/auth/session-provider"
+import { ReactQueryProvider } from "@/packages/tanstack/providers/provider"
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -50,7 +57,16 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <NuqsAdapter>
+            <ReactQueryProvider>
+              <SessionProvider>
+                <TooltipProvider>
+                  {children}
+                  <DevTools />
+                </TooltipProvider>
+              </SessionProvider>
+            </ReactQueryProvider>
+          </NuqsAdapter>
           <Toaster />
         </ThemeProvider>
       </body>

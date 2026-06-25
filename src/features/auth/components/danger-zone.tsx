@@ -27,7 +27,7 @@ export function DangerZone() {
     try {
       await deleteAccount.mutateAsync()
       await logout.mutateAsync()
-      router.push("/auth/sign-in")
+      router.push("/auth/login")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete account.")
     }

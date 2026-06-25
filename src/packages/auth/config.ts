@@ -10,9 +10,4 @@ export const AUTH_ENDPOINTS = {
 } as const
 
 export const DEFAULT_AUTH_REDIRECT = "/" as const
-export const SIGN_IN_PATH = "/auth/sign-in" as const
-export const AUTH_SESSION_COOKIE_NAMES = ["mock_session", "laravel_session"] as const
-
-export function hasSessionCookie(getCookie: (name: string) => { value?: string } | undefined) {
-  return AUTH_SESSION_COOKIE_NAMES.some(name => Boolean(getCookie(name)?.value))
-}
+export const LOGIN_PATH = "/auth/login" as const

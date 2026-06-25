@@ -7,21 +7,14 @@ import { Button } from "@/core/components/ui/button"
 
 import { useLogout } from "@/features/auth/hooks/use-logout"
 
-type SiteHeaderProps = {
-  user: {
-    name: string
-    email: string
-  }
-}
-
-export function SiteHeader({ user: _user }: SiteHeaderProps) {
+export function SiteHeader() {
   const router = useRouter()
   const pathname = usePathname()
   const logout = useLogout()
 
-  const handleSignOut = async () => {
+  const handleLogout = async () => {
     await logout.mutateAsync()
-    router.push("/auth/sign-in")
+    router.push("/auth/login")
   }
 
   return (
@@ -44,10 +37,10 @@ export function SiteHeader({ user: _user }: SiteHeaderProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleSignOut}
+            onClick={handleLogout}
             className="text-muted-foreground hover:text-foreground"
           >
-            Sign out
+            Log out
           </Button>
         </div>
       </div>
