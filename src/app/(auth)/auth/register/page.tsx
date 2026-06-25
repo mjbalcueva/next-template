@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/core/components/ui/card"
 
-import { RegisterForm } from "@/features/auth/components/register-form"
+import { RegisterForm } from "@/features/user/components/register-form"
 
 import { DEFAULT_AUTH_REDIRECT } from "@/packages/auth/lib/schemas"
 import { getCurrentSession } from "@/packages/auth/lib/server"

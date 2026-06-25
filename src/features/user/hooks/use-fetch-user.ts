@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query"
 
-import { getSession } from "@/packages/auth/api/auth-client"
+import { getSession } from "../api/auth.api"
 import { useAuth } from "@/packages/auth/store/auth.actions"
 
 export function useFetchUser() {

@@ -2,15 +2,15 @@
 
 import { useMutation } from "@tanstack/react-query"
 
-import { login } from "@/packages/auth/api/auth-client"
-import type { LoginInput } from "@/packages/auth/lib/schemas"
+import { register } from "../api/auth.api"
+import type { RegisterInput } from "@/packages/auth/lib/schemas"
 import { useAuth } from "@/packages/auth/store/auth.actions"
 
-export function useLogin() {
+export function useRegister() {
   const { setSession } = useAuth()
 
   return useMutation({
-    mutationFn: (input: LoginInput) => login(input),
+    mutationFn: (input: RegisterInput) => register(input),
     onSuccess: session => setSession(session),
   })
 }

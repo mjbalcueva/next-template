@@ -9,9 +9,9 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { Button, buttonVariants } from "@/core/components/ui/button"
 import { cn } from "@/core/lib/utils"
 
-import { useAuth } from "@/packages/auth/store/auth.actions"
+import { useLogout } from "@/features/user/hooks/use-logout"
 
-import { useLogout } from "../auth/hooks/use-logout"
+import { useAuth } from "@/packages/auth/store/auth.actions"
 
 export function HomeCtaButton({ href, isLoggedIn }: { href: string; isLoggedIn: boolean }) {
   const { isAuthenticated } = useAuth()

@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/core/components/ui/card"
 
-import { LoginForm } from "@/features/auth/components/login-form"
+import { LoginForm } from "@/features/user/components/login-form"
 
 import { DEFAULT_AUTH_REDIRECT } from "@/packages/auth/lib/schemas"
 import { getCurrentSession } from "@/packages/auth/lib/server"

@@ -12,8 +12,8 @@ import {
   CardTitle,
 } from "@/core/components/ui/card"
 
-import { useLogout } from "@/features/auth/hooks/use-logout"
-import { useDeleteAccount } from "@/features/auth/hooks/use-profile"
+import { useLogout } from "@/features/user/hooks/use-logout"
+import { useDeleteAccount } from "@/features/user/hooks/use-profile"
 
 export function DangerZone() {
   const router = useRouter()

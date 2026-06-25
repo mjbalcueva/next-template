@@ -9,7 +9,7 @@ import {
   type AuthUser,
   type LoginInput,
   type RegisterInput,
-} from "../lib/schemas"
+} from "@/packages/auth/lib/schemas"
 
 // ─── Browser-side auth API ─────────────────────────────────────────────
 //

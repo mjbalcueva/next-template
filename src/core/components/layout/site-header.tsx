@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 
 import { Button } from "@/core/components/ui/button"
 
-import { useLogout } from "@/features/auth/hooks/use-logout"
+import { useLogout } from "@/features/user/hooks/use-logout"
 
 export function SiteHeader() {
   const router = useRouter()

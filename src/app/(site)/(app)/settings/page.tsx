@@ -1,8 +1,8 @@
 import { Separator } from "@/core/components/ui/separator"
 
-import { DangerZone } from "@/features/auth/components/danger-zone"
-import { PasswordSection } from "@/features/auth/components/password-section"
-import { ProfileSection } from "@/features/auth/components/profile-section"
+import { DangerZone } from "@/features/user/components/danger-zone"
+import { PasswordSection } from "@/features/user/components/password-section"
+import { ProfileSection } from "@/features/user/components/profile-section"
 
 import { Gate } from "@/packages/auth/components/gate"
 

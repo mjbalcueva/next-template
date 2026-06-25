@@ -12,7 +12,7 @@ import {
   TextFormField,
 } from "@/core/components/forms/tanstack-form"
 
-import { useRegister } from "@/features/auth/hooks/use-register"
+import { useRegister } from "@/features/user/hooks/use-register"
 
 import { registerInputSchema } from "@/packages/auth/lib/schemas"
 

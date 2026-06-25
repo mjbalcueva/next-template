@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react"
 
+import { useShallow } from "zustand/shallow"
+
 import {
   hasAbacPermission,
   hasActionPermission,
@@ -19,9 +21,6 @@ import { useAuthStore } from "../store/auth.store"
 type GateProps = {
   children: ReactNode
   fallback?: ReactNode
-
-  /** Require the user to be authenticated. */
-  auth?: boolean
 
   /** Require one of these roles. */
   roles?: readonly string[]
@@ -45,11 +44,9 @@ type GateProps = {
 // ─── Component ─────────────────────────────────────────────────────────
 
 export function Gate({ children, fallback = null, ...props }: GateProps) {
-  const user = useAuthStore(s => s.user)
-  const permissions = useAuthStore(s => s.permissions)
-
-  // Auth gate — derived: user exists = authenticated
-  if (props.auth && !user) return fallback
+  const { user, permissions } = useAuthStore(
+    useShallow(s => ({ user: s.user, permissions: s.permissions }))
+  )
 
   // Role gate
   if (props.roles && !hasRole(user, props.roles)) return fallback

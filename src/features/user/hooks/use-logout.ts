@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 
 import { useMutation } from "@tanstack/react-query"
 
-import { logout } from "@/packages/auth/api/auth-client"
+import { logout } from "../api/auth.api"
 import { useAuth } from "@/packages/auth/store/auth.actions"
 
 export function useLogout() {

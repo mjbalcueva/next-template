@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from "@/core/components/ui/card"
 
-import { useChangePassword } from "@/features/auth/hooks/use-profile"
+import { useChangePassword } from "@/features/user/hooks/use-profile"
 
 const passwordSchema = z
   .object({

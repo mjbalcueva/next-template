@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from "@/core/components/ui/card"
 
-import { useUpdateProfile } from "@/features/auth/hooks/use-profile"
+import { useUpdateProfile } from "@/features/user/hooks/use-profile"
 
 import { useUser } from "@/packages/auth/store/auth.actions"
 
