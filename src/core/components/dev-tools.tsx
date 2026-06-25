@@ -541,12 +541,14 @@ function DevToolsPanel() {
             </TabsContent>
 
             <TabsContent value="session" className="flex-1 overflow-auto p-4">
-              <div className="mb-2 flex justify-end">
-                <CopyButton getValue={() => JSON.stringify(debugSession, null, 2)} />
+              <div className="relative h-full">
+                <div className="absolute top-3 right-3 z-10">
+                  <CopyButton getValue={() => JSON.stringify(debugSession, null, 2)} />
+                </div>
+                <pre className="bg-muted/50 text-foreground/80 h-full overflow-auto rounded-md border p-4 pr-14 font-mono text-xs">
+                  {debugSession.user ? JSON.stringify(debugSession, null, 2) : "No active session."}
+                </pre>
               </div>
-              <pre className="bg-muted/50 text-foreground/80 h-full overflow-auto rounded-md border p-4 font-mono text-xs">
-                {debugSession.user ? JSON.stringify(debugSession, null, 2) : "No active session."}
-              </pre>
             </TabsContent>
           </Tabs>
         </SheetContent>
