@@ -1,6 +1,5 @@
 "use client"
 
-import { useSession } from "./session-provider"
 import {
   hasAbacPermission,
   hasActionPermission,
@@ -10,6 +9,7 @@ import {
   hasResourcePermission,
 } from "./permissions"
 import type { Permission } from "./schemas"
+import { useSession } from "./session-provider"
 
 export function useUser() {
   return useSession().user

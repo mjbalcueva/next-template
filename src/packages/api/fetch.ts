@@ -200,12 +200,14 @@ export async function apiFetch<TSchema extends ZodType | undefined = undefined>(
     method: requestMethod,
     credentials: "include",
     headers: requestHeaders,
-    body: body === undefined ? undefined : isJsonLike(body) ? JSON.stringify(body) : (body as BodyInit),
+    body:
+      body === undefined ? undefined : isJsonLike(body) ? JSON.stringify(body) : (body as BodyInit),
   })
 
   const contentType = response.headers.get("content-type")
   const hasJson = contentType?.includes("application/json")
-  const data = response.status === 204 ? undefined : hasJson ? await response.json() : await response.text()
+  const data =
+    response.status === 204 ? undefined : hasJson ? await response.json() : await response.text()
 
   if (!response.ok) {
     throw new ApiError({

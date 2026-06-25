@@ -5,11 +5,7 @@ import { useState } from "react"
 import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
 
-import {
-  FormStatus,
-  SubmitButton,
-  TextFormField,
-} from "@/core/components/forms/tanstack-form"
+import { FormStatus, SubmitButton, TextFormField } from "@/core/components/forms/tanstack-form"
 import {
   Card,
   CardContent,
@@ -65,7 +61,9 @@ export function ProfileSection() {
           </form.Field>
 
           <div className="flex items-center justify-between">
-            <FormStatus tone={status?.includes("updated") ? "success" : "error"}>{status}</FormStatus>
+            <FormStatus tone={status?.includes("updated") ? "success" : "error"}>
+              {status}
+            </FormStatus>
             <form.Subscribe selector={s => s.isSubmitting}>
               {isSubmitting => (
                 <SubmitButton

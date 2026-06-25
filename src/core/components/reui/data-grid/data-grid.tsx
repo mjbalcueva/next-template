@@ -1,6 +1,7 @@
 "use client"
 
-import { createContext, type ReactNode, useContext, useEffect, useMemo } from "react"
+import { createContext, useContext, useEffect, useMemo, type ReactNode } from "react"
+
 import {
   type Column,
   type ColumnFiltersState,
@@ -12,7 +13,6 @@ import {
 import { cn } from "@/core/lib/utils"
 
 declare module "@tanstack/react-table" {
-   
   interface ColumnMeta<TData extends RowData, TValue> {
     headerTitle?: string
     headerClassName?: string
@@ -23,9 +23,7 @@ declare module "@tanstack/react-table" {
 }
 
 /** Label for headers / column visibility: `meta.headerTitle`, string `columnDef.header`, or `column.id`. */
-export function getColumnHeaderLabel<TData, TValue>(
-  column: Column<TData, TValue>
-): string {
+export function getColumnHeaderLabel<TData, TValue>(column: Column<TData, TValue>): string {
   const meta = column.columnDef.meta as { headerTitle?: string } | undefined
   if (typeof meta?.headerTitle === "string") return meta.headerTitle
   const defHeader = column.columnDef.header
@@ -107,10 +105,7 @@ export interface DataGridProps<TData extends object> {
   }
 }
 
-const DataGridContext = createContext<
-   
-  DataGridContextProps<any> | undefined
->(undefined)
+const DataGridContext = createContext<DataGridContextProps<any> | undefined>(undefined)
 
 function useDataGrid() {
   const context = useContext(DataGridContext)
@@ -126,8 +121,7 @@ function DataGridProvider<TData extends object>({
   ...props
 }: DataGridProps<TData> & { table: Table<TData> }) {
   const tableState = table.getState()
-  const resolvedColumnsResizeMode =
-    props.tableLayout?.columnsResizeMode ?? "onEnd"
+  const resolvedColumnsResizeMode = props.tableLayout?.columnsResizeMode ?? "onEnd"
 
   // Keep resize mode aligned with the DataGrid contract.
   useEffect(() => {
@@ -157,7 +151,7 @@ function DataGridProvider<TData extends object>({
       recordCount: props.recordCount,
       isLoading: props.isLoading || false,
     }),
-     
+
     [
       table,
       props.recordCount,
@@ -169,9 +163,9 @@ function DataGridProvider<TData extends object>({
       props.emptyMessage,
       props.onRowClick,
       props.className,
-       
+
       JSON.stringify(props.tableLayout),
-       
+
       JSON.stringify(props.tableClassNames),
       tableState.sorting,
       tableState.pagination,
@@ -185,18 +179,10 @@ function DataGridProvider<TData extends object>({
     ]
   )
 
-  return (
-    <DataGridContext.Provider value={value}>
-      {children}
-    </DataGridContext.Provider>
-  )
+  return <DataGridContext.Provider value={value}>{children}</DataGridContext.Provider>
 }
 
-function DataGrid<TData extends object>({
-  children,
-  table,
-  ...props
-}: DataGridProps<TData>) {
+function DataGrid<TData extends object>({ children, table, ...props }: DataGridProps<TData>) {
   const defaultProps: Partial<DataGridProps<TData>> = {
     loadingMode: "skeleton",
     tableLayout: {
@@ -269,8 +255,7 @@ function DataGridContainer({
       data-slot="data-grid"
       className={cn(
         "w-full overflow-hidden",
-        border &&
-          "border-border rounded-2xl border",
+        border && "border-border rounded-2xl border",
         className
       )}
     >

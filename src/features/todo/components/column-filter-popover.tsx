@@ -86,7 +86,7 @@ export function ColumnFilterPopover({
       <PopoverContent className="w-52 p-2" align="start">
         {filterDef.type === "select" && filterDef.options ? (
           <div className="flex flex-col gap-1">
-            {filterDef.options.map((opt) => (
+            {filterDef.options.map(opt => (
               <Button
                 key={opt.value}
                 variant={currentValue === opt.value ? "default" : "ghost"}

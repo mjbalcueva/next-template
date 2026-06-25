@@ -56,7 +56,14 @@ export function TextFormField({
   return (
     <Field data-invalid={isInvalid} className={fieldClassName}>
       <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-      {action ? <div className="flex gap-2">{input}{action}</div> : input}
+      {action ? (
+        <div className="flex gap-2">
+          {input}
+          {action}
+        </div>
+      ) : (
+        input
+      )}
       {isInvalid && <FieldError errors={getFieldErrors(field)} />}
     </Field>
   )

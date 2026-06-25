@@ -1,12 +1,10 @@
 "use client"
 
-import { type ReactNode, type RefObject, useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, type ReactNode, type RefObject } from "react"
 
 type ScrollspyProps = {
   children: ReactNode
-  targetRef?: RefObject<
-    HTMLElement | HTMLDivElement | Document | null | undefined
-  >
+  targetRef?: RefObject<HTMLElement | HTMLDivElement | Document | null | undefined>
   onUpdate?: (id: string) => void
   offset?: number
   smooth?: boolean
@@ -34,7 +32,7 @@ export function Scrollspy({
   const setActiveSection = useCallback(
     (sectionId: string | null, force = false) => {
       if (!sectionId) return
-      anchorElementsRef.current?.forEach((item) => {
+      anchorElementsRef.current?.forEach(item => {
         const id = item.getAttribute(`data-${dataAttribute}-anchor`)
         if (id === sectionId) {
           item.setAttribute("data-active", "true")
@@ -52,8 +50,7 @@ export function Scrollspy({
   )
 
   const handleScroll = useCallback(() => {
-    if (!anchorElementsRef.current || anchorElementsRef.current.length === 0)
-      return
+    if (!anchorElementsRef.current || anchorElementsRef.current.length === 0) return
 
     let scrollElement =
       targetRef?.current === document
@@ -63,9 +60,7 @@ export function Scrollspy({
     if (!scrollElement) return
 
     // If the scrollElement has a data-slot="scroll-area-viewport" inside, use that
-    const viewport = scrollElement.querySelector(
-      '[data-slot="scroll-area-viewport"]'
-    )
+    const viewport = scrollElement.querySelector('[data-slot="scroll-area-viewport"]')
     if (viewport instanceof HTMLElement) {
       scrollElement = viewport
     }
@@ -88,14 +83,9 @@ export function Scrollspy({
       const dataOffset = anchor.getAttribute(`data-${dataAttribute}-offset`)
       if (dataOffset) customOffset = parseInt(dataOffset, 10)
 
-      const delta = Math.abs(
-        sectionElement.offsetTop - customOffset - scrollTop
-      )
+      const delta = Math.abs(sectionElement.offsetTop - customOffset - scrollTop)
 
-      if (
-        sectionElement.offsetTop - customOffset <= scrollTop &&
-        delta < minDelta
-      ) {
+      if (sectionElement.offsetTop - customOffset <= scrollTop && delta < minDelta) {
         minDelta = delta
         activeIdx = idx
       }
@@ -111,8 +101,7 @@ export function Scrollspy({
 
     // Set only one anchor active and sync the URL hash
     const activeAnchor = anchorElementsRef.current[activeIdx]
-    const sectionId =
-      activeAnchor?.getAttribute(`data-${dataAttribute}-anchor`) || null
+    const sectionId = activeAnchor?.getAttribute(`data-${dataAttribute}-anchor`) || null
 
     setActiveSection(sectionId)
   }, [anchorElementsRef, targetRef, dataAttribute, offset, setActiveSection])
@@ -121,31 +110,23 @@ export function Scrollspy({
     (anchorElement: HTMLElement) => (event?: Event) => {
       if (event) event.preventDefault()
       const sectionId =
-        anchorElement
-          .getAttribute(`data-${dataAttribute}-anchor`)
-          ?.replace("#", "") || null
+        anchorElement.getAttribute(`data-${dataAttribute}-anchor`)?.replace("#", "") || null
       if (!sectionId) return
       const sectionElement = document.getElementById(sectionId)
       if (!sectionElement) return
 
       let scrollToElement: HTMLElement | Window | null =
-        targetRef?.current === document
-          ? window
-          : (targetRef?.current as HTMLElement)
+        targetRef?.current === document ? window : (targetRef?.current as HTMLElement)
 
       if (scrollToElement instanceof HTMLElement) {
-        const viewport = scrollToElement.querySelector(
-          '[data-slot="scroll-area-viewport"]'
-        )
+        const viewport = scrollToElement.querySelector('[data-slot="scroll-area-viewport"]')
         if (viewport instanceof HTMLElement) {
           scrollToElement = viewport
         }
       }
 
       let customOffset = offset
-      const dataOffset = anchorElement.getAttribute(
-        `data-${dataAttribute}-offset`
-      )
+      const dataOffset = anchorElement.getAttribute(`data-${dataAttribute}-offset`)
       if (dataOffset) {
         customOffset = parseInt(dataOffset, 10)
       }
@@ -187,21 +168,18 @@ export function Scrollspy({
     }
 
     const currentAnchors = anchorElementsRef.current
-    currentAnchors?.forEach((item) => {
+    currentAnchors?.forEach(item => {
       item.addEventListener("click", scrollTo(item as HTMLElement))
     })
 
     const onScroll = (event: Event) => {
       const scrollElement =
-        targetRef?.current === document
-          ? window
-          : (targetRef?.current as HTMLElement)
+        targetRef?.current === document ? window : (targetRef?.current as HTMLElement)
       if (!scrollElement) return
 
       if (
         scrollElement === window ||
-        (scrollElement instanceof HTMLElement &&
-          scrollElement.contains(event.target as Node))
+        (scrollElement instanceof HTMLElement && scrollElement.contains(event.target as Node))
       ) {
         handleScroll()
       }
@@ -218,19 +196,12 @@ export function Scrollspy({
 
     return () => {
       window.removeEventListener("scroll", onScroll, true)
-      currentAnchors?.forEach((item) => {
+      currentAnchors?.forEach(item => {
         item.removeEventListener("click", scrollTo(item as HTMLElement))
       })
       clearTimeout(initialTimeout)
     }
-  }, [
-    targetRef,
-    selfRef,
-    handleScroll,
-    dataAttribute,
-    scrollTo,
-    scrollToHashSection,
-  ])
+  }, [targetRef, selfRef, handleScroll, dataAttribute, scrollTo, scrollToHashSection])
 
   return (
     <div data-slot="scrollspy" className={className} ref={selfRef}>

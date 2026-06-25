@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 
-import { RequestProviders } from "@/core/components/providers/request-providers"
 import { SiteHeader } from "@/core/components/layout/site-header"
+import { RequestProviders } from "@/core/components/providers/request-providers"
 
 import { SIGN_IN_PATH } from "@/packages/auth/config"
 import { getCurrentSession } from "@/packages/auth/server"

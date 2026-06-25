@@ -1,13 +1,23 @@
 "use client"
 
-import { type HTMLAttributes, memo, type ReactNode, useMemo } from "react"
+import { memo, useMemo, type HTMLAttributes, type ReactNode } from "react"
+
 import {
-  getColumnHeaderLabel,
-  useDataGrid,
-} from "@/core/components/reui/data-grid/data-grid"
+  ArrowDown02Icon,
+  ArrowLeft02Icon,
+  ArrowLeft03Icon,
+  ArrowRight02Icon,
+  ArrowRight03Icon,
+  ArrowUp02Icon,
+  PinOffIcon,
+  SlidersHorizontalIcon,
+  Tick02Icon,
+  UnfoldMoreIcon,
+} from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
 import { type Column } from "@tanstack/react-table"
 
-import { cn } from "@/core/lib/utils"
+import { getColumnHeaderLabel, useDataGrid } from "@/core/components/reui/data-grid/data-grid"
 import { Button } from "@/core/components/ui/button"
 import {
   DropdownMenu,
@@ -22,13 +32,9 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/core/components/ui/dropdown-menu"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { ArrowDown02Icon, ArrowUp02Icon, UnfoldMoreIcon, Tick02Icon, ArrowLeft03Icon, ArrowRight03Icon, ArrowLeft02Icon, ArrowRight02Icon, SlidersHorizontalIcon, PinOffIcon } from "@hugeicons/core-free-icons"
+import { cn } from "@/core/lib/utils"
 
-interface DataGridColumnHeaderProps<
-  TData,
-  TValue,
-> extends HTMLAttributes<HTMLDivElement> {
+interface DataGridColumnHeaderProps<TData, TValue> extends HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>
   /** When omitted, uses `column.columnDef.meta.headerTitle`, then a string `columnDef.header`, then `column.id`. */
   title?: string
@@ -72,12 +78,12 @@ function DataGridColumnHeaderInner<TData, TValue>({
   }
 
   const headerLabelClassName = cn(
-    "text-secondary-foreground/80 inline-flex h-full items-center gap-1.5 font-normal [&_svg]:opacity-60 text-[0.8125rem] leading-[calc(1.125/0.8125)] [&_svg]:size-3.5",
+    "text-secondary-foreground/80 inline-flex h-full items-center gap-1.5 text-[0.8125rem] leading-[calc(1.125/0.8125)] font-normal [&_svg]:size-3.5 [&_svg]:opacity-60",
     className
   )
 
   const headerButtonClassName = cn(
-    "text-secondary-foreground/80 hover:bg-secondary data-[state=open]:bg-secondary hover:text-foreground data-[state=open]:text-foreground -ms-2 px-2 font-normal h-7 rounded-4xl",
+    "text-secondary-foreground/80 hover:bg-secondary data-[state=open]:bg-secondary hover:text-foreground data-[state=open]:text-foreground -ms-2 h-7 rounded-4xl px-2 font-normal",
     className
   )
 
@@ -131,7 +137,11 @@ function DataGridColumnHeaderInner<TData, TValue>({
           <HugeiconsIcon icon={ArrowUp02Icon} strokeWidth={2} className="size-3.5!" />
           <span className="grow">Asc</span>
           {isSorted === "asc" && (
-            <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} className="text-primary size-4 opacity-100!" />
+            <HugeiconsIcon
+              icon={Tick02Icon}
+              strokeWidth={2}
+              className="text-primary size-4 opacity-100!"
+            />
           )}
         </DropdownMenuItem>,
         <DropdownMenuItem
@@ -148,7 +158,11 @@ function DataGridColumnHeaderInner<TData, TValue>({
           <HugeiconsIcon icon={ArrowDown02Icon} strokeWidth={2} className="size-3.5!" />
           <span className="grow">Desc</span>
           {isSorted === "desc" && (
-            <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} className="text-primary size-4 opacity-100!" />
+            <HugeiconsIcon
+              icon={Tick02Icon}
+              strokeWidth={2}
+              className="text-primary size-4 opacity-100!"
+            />
           )}
         </DropdownMenuItem>
       )
@@ -165,20 +179,38 @@ function DataGridColumnHeaderInner<TData, TValue>({
           key="pin-left"
           onClick={() => column.pin(isPinned === "left" ? false : "left")}
         >
-          <HugeiconsIcon icon={ArrowLeft03Icon} strokeWidth={2} className="size-3.5!" aria-hidden="true" />
+          <HugeiconsIcon
+            icon={ArrowLeft03Icon}
+            strokeWidth={2}
+            className="size-3.5!"
+            aria-hidden="true"
+          />
           <span className="grow">Pin to left</span>
           {isPinned === "left" && (
-            <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} className="text-primary size-4 opacity-100!" />
+            <HugeiconsIcon
+              icon={Tick02Icon}
+              strokeWidth={2}
+              className="text-primary size-4 opacity-100!"
+            />
           )}
         </DropdownMenuItem>,
         <DropdownMenuItem
           key="pin-right"
           onClick={() => column.pin(isPinned === "right" ? false : "right")}
         >
-          <HugeiconsIcon icon={ArrowRight03Icon} strokeWidth={2} className="size-3.5!" aria-hidden="true" />
+          <HugeiconsIcon
+            icon={ArrowRight03Icon}
+            strokeWidth={2}
+            className="size-3.5!"
+            aria-hidden="true"
+          />
           <span className="grow">Pin to right</span>
           {isPinned === "right" && (
-            <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} className="text-primary size-4 opacity-100!" />
+            <HugeiconsIcon
+              icon={Tick02Icon}
+              strokeWidth={2}
+              className="text-primary size-4 opacity-100!"
+            />
           )}
         </DropdownMenuItem>
       )
@@ -203,7 +235,12 @@ function DataGridColumnHeaderInner<TData, TValue>({
           }}
           disabled={!canMoveLeft || isPinned !== false}
         >
-          <HugeiconsIcon icon={ArrowLeft02Icon} strokeWidth={2} className="size-3.5!" aria-hidden="true" />
+          <HugeiconsIcon
+            icon={ArrowLeft02Icon}
+            strokeWidth={2}
+            className="size-3.5!"
+            aria-hidden="true"
+          />
           <span>Move to Left</span>
         </DropdownMenuItem>,
         <DropdownMenuItem
@@ -218,7 +255,12 @@ function DataGridColumnHeaderInner<TData, TValue>({
           }}
           disabled={!canMoveRight || isPinned !== false}
         >
-          <HugeiconsIcon icon={ArrowRight02Icon} strokeWidth={2} className="size-3.5!" aria-hidden="true" />
+          <HugeiconsIcon
+            icon={ArrowRight02Icon}
+            strokeWidth={2}
+            className="size-3.5!"
+            aria-hidden="true"
+          />
           <span>Move to Right</span>
         </DropdownMenuItem>
       )
@@ -239,13 +281,13 @@ function DataGridColumnHeaderInner<TData, TValue>({
           <DropdownMenuSubContent side="right">
             {table
               .getAllColumns()
-              .filter((col) => col.getCanHide())
-              .map((col) => (
+              .filter(col => col.getCanHide())
+              .map(col => (
                 <DropdownMenuCheckboxItem
                   key={col.id}
                   checked={col.getIsVisible()}
-                  onSelect={(event) => event.preventDefault()}
-                  onCheckedChange={(value) => col.toggleVisibility(!!value)}
+                  onSelect={event => event.preventDefault()}
+                  onCheckedChange={value => col.toggleVisibility(!!value)}
                   className="capitalize"
                 >
                   {getColumnHeaderLabel(col)}
@@ -257,7 +299,6 @@ function DataGridColumnHeaderInner<TData, TValue>({
     }
 
     return items
-     
   }, [
     filter,
     canSort,
@@ -307,7 +348,12 @@ function DataGridColumnHeaderInner<TData, TValue>({
             aria-label={`Unpin ${resolvedTitle} column`}
             title={`Unpin ${resolvedTitle} column`}
           >
-            <HugeiconsIcon icon={PinOffIcon} strokeWidth={2} className="size-3.5! opacity-50!" aria-hidden="true" />
+            <HugeiconsIcon
+              icon={PinOffIcon}
+              strokeWidth={2}
+              className="size-3.5! opacity-50!"
+              aria-hidden="true"
+            />
           </Button>
         )}
       </div>
@@ -339,8 +385,6 @@ function DataGridColumnHeaderInner<TData, TValue>({
   )
 }
 
-const DataGridColumnHeader = memo(
-  DataGridColumnHeaderInner
-) as typeof DataGridColumnHeaderInner
+const DataGridColumnHeader = memo(DataGridColumnHeaderInner) as typeof DataGridColumnHeaderInner
 
 export { DataGridColumnHeader, type DataGridColumnHeaderProps }

@@ -4,11 +4,7 @@ import { useState } from "react"
 
 import { useForm } from "@tanstack/react-form"
 
-import {
-  FormStatus,
-  SubmitButton,
-  TextFormField,
-} from "@/core/components/forms/tanstack-form"
+import { FormStatus, SubmitButton, TextFormField } from "@/core/components/forms/tanstack-form"
 
 import { Can } from "@/packages/auth/components/can"
 

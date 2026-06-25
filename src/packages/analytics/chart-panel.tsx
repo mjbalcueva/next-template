@@ -48,7 +48,9 @@ export function ChartSkeleton({
         <Skeleton className="h-4 w-44" />
       </CardHeader>
       <CardContent>
-        <Skeleton className={cn("h-64 w-full", shape === "circle" && "aspect-square h-auto rounded-full")} />
+        <Skeleton
+          className={cn("h-64 w-full", shape === "circle" && "aspect-square h-auto rounded-full")}
+        />
       </CardContent>
     </Card>
   )

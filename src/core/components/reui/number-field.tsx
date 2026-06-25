@@ -1,13 +1,14 @@
 "use client"
 
-import { createContext, type ReactNode, useContext, useId } from "react"
+import { createContext, useContext, useId, type ReactNode } from "react"
+
 import { NumberField as NumberFieldPrimitive } from "@base-ui/react/number-field"
+import { MinusSignIcon, PlusSignIcon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
 import { cva, type VariantProps } from "class-variance-authority"
 
-import { cn } from "@/core/lib/utils"
 import { Label } from "@/core/components/ui/label"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { MinusSignIcon, PlusSignIcon } from "@hugeicons/core-free-icons"
+import { cn } from "@/core/lib/utils"
 
 const NumberFieldContext = createContext<{
   fieldId: string
@@ -15,13 +16,12 @@ const NumberFieldContext = createContext<{
 } | null>(null)
 
 const numberFieldGroupVariants = cva(
-  "relative flex w-full justify-between border border-input data-disabled:pointer-events-none data-disabled:opacity-50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive focus-within:has-aria-invalid:border-destructive focus-within:has-aria-invalid:ring-destructive/20 dark:focus-within:has-aria-invalid:ring-destructive/40 rounded-4xl bg-input/30 transition-colors focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
+  "border-input aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive focus-within:has-aria-invalid:border-destructive focus-within:has-aria-invalid:ring-destructive/20 dark:focus-within:has-aria-invalid:ring-destructive/40 bg-input/30 focus-within:border-ring focus-within:ring-ring/50 relative flex w-full justify-between rounded-4xl border transition-colors focus-within:ring-[3px] data-disabled:pointer-events-none data-disabled:opacity-50",
   {
     variants: {
       size: {
         sm: "h-8 text-sm",
-        default:
-          "h-9 text-sm",
+        default: "h-9 text-sm",
         lg: "h-10 text-sm",
       },
     },
@@ -32,13 +32,12 @@ const numberFieldGroupVariants = cva(
 )
 
 const numberFieldButtonVariants = cva(
-  "relative flex shrink-0 cursor-pointer items-center justify-center transition-colors pointer-coarse:after:absolute pointer-coarse:after:size-full pointer-coarse:after:min-h-11 pointer-coarse:after:min-w-11 hover:bg-accent",
+  "hover:bg-accent relative flex shrink-0 cursor-pointer items-center justify-center transition-colors pointer-coarse:after:absolute pointer-coarse:after:size-full pointer-coarse:after:min-h-11 pointer-coarse:after:min-w-11",
   {
     variants: {
       size: {
         sm: "px-2 [&_svg:not([class*='size-'])]:size-3.5",
-        default:
-          "px-2.5 [&_svg:not([class*='size-'])]:size-4",
+        default: "px-2.5 [&_svg:not([class*='size-'])]:size-4",
         lg: "px-3 [&_svg:not([class*='size-'])]:size-4",
       },
     },
@@ -54,8 +53,7 @@ const numberFieldInputVariants = cva(
     variants: {
       size: {
         sm: "px-2.5 py-1",
-        default:
-          "px-3 py-1.5",
+        default: "px-3 py-1.5",
         lg: "px-3.5 py-2",
       },
     },
@@ -70,8 +68,7 @@ function NumberField({
   className,
   size = "default",
   ...props
-}: NumberFieldPrimitive.Root.Props &
-  VariantProps<typeof numberFieldGroupVariants>) {
+}: NumberFieldPrimitive.Root.Props & VariantProps<typeof numberFieldGroupVariants>) {
   const generatedId = useId()
   const fieldId = id ?? generatedId
   const sizeValue = size ?? "default"
@@ -93,13 +90,10 @@ function NumberFieldGroup({
   className,
   size: sizeProp,
   ...props
-}: NumberFieldPrimitive.Group.Props &
-  Partial<VariantProps<typeof numberFieldGroupVariants>>) {
+}: NumberFieldPrimitive.Group.Props & Partial<VariantProps<typeof numberFieldGroupVariants>>) {
   const context = useContext(NumberFieldContext)
   if (!context) {
-    throw new Error(
-      "NumberFieldGroup must be used within a NumberField component."
-    )
+    throw new Error("NumberFieldGroup must be used within a NumberField component.")
   }
   const size = sizeProp ?? context.size
 
@@ -123,25 +117,17 @@ function NumberFieldDecrement({
   }) {
   const context = useContext(NumberFieldContext)
   if (!context) {
-    throw new Error(
-      "NumberFieldDecrement must be used within a NumberField component."
-    )
+    throw new Error("NumberFieldDecrement must be used within a NumberField component.")
   }
   const size = sizeProp ?? context.size
 
   return (
     <NumberFieldPrimitive.Decrement
-      className={cn(
-        numberFieldButtonVariants({ size }),
-        "rounded-s-4xl border-e-0",
-        className
-      )}
+      className={cn(numberFieldButtonVariants({ size }), "rounded-s-4xl border-e-0", className)}
       data-slot="number-field-decrement"
       {...props}
     >
-      {children ?? (
-        <HugeiconsIcon icon={MinusSignIcon} strokeWidth={2} />
-      )}
+      {children ?? <HugeiconsIcon icon={MinusSignIcon} strokeWidth={2} />}
     </NumberFieldPrimitive.Decrement>
   )
 }
@@ -157,25 +143,17 @@ function NumberFieldIncrement({
   }) {
   const context = useContext(NumberFieldContext)
   if (!context) {
-    throw new Error(
-      "NumberFieldIncrement must be used within a NumberField component."
-    )
+    throw new Error("NumberFieldIncrement must be used within a NumberField component.")
   }
   const size = sizeProp ?? context.size
 
   return (
     <NumberFieldPrimitive.Increment
-      className={cn(
-        numberFieldButtonVariants({ size }),
-        "rounded-e-4xl border-s-0",
-        className
-      )}
+      className={cn(numberFieldButtonVariants({ size }), "rounded-e-4xl border-s-0", className)}
       data-slot="number-field-increment"
       {...props}
     >
-      {children ?? (
-        <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
-      )}
+      {children ?? <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />}
     </NumberFieldPrimitive.Increment>
   )
 }
@@ -184,13 +162,10 @@ function NumberFieldInput({
   className,
   size: sizeProp,
   ...props
-}: NumberFieldPrimitive.Input.Props &
-  Partial<VariantProps<typeof numberFieldInputVariants>>) {
+}: NumberFieldPrimitive.Input.Props & Partial<VariantProps<typeof numberFieldInputVariants>>) {
   const context = useContext(NumberFieldContext)
   if (!context) {
-    throw new Error(
-      "NumberFieldInput must be used within a NumberField component."
-    )
+    throw new Error("NumberFieldInput must be used within a NumberField component.")
   }
   const size = sizeProp ?? context.size
 

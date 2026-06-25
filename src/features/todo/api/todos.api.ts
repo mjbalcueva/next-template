@@ -2,10 +2,10 @@ import { apiFetch } from "@/packages/api/fetch"
 
 import {
   removedTodoOutputSchema,
-  type CreateTodoInput,
-  type Todo,
   todoListOutputSchema,
   todoOutputSchema,
+  type CreateTodoInput,
+  type Todo,
   type ToggleTodoInput,
 } from "./todos.schema"
 

@@ -1,14 +1,38 @@
 "use client"
 
 import {
-  type CSSProperties,
   Fragment,
-  type ReactNode,
   useEffect,
   useId,
   useRef,
   useState,
+  type CSSProperties,
+  type ReactNode,
 } from "react"
+
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type Modifier,
+} from "@dnd-kit/core"
+import { horizontalListSortingStrategy, SortableContext, useSortable } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+import { DragDropVerticalIcon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
+import {
+  flexRender,
+  type Cell,
+  type Header,
+  type HeaderGroup,
+  type Row,
+} from "@tanstack/react-table"
+
 import { useDataGrid } from "@/core/components/reui/data-grid/data-grid"
 import {
   DataGridTableBase,
@@ -27,56 +51,17 @@ import {
   DataGridTableRowSpacer,
   DataGridTableViewport,
 } from "@/core/components/reui/data-grid/data-grid-table"
-import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  type Modifier,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core"
-import {
-  horizontalListSortingStrategy,
-  SortableContext,
-  useSortable,
-} from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
-import {
-  type Cell,
-  flexRender,
-  type Header,
-  type HeaderGroup,
-  type Row,
-} from "@tanstack/react-table"
-
 import { Button } from "@/core/components/ui/button"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { DragDropVerticalIcon } from "@hugeicons/core-free-icons"
 
-function DataGridTableDndHeader<TData>({
-  header,
-}: {
-  header: Header<TData, unknown>
-}) {
+function DataGridTableDndHeader<TData>({ header }: { header: Header<TData, unknown> }) {
   const { props } = useDataGrid()
   const { column } = header
 
   // Check if column ordering is enabled for this column
   const canOrder =
-    (column.columnDef as { enableColumnOrdering?: boolean })
-      .enableColumnOrdering !== false
+    (column.columnDef as { enableColumnOrdering?: boolean }).enableColumnOrdering !== false
 
-  const {
-    attributes,
-    isDragging,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({
+  const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
     id: header.column.id,
   })
 
@@ -94,11 +79,7 @@ function DataGridTableDndHeader<TData>({
   }
 
   return (
-    <DataGridTableHeadRowCell
-      header={header}
-      dndStyle={style}
-      dndRef={setNodeRef}
-    >
+    <DataGridTableHeadRowCell header={header} dndStyle={style} dndRef={setNodeRef}>
       <div className="flex items-center justify-start gap-0.5">
         {canOrder && (
           <Button
@@ -109,7 +90,12 @@ function DataGridTableDndHeader<TData>({
             {...listeners}
             aria-label="Drag to reorder"
           >
-            <HugeiconsIcon icon={DragDropVerticalIcon} strokeWidth={2} className="opacity-60 hover:opacity-100" aria-hidden="true" />
+            <HugeiconsIcon
+              icon={DragDropVerticalIcon}
+              strokeWidth={2}
+              className="opacity-60 hover:opacity-100"
+              aria-hidden="true"
+            />
           </Button>
         )}
         <span className="grow truncate">
@@ -194,11 +180,7 @@ function DataGridTableDnd<TData>({
     const edgeOffset = 0
 
     const minX = containerRect.left - draggingNodeRect.left - edgeOffset
-    const maxX =
-      containerRect.right -
-      draggingNodeRect.left -
-      draggingNodeRect.width +
-      edgeOffset
+    const maxX = containerRect.right - draggingNodeRect.left - draggingNodeRect.width + edgeOffset
 
     return {
       ...transform,
@@ -213,7 +195,7 @@ function DataGridTableDnd<TData>({
       id={useId()}
       modifiers={[restrictToTableBounds]}
       onDragCancel={() => setIsDraggingColumn(false)}
-      onDragEnd={(event) => {
+      onDragEnd={event => {
         setIsDraggingColumn(false)
         handleDragEnd(event)
       }}
@@ -222,33 +204,24 @@ function DataGridTableDnd<TData>({
     >
       <DataGridTableViewport
         viewportRef={containerRef}
-        className={
-          isDraggingColumn
-            ? "relative cursor-grabbing [&_*]:cursor-grabbing!"
-            : "relative"
-        }
+        className={isDraggingColumn ? "relative cursor-grabbing **:cursor-grabbing!" : "relative"}
       >
         <DataGridTableBase>
           <DataGridTableHead>
-            {table
-              .getHeaderGroups()
-              .map((headerGroup: HeaderGroup<TData>, index) => {
-                return (
-                  <DataGridTableHeadRow headerGroup={headerGroup} key={index}>
-                    <SortableContext
-                      items={table.getState().columnOrder}
-                      strategy={horizontalListSortingStrategy}
-                    >
-                      {headerGroup.headers.map((header) => (
-                        <DataGridTableDndHeader
-                          header={header}
-                          key={header.id}
-                        />
-                      ))}
-                    </SortableContext>
-                  </DataGridTableHeadRow>
-                )
-              })}
+            {table.getHeaderGroups().map((headerGroup: HeaderGroup<TData>, index) => {
+              return (
+                <DataGridTableHeadRow headerGroup={headerGroup} key={index}>
+                  <SortableContext
+                    items={table.getState().columnOrder}
+                    strategy={horizontalListSortingStrategy}
+                  >
+                    {headerGroup.headers.map(header => (
+                      <DataGridTableDndHeader header={header} key={header.id} />
+                    ))}
+                  </SortableContext>
+                </DataGridTableHeadRow>
+              )
+            })}
           </DataGridTableHead>
 
           {(props.tableLayout?.stripped || !props.tableLayout?.rowBorder) && (
@@ -256,17 +229,12 @@ function DataGridTableDnd<TData>({
           )}
 
           <DataGridTableBody>
-            {props.loadingMode === "skeleton" &&
-            isLoading &&
-            pagination?.pageSize ? (
+            {props.loadingMode === "skeleton" && isLoading && pagination?.pageSize ? (
               Array.from({ length: pagination.pageSize }).map((_, rowIndex) => (
                 <DataGridTableBodyRowSkeleton key={rowIndex}>
                   {table.getVisibleFlatColumns().map((column, colIndex) => {
                     return (
-                      <DataGridTableBodyRowSkeletonCell
-                        column={column}
-                        key={colIndex}
-                      >
+                      <DataGridTableBodyRowSkeletonCell column={column} key={colIndex}>
                         {column.columnDef.meta?.skeleton}
                       </DataGridTableBodyRowSkeletonCell>
                     )
@@ -278,23 +246,19 @@ function DataGridTableDnd<TData>({
                 return (
                   <Fragment key={row.id}>
                     <DataGridTableBodyRow row={row}>
-                      {row
-                        .getVisibleCells()
-                        .map((cell: Cell<TData, unknown>) => {
-                          return (
-                            <SortableContext
-                              key={cell.id}
-                              items={table.getState().columnOrder}
-                              strategy={horizontalListSortingStrategy}
-                            >
-                              <DataGridTableDndCell cell={cell} />
-                            </SortableContext>
-                          )
-                        })}
+                      {row.getVisibleCells().map((cell: Cell<TData, unknown>) => {
+                        return (
+                          <SortableContext
+                            key={cell.id}
+                            items={table.getState().columnOrder}
+                            strategy={horizontalListSortingStrategy}
+                          >
+                            <DataGridTableDndCell cell={cell} />
+                          </SortableContext>
+                        )
+                      })}
                     </DataGridTableBodyRow>
-                    {row.getIsExpanded() && (
-                      <DataGridTableBodyRowExpandded row={row} />
-                    )}
+                    {row.getIsExpanded() && <DataGridTableBodyRowExpandded row={row} />}
                   </Fragment>
                 )
               })
@@ -303,9 +267,7 @@ function DataGridTableDnd<TData>({
             )}
           </DataGridTableBody>
 
-          {footerContent && (
-            <DataGridTableFoot>{footerContent}</DataGridTableFoot>
-          )}
+          {footerContent && <DataGridTableFoot>{footerContent}</DataGridTableFoot>}
         </DataGridTableBase>
       </DataGridTableViewport>
     </DndContext>

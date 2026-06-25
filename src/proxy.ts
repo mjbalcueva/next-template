@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 
 import { hasSessionCookie } from "@/packages/auth/config"
+
 import { DEFAULT_AUTH_REDIRECT, isAuthPagePath, isProtectedProxyPath } from "@/proxy-routes"
 
 /**

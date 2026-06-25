@@ -2,8 +2,8 @@
 
 import { useMutation } from "@tanstack/react-query"
 
-import { useSession } from "@/packages/auth/session-provider"
 import type { RegisterInput } from "@/packages/auth/schemas"
+import { useSession } from "@/packages/auth/session-provider"
 
 import { register } from "../api/auth.api"
 

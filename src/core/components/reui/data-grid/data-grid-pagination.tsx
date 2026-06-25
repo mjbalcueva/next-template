@@ -1,9 +1,11 @@
 "use client"
 
 import React, { type ReactNode } from "react"
-import { useDataGrid } from "@/core/components/reui/data-grid/data-grid"
 
-import { cn } from "@/core/lib/utils"
+import { ArrowLeft01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
+
+import { useDataGrid } from "@/core/components/reui/data-grid/data-grid"
 import { Button } from "@/core/components/ui/button"
 import {
   Select,
@@ -13,8 +15,7 @@ import {
   SelectValue,
 } from "@/core/components/ui/select"
 import { Skeleton } from "@/core/components/ui/skeleton"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { ArrowLeft01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons"
+import { cn } from "@/core/lib/utils"
 
 interface DataGridPaginationProps {
   sizes?: number[]
@@ -54,7 +55,7 @@ function DataGridPagination(props: DataGridPaginationProps): React.JSX.Element {
   const mergedProps: DataGridPaginationProps = { ...defaultProps, ...props }
 
   const btnBaseClasses = "size-7 p-0 text-sm"
-  const btnArrowClasses = `${btnBaseClasses  } rtl:transform rtl:rotate-180`
+  const btnArrowClasses = `${btnBaseClasses} rtl:transform rtl:rotate-180`
   const pageIndex = table.getState().pagination.pageIndex
   const pageSize = table.getState().pagination.pageSize
   const from = pageIndex * pageSize + 1
@@ -73,12 +74,8 @@ function DataGridPagination(props: DataGridPaginationProps): React.JSX.Element {
   const paginationMoreLimit = mergedProps?.moreLimit || 5
 
   // Determine the start and end of the pagination group
-  const currentGroupStart =
-    Math.floor(pageIndex / paginationMoreLimit) * paginationMoreLimit
-  const currentGroupEnd = Math.min(
-    currentGroupStart + paginationMoreLimit,
-    pageCount
-  )
+  const currentGroupStart = Math.floor(pageIndex / paginationMoreLimit) * paginationMoreLimit
+  const currentGroupEnd = Math.min(currentGroupStart + paginationMoreLimit, pageCount)
 
   // Render page buttons based on the current group
   const renderPageButtons = () => {
@@ -152,12 +149,10 @@ function DataGridPagination(props: DataGridPaginationProps): React.JSX.Element {
           mergedProps?.sizesSkeleton
         ) : (
           <>
-            <div className="text-muted-foreground text-sm">
-              {mergedProps.rowsPerPageLabel}
-            </div>
+            <div className="text-muted-foreground text-sm">{mergedProps.rowsPerPageLabel}</div>
             <Select
               value={`${pageSize}`}
-              onValueChange={(value) => {
+              onValueChange={value => {
                 const newPageSize = Number(value)
                 table.setPageSize(newPageSize)
               }}
@@ -181,7 +176,7 @@ function DataGridPagination(props: DataGridPaginationProps): React.JSX.Element {
           mergedProps?.infoSkeleton
         ) : (
           <>
-            <div className="text-muted-foreground text-sm order-2 text-nowrap sm:order-1">
+            <div className="text-muted-foreground order-2 text-sm text-nowrap sm:order-1">
               {paginationInfo}
             </div>
             {pageCount > 1 && (
@@ -193,9 +188,7 @@ function DataGridPagination(props: DataGridPaginationProps): React.JSX.Element {
                   onClick={() => table.previousPage()}
                   disabled={!table.getCanPreviousPage()}
                 >
-                  <span className="sr-only">
-                    {mergedProps.previousPageLabel}
-                  </span>
+                  <span className="sr-only">{mergedProps.previousPageLabel}</span>
                   <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} className="size-4" />
                 </Button>
 

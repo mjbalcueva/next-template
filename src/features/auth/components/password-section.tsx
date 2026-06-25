@@ -5,11 +5,7 @@ import { useState } from "react"
 import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
 
-import {
-  FormStatus,
-  PasswordFormField,
-  SubmitButton,
-} from "@/core/components/forms/tanstack-form"
+import { FormStatus, PasswordFormField, SubmitButton } from "@/core/components/forms/tanstack-form"
 import {
   Card,
   CardContent,

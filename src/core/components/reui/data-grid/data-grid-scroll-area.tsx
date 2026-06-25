@@ -1,16 +1,10 @@
 "use client"
 
-import {
-  type PointerEvent,
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react"
-import { useDataGrid } from "@/core/components/reui/data-grid/data-grid"
+import { useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react"
+
 import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area"
 
+import { useDataGrid } from "@/core/components/reui/data-grid/data-grid"
 import { cn } from "@/core/lib/utils"
 
 const MIN_THUMB_SIZE = 24
@@ -43,10 +37,7 @@ type ObservedElements = {
   tableViewport: HTMLElement | null
 }
 
-type DataGridScrollAreaProps = Omit<
-  ScrollAreaPrimitive.Root.Props,
-  "children"
-> & {
+type DataGridScrollAreaProps = Omit<ScrollAreaPrimitive.Root.Props, "children"> & {
   children: ReactNode
   orientation?: DataGridScrollAreaOrientation
 }
@@ -67,22 +58,10 @@ function areMetricsEqual(next: ScrollbarMetrics, prev: ScrollbarMetrics) {
 }
 
 function applyMetrics(element: HTMLElement, metrics: ScrollbarMetrics) {
-  element.style.setProperty(
-    "--data-grid-scrollbar-header-height",
-    `${metrics.headerHeight}px`
-  )
-  element.style.setProperty(
-    "--data-grid-scrollbar-thumb-height",
-    `${metrics.thumbHeight}px`
-  )
-  element.style.setProperty(
-    "--data-grid-scrollbar-thumb-top",
-    `${metrics.thumbTop}px`
-  )
-  element.style.setProperty(
-    "--data-grid-scrollbar-track-height",
-    `${metrics.trackHeight}px`
-  )
+  element.style.setProperty("--data-grid-scrollbar-header-height", `${metrics.headerHeight}px`)
+  element.style.setProperty("--data-grid-scrollbar-thumb-height", `${metrics.thumbHeight}px`)
+  element.style.setProperty("--data-grid-scrollbar-thumb-top", `${metrics.thumbTop}px`)
+  element.style.setProperty("--data-grid-scrollbar-track-height", `${metrics.trackHeight}px`)
 }
 
 function DataGridScrollArea({
@@ -109,10 +88,8 @@ function DataGridScrollArea({
 
   const showHorizontal = orientation !== "vertical"
   const showVertical = orientation !== "horizontal"
-  const usesCustomVerticalScrollbar =
-    showVertical && !!dataGridProps.tableLayout?.headerSticky
-  const [hasCustomVerticalOverflow, setHasCustomVerticalOverflow] =
-    useState(false)
+  const usesCustomVerticalScrollbar = showVertical && !!dataGridProps.tableLayout?.headerSticky
+  const [hasCustomVerticalOverflow, setHasCustomVerticalOverflow] = useState(false)
 
   const clearDragState = useCallback(() => {
     dragRef.current = null
@@ -128,7 +105,7 @@ function DataGridScrollArea({
       metricsRef.current = INITIAL_METRICS
     }
 
-    setHasCustomVerticalOverflow((prev) => (prev ? false : prev))
+    setHasCustomVerticalOverflow(prev => (prev ? false : prev))
   }, [])
 
   const syncCustomVerticalScrollbar = useCallback(() => {
@@ -146,15 +123,11 @@ function DataGridScrollArea({
     const viewportWidth = viewport.clientWidth
     const scrollHeight = viewport.scrollHeight
     const scrollWidth = viewport.scrollWidth
-    const hasHorizontalOverflow =
-      showHorizontal && scrollWidth > viewportWidth + 0.5
+    const hasHorizontalOverflow = showHorizontal && scrollWidth > viewportWidth + 0.5
     const horizontalScrollbarSize = hasHorizontalOverflow
       ? horizontalScrollbar?.offsetHeight || FALLBACK_SCROLLBAR_SIZE
       : 0
-    const trackHeight = Math.max(
-      0,
-      viewportHeight - headerHeight - horizontalScrollbarSize
-    )
+    const trackHeight = Math.max(0, viewportHeight - headerHeight - horizontalScrollbarSize)
     const maxScroll = Math.max(0, scrollHeight - viewportHeight)
 
     let nextMetrics: ScrollbarMetrics
@@ -169,18 +142,14 @@ function DataGridScrollArea({
         trackHeight,
       }
     } else {
-      const bodyContentHeight = Math.max(
-        trackHeight,
-        scrollHeight - headerHeight
-      )
+      const bodyContentHeight = Math.max(trackHeight, scrollHeight - headerHeight)
       const thumbHeight = clamp(
         trackHeight * (trackHeight / bodyContentHeight),
         MIN_THUMB_SIZE,
         trackHeight
       )
       const maxThumbTop = Math.max(0, trackHeight - thumbHeight)
-      const thumbTop =
-        maxThumbTop > 0 ? (viewport.scrollTop / maxScroll) * maxThumbTop : 0
+      const thumbTop = maxThumbTop > 0 ? (viewport.scrollTop / maxScroll) * maxThumbTop : 0
 
       nextMetrics = {
         hasVerticalOverflow: true,
@@ -197,10 +166,8 @@ function DataGridScrollArea({
       metricsRef.current = nextMetrics
     }
 
-    setHasCustomVerticalOverflow((prev) =>
-      prev === nextMetrics.hasVerticalOverflow
-        ? prev
-        : nextMetrics.hasVerticalOverflow
+    setHasCustomVerticalOverflow(prev =>
+      prev === nextMetrics.hasVerticalOverflow ? prev : nextMetrics.hasVerticalOverflow
     )
   }, [resetMetrics, showHorizontal, usesCustomVerticalScrollbar])
 
@@ -216,15 +183,11 @@ function DataGridScrollArea({
     }
 
     observedElementsRef.current = {
-      header: container.querySelector(
-        '[data-slot="data-grid-table"] thead'
-      ) as HTMLElement | null,
+      header: container.querySelector('[data-slot="data-grid-table"] thead') as HTMLElement | null,
       horizontalScrollbar: container.querySelector(
         '[data-slot="data-grid-scrollbar"][data-orientation="horizontal"]'
       ) as HTMLElement | null,
-      table: container.querySelector(
-        '[data-slot="data-grid-table"]'
-      ) as HTMLElement | null,
+      table: container.querySelector('[data-slot="data-grid-table"]') as HTMLElement | null,
       tableViewport: container.querySelector(
         '[data-slot="data-grid-table-viewport"]'
       ) as HTMLElement | null,
@@ -240,10 +203,7 @@ function DataGridScrollArea({
     scheduleSync()
     viewport.addEventListener("scroll", scheduleSync, { passive: true })
 
-    const observer =
-      typeof ResizeObserver === "undefined"
-        ? null
-        : new ResizeObserver(scheduleSync)
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(scheduleSync)
 
     observer?.observe(viewport)
     if (observedElementsRef.current.header) {
@@ -262,12 +222,7 @@ function DataGridScrollArea({
       viewport.removeEventListener("scroll", scheduleSync)
       clearDragState()
     }
-  }, [
-    clearDragState,
-    resetMetrics,
-    syncCustomVerticalScrollbar,
-    usesCustomVerticalScrollbar,
-  ])
+  }, [clearDragState, resetMetrics, syncCustomVerticalScrollbar, usesCustomVerticalScrollbar])
 
   const scrollToThumbOffset = (nextThumbTop: number) => {
     const viewport = viewportRef.current
@@ -321,8 +276,7 @@ function DataGridScrollArea({
     if (maxThumbTop === 0 || maxScroll === 0) return
 
     const deltaY = event.clientY - dragState.startY
-    const nextScrollTop =
-      dragState.startScrollTop + (deltaY / maxThumbTop) * maxScroll
+    const nextScrollTop = dragState.startScrollTop + (deltaY / maxThumbTop) * maxScroll
 
     viewport.scrollTop = clamp(nextScrollTop, 0, maxScroll)
   }
@@ -372,7 +326,7 @@ function DataGridScrollArea({
           >
             <ScrollAreaPrimitive.Thumb
               data-slot="data-grid-thumb"
-              className="bg-border rounded-full relative flex-1"
+              className="bg-border relative flex-1 rounded-full"
             />
           </ScrollAreaPrimitive.Scrollbar>
         )}
@@ -386,7 +340,7 @@ function DataGridScrollArea({
           >
             <ScrollAreaPrimitive.Thumb
               data-slot="data-grid-thumb"
-              className="bg-border rounded-full relative flex-1"
+              className="bg-border relative flex-1 rounded-full"
             />
           </ScrollAreaPrimitive.Scrollbar>
         )}
@@ -403,7 +357,7 @@ function DataGridScrollArea({
           >
             <div
               className={cn(
-                "bg-border absolute end-px w-2",
+                "bg-border absolute inset-e-px w-2",
                 "top-(--data-grid-scrollbar-thumb-top) h-(--data-grid-scrollbar-thumb-height)",
                 "rounded-full"
               )}

@@ -95,23 +95,23 @@ export type TodoTableFilterValues = {
 function filterTodos(todos: Todo[], f: TodoTableFilterValues): Todo[] {
   let rows = todos
 
-  if (f.status !== "all") rows = rows.filter((t) => t.done === (f.status === "done"))
+  if (f.status !== "all") rows = rows.filter(t => t.done === (f.status === "done"))
   if (f.search) {
     const q = f.search.toLowerCase()
-    rows = rows.filter((t) => t.text.toLowerCase().includes(q))
+    rows = rows.filter(t => t.text.toLowerCase().includes(q))
   }
-  if (f.col_status !== "all") rows = rows.filter((t) => t.done === (f.col_status === "done"))
+  if (f.col_status !== "all") rows = rows.filter(t => t.done === (f.col_status === "done"))
   if (f.col_text) {
     const q = f.col_text.toLowerCase()
-    rows = rows.filter((t) => t.text.toLowerCase().includes(q))
+    rows = rows.filter(t => t.text.toLowerCase().includes(q))
   }
   if (f.col_createdAt) {
     const q = f.col_createdAt.toLowerCase()
-    rows = rows.filter((t) => t.createdAt.toLowerCase().includes(q))
+    rows = rows.filter(t => t.createdAt.toLowerCase().includes(q))
   }
   if (f.col_id) {
     const q = f.col_id.toLowerCase()
-    rows = rows.filter((t) => t.id.toLowerCase().includes(q))
+    rows = rows.filter(t => t.id.toLowerCase().includes(q))
   }
 
   return rows
@@ -215,7 +215,7 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
   }, [filtered, onFilteredChange])
 
   // Debounced global search (uncontrolled input to avoid setState-in-effect)
-  const [searchRef, handleSearchChange] = useDebouncedInput(filters.search, (v) =>
+  const [searchRef, handleSearchChange] = useDebouncedInput(filters.search, v =>
     setFilter("search", v)
   )
 
@@ -238,7 +238,7 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
       },
     },
     manualSorting: true,
-    onSortingChange: (updater) => {
+    onSortingChange: updater => {
       const next = typeof updater === "function" ? updater(sorting) : updater
       if (next.length > 0) {
         const { id, desc } = next[0]
@@ -312,7 +312,7 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
 
         <Select
           value={filters.status}
-          onValueChange={(v) => setFilter("status", v as TodoTableFilterValues["status"])}
+          onValueChange={v => setFilter("status", v as TodoTableFilterValues["status"])}
         >
           <SelectTrigger className="w-28">
             <SelectValue />
@@ -332,12 +332,12 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
           <DropdownMenuContent align="end">
             {table
               .getAllColumns()
-              .filter((col) => col.getCanHide())
-              .map((col) => (
+              .filter(col => col.getCanHide())
+              .map(col => (
                 <DropdownMenuCheckboxItem
                   key={col.id}
                   checked={col.getIsVisible()}
-                  onCheckedChange={(value) => col.toggleVisibility(!!value)}
+                  onCheckedChange={value => col.toggleVisibility(!!value)}
                 >
                   {typeof col.columnDef.header === "string" ? col.columnDef.header : col.id}
                 </DropdownMenuCheckboxItem>
@@ -350,12 +350,17 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
       {activeFilterBadges.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className="text-muted-foreground">Active filters:</span>
-          {activeFilterBadges.map((b) => (
+          {activeFilterBadges.map(b => (
             <Badge key={b.key} variant="secondary" className="cursor-pointer" onClick={b.clear}>
               {b.label} ✕
             </Badge>
           ))}
-          <Button variant="ghost" size="sm" className="text-muted-foreground h-6 px-2 text-xs" onClick={clearAll}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground h-6 px-2 text-xs"
+            onClick={clearAll}
+          >
             Clear all
           </Button>
           <span className="text-muted-foreground ml-auto text-xs">
@@ -368,9 +373,9 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
       <div className="rounded-xl border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((hg) => (
+            {table.getHeaderGroups().map(hg => (
               <TableRow key={hg.id}>
-                {hg.headers.map((header) => {
+                {hg.headers.map(header => {
                   const colId = header.column.id
                   const fDef = getColFilterDef(colId)
                   const fKey = getColumnFilterKey(filters, colId)
@@ -398,7 +403,10 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
                                 asc: <HugeiconsIcon icon={ArrowUp01Icon} className="size-3.5" />,
                                 desc: <HugeiconsIcon icon={ArrowDown01Icon} className="size-3.5" />,
                               }[header.column.getIsSorted() as string] ?? (
-                                <HugeiconsIcon icon={UnfoldMoreIcon} className="size-3.5 opacity-50" />
+                                <HugeiconsIcon
+                                  icon={UnfoldMoreIcon}
+                                  className="size-3.5 opacity-50"
+                                />
                               )}
                             </span>
                           </button>
@@ -414,7 +422,7 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
                             colId={colId}
                             filterDef={fDef}
                             currentValue={colVal}
-                            onValueChange={(v) => setFilter(fKey, v as never)}
+                            onValueChange={v => setFilter(fKey, v as never)}
                           />
                         )}
                       </div>
@@ -425,37 +433,39 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
             ))}
           </TableHeader>
           <TableBody>
-            {isLoading
-              ? Array.from({ length: filters.pageSize }).map((_, i) => (
-                  <TableRow key={`sk-${i}`}>
-                    {columns.map((_, ci) => (
-                      <TableCell key={ci}>
-                        <div className="bg-muted h-4 w-full animate-pulse rounded" />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              : table.getRowModel().rows.length === 0
-                ? (
-                  <TableRow>
-                    <TableCell colSpan={table.getAllColumns().length} className="h-32 text-center">
-                      <div className="flex flex-col items-center gap-1">
-                        <HugeiconsIcon icon={Search01Icon} className="text-muted-foreground size-8" />
-                        <span className="text-muted-foreground font-medium">No todos found</span>
-                        <span className="text-muted-foreground text-xs">Try adjusting your filters</span>
-                      </div>
+            {isLoading ? (
+              Array.from({ length: filters.pageSize }).map((_, i) => (
+                <TableRow key={`sk-${i}`}>
+                  {columns.map((_, ci) => (
+                    <TableCell key={ci}>
+                      <div className="bg-muted h-4 w-full animate-pulse rounded" />
                     </TableCell>
-                  </TableRow>
-                )
-                : table.getRowModel().rows.map((row) => (
-                    <TableRow key={row.id}>
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ))}
-                    </TableRow>
                   ))}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={table.getAllColumns().length} className="h-32 text-center">
+                  <div className="flex flex-col items-center gap-1">
+                    <HugeiconsIcon icon={Search01Icon} className="text-muted-foreground size-8" />
+                    <span className="text-muted-foreground font-medium">No todos found</span>
+                    <span className="text-muted-foreground text-xs">
+                      Try adjusting your filters
+                    </span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              table.getRowModel().rows.map(row => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map(cell => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>

@@ -24,11 +24,7 @@ import {
   type ChartConfig,
 } from "@/core/components/ui/chart"
 
-import {
-  ChartEmptyState,
-  ChartPanel,
-  ChartSkeleton,
-} from "@/packages/analytics/chart-panel"
+import { ChartEmptyState, ChartPanel, ChartSkeleton } from "@/packages/analytics/chart-panel"
 
 import type { Todo } from "../api/todos.schema"
 import {

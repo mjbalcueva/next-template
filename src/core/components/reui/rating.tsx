@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
+
+import { StarIcon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/core/lib/utils"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { StarIcon } from "@hugeicons/core-free-icons"
 
 const ratingVariants = cva("flex items-center", {
   variants: {
@@ -23,9 +24,9 @@ const ratingVariants = cva("flex items-center", {
 const starVariants = cva("", {
   variants: {
     size: {
-      sm: "w-4 h-4",
-      default: "w-5 h-5",
-      lg: "w-6 h-6",
+      sm: "h-4 w-4",
+      default: "h-5 w-5",
+      lg: "h-6 w-6",
     },
   },
   defaultVariants: {
@@ -84,8 +85,7 @@ function Rating({
     onRatingChange?: (rating: number) => void
   }) {
   const [hoveredRating, setHoveredRating] = useState<number | null>(null)
-  const displayRating =
-    editable && hoveredRating !== null ? hoveredRating : rating
+  const displayRating = editable && hoveredRating !== null ? hoveredRating : rating
 
   const handleStarClick = (starRating: number) => {
     if (editable && onRatingChange) {
@@ -111,9 +111,7 @@ function Rating({
     for (let i = 1; i <= maxRating; i++) {
       const filled = displayRating >= i
       const partiallyFilled = displayRating > i - 1 && displayRating < i
-      const fillPercentage = partiallyFilled
-        ? (displayRating - (i - 1)) * 100
-        : 0
+      const fillPercentage = partiallyFilled ? (displayRating - (i - 1)) * 100 : 0
 
       stars.push(
         <div
@@ -124,7 +122,12 @@ function Rating({
           onMouseLeave={handleStarMouseLeave}
         >
           {/* Background star (empty) */}
-          <HugeiconsIcon icon={StarIcon} strokeWidth={2} data-slot="rating-star-empty" className={cn(starVariants({ size }), "text-muted-foreground/30")} />
+          <HugeiconsIcon
+            icon={StarIcon}
+            strokeWidth={2}
+            data-slot="rating-star-empty"
+            className={cn(starVariants({ size }), "text-muted-foreground/30")}
+          />
 
           {/* Filled star */}
           <div
@@ -133,10 +136,12 @@ function Rating({
               width: filled ? "100%" : `${fillPercentage}%`,
             }}
           >
-            <HugeiconsIcon icon={StarIcon} strokeWidth={2} data-slot="rating-star-filled" className={cn(
-                                  starVariants({ size }),
-                                  "fill-yellow-400 text-yellow-400"
-                                )} />
+            <HugeiconsIcon
+              icon={StarIcon}
+              strokeWidth={2}
+              data-slot="rating-star-filled"
+              className={cn(starVariants({ size }), "fill-yellow-400 text-yellow-400")}
+            />
           </div>
         </div>
       )
@@ -146,17 +151,10 @@ function Rating({
   }
 
   return (
-    <div
-      data-slot="rating"
-      className={cn(ratingVariants({ size }), className)}
-      {...props}
-    >
+    <div data-slot="rating" className={cn(ratingVariants({ size }), className)} {...props}>
       <div className="flex items-center">{renderStars()}</div>
       {showValue && (
-        <span
-          data-slot="rating-value"
-          className={cn(valueVariants({ size }), starClassName)}
-        >
+        <span data-slot="rating-value" className={cn(valueVariants({ size }), starClassName)}>
           {displayRating.toFixed(1)}
         </span>
       )}

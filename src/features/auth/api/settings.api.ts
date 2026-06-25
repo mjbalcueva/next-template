@@ -1,7 +1,6 @@
 import { z } from "zod"
 
 import { apiFetch } from "@/packages/api/fetch"
-
 import { userSchema, type User } from "@/packages/auth/schemas"
 
 // ─── Endpoint path constants ─────────────────────────────────────────

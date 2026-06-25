@@ -48,12 +48,7 @@ export function SignUpForm() {
     >
       <form.Field name="name">
         {field => (
-          <TextFormField
-            field={field}
-            label="Name"
-            placeholder="Your name"
-            autoComplete="name"
-          />
+          <TextFormField field={field} label="Name" placeholder="Your name" autoComplete="name" />
         )}
       </form.Field>
 

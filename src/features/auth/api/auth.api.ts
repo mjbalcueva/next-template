@@ -4,8 +4,8 @@ import {
   authSessionSchema,
   authUserSchema,
   permissionsSchema,
-  type AuthUser,
   type AuthSession,
+  type AuthUser,
   type LoginInput,
   type RegisterInput,
 } from "@/packages/auth/schemas"

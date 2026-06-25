@@ -1,20 +1,17 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Badge } from "@/core/components/reui/badge"
+
+import { AddCircleIcon, Tick02Icon } from "@hugeicons/core-free-icons"
+import { HugeiconsIcon } from "@hugeicons/react"
 import { type Column } from "@tanstack/react-table"
 
-import { cn } from "@/core/lib/utils"
+import { Badge } from "@/core/components/reui/badge"
 import { Button } from "@/core/components/ui/button"
 import { Input } from "@/core/components/ui/input"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/core/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "@/core/components/ui/popover"
 import { Separator } from "@/core/components/ui/separator"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { AddCircleIcon, Tick02Icon } from "@hugeicons/core-free-icons"
+import { cn } from "@/core/lib/utils"
 
 interface DataGridColumnFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
@@ -37,9 +34,7 @@ function DataGridColumnFilter<TData, TValue>({
 
   const filteredOptions = useMemo(() => {
     if (!searchQuery) return options
-    return options.filter((option) =>
-      option.label.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    return options.filter(option => option.label.toLowerCase().includes(searchQuery.toLowerCase()))
   }, [options, searchQuery])
 
   return (
@@ -52,24 +47,18 @@ function DataGridColumnFilter<TData, TValue>({
             {selectedValues?.size > 0 && (
               <>
                 <Separator orientation="vertical" className="mx-2 h-4" />
-                <Badge
-                  variant="secondary"
-                  className="rounded-sm px-1 font-normal lg:hidden"
-                >
+                <Badge variant="secondary" className="rounded-sm px-1 font-normal lg:hidden">
                   {selectedValues.size}
                 </Badge>
                 <div className="hidden space-x-1 lg:flex">
                   {selectedValues.size > 2 ? (
-                    <Badge
-                      variant="secondary"
-                      className="rounded-sm px-1 font-normal"
-                    >
+                    <Badge variant="secondary" className="rounded-sm px-1 font-normal">
                       {selectedValues.size} selected
                     </Badge>
                   ) : (
                     options
-                      .filter((option) => selectedValues.has(option.value))
-                      .map((option) => (
+                      .filter(option => selectedValues.has(option.value))
+                      .map(option => (
                         <Badge
                           variant="secondary"
                           key={option.value}
@@ -90,18 +79,16 @@ function DataGridColumnFilter<TData, TValue>({
           <Input
             placeholder={title}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             className="h-8"
           />
         </div>
         <div className="max-h-[300px] overflow-y-auto">
           {filteredOptions.length === 0 ? (
-            <div className="text-muted-foreground py-6 text-center text-sm">
-              No results found.
-            </div>
+            <div className="text-muted-foreground py-6 text-center text-sm">No results found.</div>
           ) : (
             <div className="p-1">
-              {filteredOptions.map((option) => {
+              {filteredOptions.map(option => {
                 const isSelected = selectedValues.has(option.value)
                 return (
                   <div
@@ -113,9 +100,7 @@ function DataGridColumnFilter<TData, TValue>({
                         selectedValues.add(option.value)
                       }
                       const filterValues = Array.from(selectedValues)
-                      column?.setFilterValue(
-                        filterValues.length ? filterValues : undefined
-                      )
+                      column?.setFilterValue(filterValues.length ? filterValues : undefined)
                     }}
                     className={cn(
                       "relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none",
@@ -132,9 +117,7 @@ function DataGridColumnFilter<TData, TValue>({
                     >
                       <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} className="h-4 w-4" />
                     </div>
-                    {option.icon && (
-                      <option.icon className="text-muted-foreground mr-2 h-4 w-4" />
-                    )}
+                    {option.icon && <option.icon className="text-muted-foreground mr-2 h-4 w-4" />}
                     <span>{option.label}</span>
                     {facets?.get(option.value) && (
                       <span className="ms-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
