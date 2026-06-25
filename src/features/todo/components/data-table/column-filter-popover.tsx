@@ -6,9 +6,11 @@ import { Delete02Icon, FilterHorizontalIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 
 import { Button } from "@/core/components/ui/button"
+import { Calendar } from "@/core/components/ui/calendar"
 import { Input } from "@/core/components/ui/input"
 import { Label } from "@/core/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/core/components/ui/popover"
+import { cn } from "@/core/lib/utils"
 
 import type { ColumnFilterDef } from "./columns"
 
@@ -28,43 +30,6 @@ export function ColumnFilterPopover({
   onValueChange,
 }: ColumnFilterPopoverProps) {
   const isActive = filterDef.type === "select" ? currentValue !== "all" : currentValue !== ""
-
-  const inputRef = useRef<HTMLInputElement>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const cbRef = useRef(onValueChange)
-
-  useEffect(() => {
-    cbRef.current = onValueChange
-  })
-
-  // Sync DOM when external value changes
-  useEffect(() => {
-    if (inputRef.current && inputRef.current.value !== currentValue) {
-      inputRef.current.value = currentValue
-    }
-  }, [currentValue])
-
-  const handleChange = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => {
-      if (inputRef.current) {
-        cbRef.current(inputRef.current.value)
-      }
-    }, DEBOUNCE_MS)
-  }, [])
-
-  const handleClear = useCallback(() => {
-    if (inputRef.current) {
-      inputRef.current.value = ""
-      handleChange()
-    }
-  }, [handleChange])
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
-    }
-  }, [])
 
   return (
     <Popover>
@@ -98,31 +63,139 @@ export function ColumnFilterPopover({
               </Button>
             ))}
           </div>
+        ) : filterDef.type === "date" ? (
+          <DateFilterContent currentValue={currentValue} onValueChange={onValueChange} />
         ) : (
-          <div className="flex flex-col gap-2">
-            <Label className="text-muted-foreground text-xs">
-              {filterDef.placeholder ?? `Filter ${colId}\u2026`}
-            </Label>
-            <div className="flex items-center gap-1">
-              <Input
-                ref={inputRef}
-                placeholder={filterDef.placeholder ?? `Filter ${colId}\u2026`}
-                defaultValue={currentValue}
-                onChange={handleChange}
-                className="h-8 text-sm"
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 shrink-0"
-                onClick={handleClear}
-              >
-                <HugeiconsIcon icon={Delete02Icon} className="size-4" strokeWidth={2} />
-              </Button>
-            </div>
-          </div>
+          <TextFilterContent
+            currentValue={currentValue}
+            placeholder={filterDef.placeholder ?? `Filter ${colId}\u2026`}
+            onValueChange={onValueChange}
+          />
         )}
       </PopoverContent>
     </Popover>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// Text filter (debounced input)
+// ═══════════════════════════════════════════════════════════════════════
+
+function TextFilterContent({
+  currentValue,
+  placeholder,
+  onValueChange,
+}: {
+  currentValue: string
+  placeholder: string
+  onValueChange: (v: string) => void
+}) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const cbRef = useRef(onValueChange)
+
+  useEffect(() => {
+    cbRef.current = onValueChange
+  })
+
+  useEffect(() => {
+    if (inputRef.current && inputRef.current.value !== currentValue) {
+      inputRef.current.value = currentValue
+    }
+  }, [currentValue])
+
+  const handleChange = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => {
+      if (inputRef.current) {
+        cbRef.current(inputRef.current.value)
+      }
+    }, DEBOUNCE_MS)
+  }, [])
+
+  const handleClear = useCallback(() => {
+    if (inputRef.current) {
+      inputRef.current.value = ""
+      handleChange()
+    }
+  }, [handleChange])
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [])
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Label className="text-muted-foreground text-xs">{placeholder}</Label>
+      <div className="flex items-center gap-1">
+        <Input
+          ref={inputRef}
+          placeholder={placeholder}
+          defaultValue={currentValue}
+          onChange={handleChange}
+          className="h-8 text-sm"
+        />
+        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={handleClear}>
+          <HugeiconsIcon icon={Delete02Icon} className="size-4" strokeWidth={2} />
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// Date filter (calendar picker)
+// ═══════════════════════════════════════════════════════════════════════
+
+function DateFilterContent({
+  currentValue,
+  onValueChange,
+}: {
+  currentValue: string
+  onValueChange: (v: string) => void
+}) {
+  const selected = currentValue ? new Date(`${currentValue}T00:00:00`) : undefined
+
+  const handleSelect = useCallback(
+    (date: Date | undefined) => {
+      onValueChange(date ? date.toISOString().slice(0, 10) : "")
+    },
+    [onValueChange]
+  )
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <Label className="text-muted-foreground text-xs">
+          {currentValue
+            ? new Date(`${currentValue}T00:00:00`).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })
+            : "Pick a date\u2026"}
+        </Label>
+        {currentValue && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 shrink-0"
+            onClick={() => onValueChange("")}
+          >
+            <HugeiconsIcon icon={Delete02Icon} className="size-3.5" strokeWidth={2} />
+          </Button>
+        )}
+      </div>
+      <Calendar
+        mode="single"
+        selected={selected}
+        onSelect={handleSelect}
+        month={selected}
+        captionLayout="dropdown"
+        className={cn("p-0 [--cell-size:--spacing(7.5)]")}
+      />
+    </div>
   )
 }

@@ -503,8 +503,8 @@ function DevToolsPanel() {
                 <TabsTrigger value="details" className="text-xs">
                   Details
                 </TabsTrigger>
-                <TabsTrigger value="queries" className="text-xs">
-                  Queries
+                <TabsTrigger value="session" className="text-xs">
+                  Session
                 </TabsTrigger>
                 <TabsTrigger value="cookies" className="text-xs">
                   Cookies
@@ -512,8 +512,8 @@ function DevToolsPanel() {
                 <TabsTrigger value="localStorage" className="text-xs">
                   Local Storage
                 </TabsTrigger>
-                <TabsTrigger value="session" className="text-xs">
-                  Session
+                <TabsTrigger value="queries" className="text-xs">
+                  Queries
                 </TabsTrigger>
               </TabsList>
             </div>

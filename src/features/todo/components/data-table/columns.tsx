@@ -13,7 +13,6 @@ export const todoColumns: ColumnDef<Todo, unknown>[] = [
     accessorKey: "id",
     header: "ID",
     cell: ({ getValue }) => `${getValue<string>().slice(0, 8)}…`,
-    enableSorting: false,
     size: 110,
   },
   {
@@ -44,7 +43,7 @@ export const todoColumns: ColumnDef<Todo, unknown>[] = [
 // ─── Per-column filter configuration ───────────────────────────────────
 // Each key matches a column `id` or `accessorKey`.
 
-export type ColumnFilterType = "select" | "text"
+export type ColumnFilterType = "select" | "text" | "date"
 
 export interface ColumnFilterDef {
   type: ColumnFilterType
@@ -66,7 +65,7 @@ export const columnFilterConfig: Record<string, ColumnFilterDef> = {
     placeholder: "Filter tasks…",
   },
   createdAt: {
-    type: "text",
+    type: "date",
     placeholder: "Filter date…",
   },
   id: {
