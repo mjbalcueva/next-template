@@ -1,5 +1,4 @@
 import { apiFetch } from "@/packages/api/http"
-
 import {
   AUTH_ENDPOINTS,
   authSessionSchema,

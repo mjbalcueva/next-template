@@ -2,9 +2,10 @@
 
 import { useMutation } from "@tanstack/react-query"
 
-import { login } from "../api/auth.api"
 import type { LoginInput } from "@/packages/auth/lib/schemas"
 import { useAuth } from "@/packages/auth/store/auth.actions"
+
+import { login } from "../api/auth.api"
 
 export function useLogin() {
   const { setSession } = useAuth()

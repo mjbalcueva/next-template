@@ -2,8 +2,9 @@
 
 import { useMutation } from "@tanstack/react-query"
 
-import { getSession } from "../api/auth.api"
 import { useAuth } from "@/packages/auth/store/auth.actions"
+
+import { getSession } from "../api/auth.api"
 
 export function useFetchUser() {
   const { clearSession, setSession } = useAuth()
