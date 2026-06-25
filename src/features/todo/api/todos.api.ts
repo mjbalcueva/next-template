@@ -1,4 +1,4 @@
-import { apiFetch } from "@/packages/api/fetch"
+import { apiFetch } from "@/packages/api/http"
 
 import {
   removedTodoOutputSchema,

@@ -13,7 +13,7 @@ import { Button } from "@/core/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card"
 import { Checkbox } from "@/core/components/ui/checkbox"
 
-import { Can } from "@/packages/auth/components/can"
+import { Gate } from "@/packages/auth/components/gate"
 
 import { useRemoveTodo, useToggleTodo } from "../hooks/use-todo-mutations"
 import { todoDetailQueryOptions } from "../lib/query-options"
@@ -48,7 +48,7 @@ export function TodoDetails({ id }: { id: string }) {
             Created {format(new Date(todo.createdAt), "MMMM d, yyyy 'at' h:mm a")}
           </p>
           <div className="flex items-center justify-between">
-            <Can resource="todos" action="update">
+            <Gate resource="todos" action="update">
               <label className="flex cursor-pointer items-center gap-2 text-sm select-none">
                 <Checkbox
                   checked={todo.done}
@@ -57,8 +57,8 @@ export function TodoDetails({ id }: { id: string }) {
                 />
                 Mark as {todo.done ? "incomplete" : "complete"}
               </label>
-            </Can>
-            <Can resource="todos" action="delete">
+            </Gate>
+            <Gate resource="todos" action="delete">
               <Button
                 variant="ghost"
                 size="icon-sm"
@@ -68,13 +68,13 @@ export function TodoDetails({ id }: { id: string }) {
               >
                 <HugeiconsIcon icon={Delete02Icon} size={16} />
               </Button>
-            </Can>
+            </Gate>
           </div>
         </CardContent>
       </Card>
 
       {/* ── Admin-only audit card ──────────────────────────────────── */}
-      <Can resource="admin" action="access">
+      <Gate resource="admin" action="access">
         <Card className="border-dashed">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-sm font-medium">
@@ -93,7 +93,7 @@ export function TodoDetails({ id }: { id: string }) {
             </div>
           </CardContent>
         </Card>
-      </Can>
+      </Gate>
     </div>
   )
 }

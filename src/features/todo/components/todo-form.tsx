@@ -6,7 +6,7 @@ import { useForm } from "@tanstack/react-form"
 
 import { FormStatus, SubmitButton, TextFormField } from "@/core/components/forms/tanstack-form"
 
-import { Can } from "@/packages/auth/components/can"
+import { Gate } from "@/packages/auth/components/gate"
 
 import { createTodoSchema } from "../api/todos.schema"
 import { useCreateTodo } from "../hooks/use-todo-mutations"
@@ -32,7 +32,7 @@ export function TodoForm() {
   })
 
   return (
-    <Can resource="todos" action="create">
+    <Gate resource="todos" action="create">
       <form
         onSubmit={e => {
           e.preventDefault()
@@ -60,6 +60,6 @@ export function TodoForm() {
         </form.Field>
         <FormStatus>{error}</FormStatus>
       </form>
-    </Can>
+    </Gate>
   )
 }

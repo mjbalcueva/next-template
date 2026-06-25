@@ -1,4 +1,4 @@
-import { getCurrentSession } from "@/packages/auth/server"
+import { getCurrentSession } from "@/packages/auth/lib/server"
 
 export default async function SessionPage() {
   const session = await getCurrentSession()

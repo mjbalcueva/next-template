@@ -15,8 +15,7 @@ import {
 
 import { useLogin } from "@/features/auth/hooks/use-login"
 
-import { DEFAULT_AUTH_REDIRECT } from "@/packages/auth/config"
-import { loginInputSchema } from "@/packages/auth/schemas"
+import { DEFAULT_AUTH_REDIRECT, loginInputSchema } from "@/packages/auth/lib/schemas"
 
 export function LoginForm() {
   const router = useRouter()

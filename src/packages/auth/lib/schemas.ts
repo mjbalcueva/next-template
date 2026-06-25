@@ -1,5 +1,23 @@
 import { z } from "zod"
 
+import { env } from "@/env"
+
+// ─── Constants ─────────────────────────────────────────────────────────
+
+export const AUTH_ENDPOINTS = {
+  csrf: env.NEXT_PUBLIC_SANCTUM_CSRF_URL,
+  login: "auth/login",
+  register: "auth/register",
+  logout: "auth/logout",
+  user: "user",
+  permissions: "permissions",
+} as const
+
+export const DEFAULT_AUTH_REDIRECT = "/" as const
+export const LOGIN_PATH = "/auth/login" as const
+
+// ─── Zod schemas ──────────────────────────────────────────────────────
+
 export const roleSchema = z.enum(["admin", "moderator", "member", "viewer"])
 
 export const userSchema = z.object({
@@ -42,10 +60,3 @@ export type AuthSession = z.infer<typeof authSessionSchema>
 export type Permission = z.infer<typeof permissionSchema>
 export type LoginInput = z.infer<typeof loginInputSchema>
 export type RegisterInput = z.infer<typeof registerInputSchema>
-
-export interface AuthConfig {
-  appUrl: string
-  apiUrl: string
-  authUrl: string
-  csrfUrl: string
-}

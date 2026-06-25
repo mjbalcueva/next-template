@@ -9,7 +9,7 @@ import { formatDistanceToNow } from "date-fns"
 import { Button } from "@/core/components/ui/button"
 import { Checkbox } from "@/core/components/ui/checkbox"
 
-import { Can } from "@/packages/auth/components/can"
+import { Gate } from "@/packages/auth/components/gate"
 
 import type { Todo } from "../api/todos.schema"
 import { useRemoveTodo, useToggleTodo } from "../hooks/use-todo-mutations"
@@ -52,7 +52,7 @@ export function TodoItem({ todo }: { todo: Todo }) {
           {formatDistanceToNow(new Date(todo.createdAt), { addSuffix: true })}
         </span>
       </div>
-      <Can resource="todos" action="delete">
+      <Gate resource="todos" action="delete">
         <Button
           variant="ghost"
           size="icon-sm"
@@ -65,7 +65,7 @@ export function TodoItem({ todo }: { todo: Todo }) {
         >
           <HugeiconsIcon icon={Delete02Icon} size={16} />
         </Button>
-      </Can>
+      </Gate>
     </li>
   )
 }

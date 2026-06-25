@@ -48,7 +48,7 @@ import {
 } from "@/core/components/ui/table"
 
 import { createActiveFilterBadges, getColumnFilterKey } from "@/packages/table/filter-state"
-import { usePersistentQueryStates } from "@/packages/url-state/use-persistent-query-states"
+import { usePersistentQueryStates } from "@/packages/use-persistent-query-states"
 
 import type { Todo } from "../api/todos.schema"
 

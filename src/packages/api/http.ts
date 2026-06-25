@@ -2,8 +2,73 @@ import { type z, type ZodType } from "zod"
 
 import { env } from "@/env"
 
-import { ensureCsrfCookie, readXsrfToken } from "./csrf"
-import { ApiError, type ApiValidationErrors } from "./errors"
+// ─── API Error types ───────────────────────────────────────────────────
+
+export type ApiValidationErrors = Record<string, string[]>
+
+export class ApiError extends Error {
+  status: number
+  data: unknown
+  validationErrors?: ApiValidationErrors
+
+  constructor({
+    message,
+    status,
+    data,
+    validationErrors,
+  }: {
+    message: string
+    status: number
+    data?: unknown
+    validationErrors?: ApiValidationErrors
+  }) {
+    super(message)
+    this.name = "ApiError"
+    this.status = status
+    this.data = data
+    this.validationErrors = validationErrors
+  }
+}
+
+export function getApiErrorMessage(error: unknown, fallback = "Something went wrong.") {
+  if (error instanceof ApiError) return error.message
+  if (error instanceof Error) return error.message
+  return fallback
+}
+
+// ─── CSRF helpers ──────────────────────────────────────────────────────
+
+function decodeCookieValue(value: string) {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
+}
+
+export function readXsrfToken() {
+  if (typeof document === "undefined") return null
+
+  const token = document.cookie
+    .split(";")
+    .map(part => part.trim())
+    .find(part => part.startsWith("XSRF-TOKEN="))
+
+  if (!token) return null
+  return decodeCookieValue(token.slice("XSRF-TOKEN=".length))
+}
+
+export async function ensureCsrfCookie() {
+  if (typeof window === "undefined") return
+
+  await fetch(env.NEXT_PUBLIC_SANCTUM_CSRF_URL, {
+    method: "GET",
+    credentials: "include",
+    headers: { Accept: "application/json" },
+  })
+}
+
+// ─── Fetch internals ───────────────────────────────────────────────────
 
 type ApiBase = "api" | "auth"
 
@@ -39,10 +104,7 @@ function buildApiUrl(
   query?: ApiFetchOptions<ZodType | undefined>["query"]
 ) {
   const replacedPath = Object.entries(params ?? {}).reduce((currentPath, [key, value]) => {
-    if (value === null || value === undefined) {
-      return currentPath
-    }
-
+    if (value === null || value === undefined) return currentPath
     return currentPath.replace(`:${key}`, encodeURIComponent(String(value)))
   }, path)
 
@@ -53,9 +115,8 @@ function buildApiUrl(
   )
 
   for (const [key, value] of Object.entries(query ?? {})) {
-    if (value !== null && value !== undefined && value !== "") {
+    if (value !== null && value !== undefined && value !== "")
       url.searchParams.set(key, String(value))
-    }
   }
 
   return url
@@ -76,9 +137,7 @@ function isJsonLike(value: unknown) {
 }
 
 async function getServerRequestHeaders(): Promise<Record<string, string>> {
-  if (typeof window !== "undefined") {
-    return {}
-  }
+  if (typeof window !== "undefined") return {}
 
   try {
     const { cookies, headers } = await import("next/headers")
@@ -102,57 +161,37 @@ async function getServerRequestHeaders(): Promise<Record<string, string>> {
 function getErrorMessage(data: unknown, status: number) {
   if (data && typeof data === "object") {
     const record = data as { message?: unknown; error?: unknown }
-    if (typeof record.message === "string") {
-      return record.message
-    }
-    if (typeof record.error === "string") {
-      return record.error
-    }
+    if (typeof record.message === "string") return record.message
+    if (typeof record.error === "string") return record.error
   }
 
-  if (status === 419) {
-    return "Your session expired. Please try again."
-  }
-
-  if (status === 401) {
-    return "Please log in to continue."
-  }
-
-  if (status === 403) {
-    return "You do not have permission to perform this action."
-  }
-
+  if (status === 419) return "Your session expired. Please try again."
+  if (status === 401) return "Please log in to continue."
+  if (status === 403) return "You do not have permission to perform this action."
   return `Request failed with status ${status}.`
 }
 
 function getValidationErrors(data: unknown): ApiValidationErrors | undefined {
-  if (!data || typeof data !== "object" || !("errors" in data)) {
-    return undefined
-  }
+  if (!data || typeof data !== "object" || !("errors" in data)) return undefined
 
   const errors = (data as { errors?: unknown }).errors
-  if (!errors || typeof errors !== "object") {
-    return undefined
-  }
+  if (!errors || typeof errors !== "object") return undefined
 
   const validationErrors: ApiValidationErrors = {}
 
   for (const [key, value] of Object.entries(errors)) {
     if (Array.isArray(value)) {
       const messages = value.filter((item): item is string => typeof item === "string")
-      if (messages.length > 0) {
-        validationErrors[key] = messages
-      }
+      if (messages.length > 0) validationErrors[key] = messages
       continue
     }
-
-    if (typeof value === "string") {
-      validationErrors[key] = [value]
-    }
+    if (typeof value === "string") validationErrors[key] = [value]
   }
 
   return Object.keys(validationErrors).length > 0 ? validationErrors : undefined
 }
+
+// ─── Public fetch ──────────────────────────────────────────────────────
 
 export async function apiFetch<TSchema extends ZodType | undefined = undefined>(
   path: string,
@@ -171,27 +210,20 @@ export async function apiFetch<TSchema extends ZodType | undefined = undefined>(
 ): Promise<TSchema extends ZodType ? z.infer<TSchema> : unknown> {
   const requestMethod = method.toUpperCase()
 
-  if (csrf && isMutatingMethod(requestMethod) && typeof window !== "undefined") {
+  if (csrf && isMutatingMethod(requestMethod) && typeof window !== "undefined")
     await ensureCsrfCookie()
-  }
 
   const requestHeaders = new Headers(headers)
   requestHeaders.set("Accept", "application/json")
-
-  if (isJsonLike(body) && !requestHeaders.has("Content-Type")) {
+  if (isJsonLike(body) && !requestHeaders.has("Content-Type"))
     requestHeaders.set("Content-Type", "application/json")
-  }
 
   const xsrfToken = readXsrfToken()
-  if (xsrfToken && isMutatingMethod(requestMethod)) {
-    requestHeaders.set("X-XSRF-TOKEN", xsrfToken)
-  }
+  if (xsrfToken && isMutatingMethod(requestMethod)) requestHeaders.set("X-XSRF-TOKEN", xsrfToken)
 
   const serverHeaders = await getServerRequestHeaders()
   for (const [key, value] of Object.entries(serverHeaders)) {
-    if (value && !requestHeaders.has(key)) {
-      requestHeaders.set(key, value)
-    }
+    if (value && !requestHeaders.has(key)) requestHeaders.set(key, value)
   }
 
   const response = await fetch(buildApiUrl(path, base, params, query), {
@@ -218,9 +250,6 @@ export async function apiFetch<TSchema extends ZodType | undefined = undefined>(
     })
   }
 
-  if (!schema) {
-    return data as TSchema extends ZodType ? z.infer<TSchema> : unknown
-  }
-
+  if (!schema) return data as TSchema extends ZodType ? z.infer<TSchema> : unknown
   return schema.parse(data) as TSchema extends ZodType ? z.infer<TSchema> : unknown
 }

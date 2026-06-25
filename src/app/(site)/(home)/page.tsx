@@ -1,7 +1,7 @@
 import { HomeCtaButton } from "@/features/home/home-cta-button"
 import { NavigationLinks } from "@/features/home/navigation-links"
 
-import { getCurrentSession } from "@/packages/auth/server"
+import { getCurrentSession } from "@/packages/auth/lib/server"
 
 export default async function HomePage() {
   const session = await getCurrentSession()

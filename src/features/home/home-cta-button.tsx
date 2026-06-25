@@ -9,27 +9,29 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { Button, buttonVariants } from "@/core/components/ui/button"
 import { cn } from "@/core/lib/utils"
 
+import { useAuth } from "@/packages/auth/store/auth.actions"
+
 import { useLogout } from "../auth/hooks/use-logout"
 
 export function HomeCtaButton({ href, isLoggedIn }: { href: string; isLoggedIn: boolean }) {
+  const { isAuthenticated } = useAuth()
   const { mutateAsync, isPending } = useLogout()
 
-  if (isLoggedIn) {
+  if (isLoggedIn && isAuthenticated) {
     return (
       <Button size="lg" onClick={() => mutateAsync()} disabled={isPending}>
         <HugeiconsIcon icon={Logout01FreeIcons} strokeWidth={2} className="size-4" />
         {isPending ? "Logging out..." : "Logout"}
       </Button>
     )
-  } else {
-    return (
-      <Link
-        href={href as Route}
-        className={cn(buttonVariants({ size: "lg" }), "rounded-full px-6 text-sm tracking-wide")}
-      >
-        <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} data-icon="inline-start" />
-        {isLoggedIn ? "Open dashboard" : "Login"}
-      </Link>
-    )
   }
+  return (
+    <Link
+      href={href as Route}
+      className={cn(buttonVariants({ size: "lg" }), "rounded-full px-6 text-sm tracking-wide")}
+    >
+      <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} data-icon="inline-start" />
+      Login
+    </Link>
+  )
 }

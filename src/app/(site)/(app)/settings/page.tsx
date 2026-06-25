@@ -4,7 +4,7 @@ import { DangerZone } from "@/features/auth/components/danger-zone"
 import { PasswordSection } from "@/features/auth/components/password-section"
 import { ProfileSection } from "@/features/auth/components/profile-section"
 
-import { RoleGate } from "@/packages/auth/components/access-control"
+import { Gate } from "@/packages/auth/components/gate"
 
 export default function SettingsPage() {
   return (
@@ -18,9 +18,9 @@ export default function SettingsPage() {
 
       <ProfileSection />
       <PasswordSection />
-      <RoleGate roles={["admin"]}>
+      <Gate roles={["admin"]}>
         <DangerZone />
-      </RoleGate>
+      </Gate>
     </main>
   )
 }

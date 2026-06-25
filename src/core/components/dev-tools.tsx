@@ -20,7 +20,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/core/components/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/core/components/ui/tabs"
 import { cn } from "@/core/lib/utils"
 
-import { useSession } from "@/packages/auth/session-provider"
+import { useAuth } from "@/packages/auth/store/auth.actions"
 
 const RQDevtoolsPanel = dynamic(
   () => import("@tanstack/react-query-devtools").then(m => m.ReactQueryDevtoolsPanel),
@@ -410,15 +410,8 @@ function DevToolsPanel() {
   }, [])
 
   const qc = useQueryClient()
-  const { session, isAuthenticated } = useSession()
-  const debugSession = useMemo(
-    () => ({
-      user: session?.user ?? null,
-      permissions: session?.permissions ?? [],
-      isAuthenticated,
-    }),
-    [isAuthenticated, session]
-  )
+  const { user, permissions } = useAuth()
+  const debugSession = useMemo(() => ({ user, permissions }), [user, permissions])
 
   const cycleSide = useCallback(() => {
     setSide(prev => {
@@ -552,9 +545,7 @@ function DevToolsPanel() {
                 <CopyButton getValue={() => JSON.stringify(debugSession, null, 2)} />
               </div>
               <pre className="bg-muted/50 text-foreground/80 h-full overflow-auto rounded-md border p-4 font-mono text-xs">
-                {debugSession.isAuthenticated
-                  ? JSON.stringify(debugSession, null, 2)
-                  : "No active session."}
+                {debugSession.user ? JSON.stringify(debugSession, null, 2) : "No active session."}
               </pre>
             </TabsContent>
           </Tabs>

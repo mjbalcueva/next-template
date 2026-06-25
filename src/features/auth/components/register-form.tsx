@@ -14,7 +14,7 @@ import {
 
 import { useRegister } from "@/features/auth/hooks/use-register"
 
-import { registerInputSchema } from "@/packages/auth/schemas"
+import { registerInputSchema } from "@/packages/auth/lib/schemas"
 
 export function RegisterForm() {
   const router = useRouter()

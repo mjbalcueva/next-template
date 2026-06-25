@@ -16,7 +16,7 @@ import {
 
 import { useUpdateProfile } from "@/features/auth/hooks/use-profile"
 
-import { useUser } from "@/packages/auth/hooks"
+import { useUser } from "@/packages/auth/store/auth.actions"
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(50),

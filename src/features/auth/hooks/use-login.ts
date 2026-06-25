@@ -2,13 +2,12 @@
 
 import { useMutation } from "@tanstack/react-query"
 
-import type { LoginInput } from "@/packages/auth/schemas"
-import { useSession } from "@/packages/auth/session-provider"
-
-import { login } from "../api/auth.api"
+import { login } from "@/packages/auth/api/auth-client"
+import type { LoginInput } from "@/packages/auth/lib/schemas"
+import { useAuth } from "@/packages/auth/store/auth.actions"
 
 export function useLogin() {
-  const { setSession } = useSession()
+  const { setSession } = useAuth()
 
   return useMutation({
     mutationFn: (input: LoginInput) => login(input),

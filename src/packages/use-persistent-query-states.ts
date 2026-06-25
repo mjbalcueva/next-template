@@ -21,9 +21,7 @@ function hasUrlSearchParams() {
 }
 
 function readStoredValues<TParsers extends UseQueryStatesKeysMap>(storageKey: string) {
-  if (typeof window === "undefined") {
-    return {}
-  }
+  if (typeof window === "undefined") return {}
 
   try {
     const raw = localStorage.getItem(storageKey)
@@ -34,9 +32,7 @@ function readStoredValues<TParsers extends UseQueryStatesKeysMap>(storageKey: st
 }
 
 function writeStoredValues(storageKey: string, values: unknown) {
-  if (typeof window === "undefined") {
-    return
-  }
+  if (typeof window === "undefined") return
 
   try {
     localStorage.setItem(storageKey, JSON.stringify(values))

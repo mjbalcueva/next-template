@@ -1,13 +1,13 @@
 import { cache } from "react"
 import { redirect } from "next/navigation"
 
-import { ApiError } from "@/packages/api/errors"
-import { apiFetch } from "@/packages/api/fetch"
+import { ApiError, apiFetch } from "@/packages/api/http"
 
-import { AUTH_ENDPOINTS, LOGIN_PATH } from "./config"
 import {
+  AUTH_ENDPOINTS,
   authSessionSchema,
   authUserSchema,
+  LOGIN_PATH,
   permissionsSchema,
   type AuthSession,
   type Permission,
