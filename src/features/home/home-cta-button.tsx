@@ -11,13 +11,10 @@ import { cn } from "@/core/lib/utils"
 
 import { useLogout } from "@/features/user/hooks/auth.mutations"
 
-import { useAuth } from "@/packages/auth/store/auth.actions"
-
 export function HomeCtaButton({ href, isLoggedIn }: { href: string; isLoggedIn: boolean }) {
-  const { isAuthenticated } = useAuth()
   const { mutateAsync, isPending } = useLogout()
 
-  if (isLoggedIn && isAuthenticated) {
+  if (isLoggedIn) {
     return (
       <Button size="lg" onClick={() => mutateAsync()} disabled={isPending}>
         <HugeiconsIcon icon={Logout01FreeIcons} strokeWidth={2} className="size-4" />
@@ -25,6 +22,7 @@ export function HomeCtaButton({ href, isLoggedIn }: { href: string; isLoggedIn: 
       </Button>
     )
   }
+
   return (
     <Link
       href={href as Route}
