@@ -1,16 +1,9 @@
 import type { Metadata } from "next"
 import { Figtree, Geist, Geist_Mono } from "next/font/google"
 
-import { NuqsAdapter } from "nuqs/adapters/next/app"
-
-import { DevTools } from "@/core/components/dev-tools"
 import { ThemeProvider } from "@/core/components/providers/theme-provider"
-import { TooltipProvider } from "@/core/components/ui/tooltip"
+import { Toaster } from "@/core/components/ui/sonner"
 import { cn } from "@/core/lib/utils"
-
-import { AuthProvider } from "@/features/auth/providers/auth-provider"
-
-import { ReactQueryProvider } from "@/packages/tanstack/providers/provider"
 
 import "@/core/styles/globals.css"
 
@@ -29,7 +22,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Next Template",
   description:
-    "A frontend-first Next.js template with RBAC permissions, TanStack Query, better-fetch, and shadcn/ui. Created by mjbalcueva.",
+    "A server-first Next.js template with Laravel Sanctum auth, RBAC permissions, TanStack Query/Form/Table, and shadcn/ui. Created by mjbalcueva.",
 }
 
 export default function RootLayout({
@@ -57,16 +50,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NuqsAdapter>
-            <ReactQueryProvider>
-              <TooltipProvider>
-                <AuthProvider>
-                  {children}
-                  <DevTools />
-                </AuthProvider>
-              </TooltipProvider>
-            </ReactQueryProvider>
-          </NuqsAdapter>
+          {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

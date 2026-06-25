@@ -122,6 +122,22 @@ export default defineConfig([
     },
   },
 
+  // -- reui is a local primitive/block library with advanced composition patterns
+  {
+    files: ["src/core/components/reui/**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/prefer-nullish-coalescing": "off",
+      "no-console": "off",
+      "react-compiler/react-compiler": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "react-hooks/rules-of-hooks": "off",
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/use-memo": "off",
+    },
+  },
+
   // -- Prettier Integration (Must be last)
   prettier,
 ])

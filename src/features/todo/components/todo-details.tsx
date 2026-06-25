@@ -13,7 +13,7 @@ import { Button } from "@/core/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/core/components/ui/card"
 import { Checkbox } from "@/core/components/ui/checkbox"
 
-import { Can } from "@/packages/access-control/components/can"
+import { Can } from "@/packages/auth/components/can"
 
 import { useRemoveTodo, useToggleTodo } from "../hooks/use-todo-mutations"
 import { todoDetailQueryOptions } from "../lib/query-options"

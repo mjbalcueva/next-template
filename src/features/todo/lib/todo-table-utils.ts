@@ -33,3 +33,29 @@ export function groupTodosByDate(todos: Todo[]): { date: string; count: number; 
     .map(([date, v]) => ({ date, ...v }))
     .sort((a, b) => a.date.localeCompare(b.date))
 }
+
+export function buildStatusBreakdown(todos: Todo[]) {
+  const stats = computeTodoStats(todos)
+  return [
+    { name: "done", value: stats.done, fill: "var(--chart-1)" },
+    { name: "open", value: stats.open, fill: "var(--chart-2)" },
+  ]
+}
+
+export function buildTodoTrend(todos: Todo[]) {
+  return groupTodosByDate(todos).map(group => ({
+    date: group.date,
+    done: group.done,
+    open: group.count - group.done,
+    total: group.count,
+    completionRate: group.count > 0 ? Math.round((group.done / group.count) * 100) : 0,
+  }))
+}
+
+export function buildTodoVolumeByStatus(todos: Todo[]) {
+  const stats = computeTodoStats(todos)
+  return [
+    { status: "Open", count: stats.open, fill: "var(--chart-2)" },
+    { status: "Completed", count: stats.done, fill: "var(--chart-1)" },
+  ]
+}

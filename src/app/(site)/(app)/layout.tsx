@@ -1,18 +1,22 @@
-"use client"
+import { redirect } from "next/navigation"
 
+import { RequestProviders } from "@/core/components/providers/request-providers"
 import { SiteHeader } from "@/core/components/layout/site-header"
 
-import { useUser } from "@/features/auth/hooks/use-session"
+import { SIGN_IN_PATH } from "@/packages/auth/config"
+import { getCurrentSession } from "@/packages/auth/server"
 
-import { Protected } from "@/packages/access-control/components/access-control"
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const session = await getCurrentSession()
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const user = useUser()
+  if (!session) {
+    redirect(SIGN_IN_PATH)
+  }
 
   return (
-    <Protected>
-      {user && <SiteHeader user={{ name: user.name, email: user.email }} />}
+    <RequestProviders initialSession={session}>
+      <SiteHeader user={{ name: session.user.name, email: session.user.email }} />
       {children}
-    </Protected>
+    </RequestProviders>
   )
 }

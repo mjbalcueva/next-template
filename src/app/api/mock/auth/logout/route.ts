@@ -1,17 +1,12 @@
-import { json, revokeToken } from "../../store"
+import { jsonWithoutSession, revokeCurrentSession } from "../../store"
 
 /**
  * POST /api/mock/auth/logout
  *
- * Sanctum-style: revokes the current Bearer token.
+ * Sanctum SPA-style: revokes the current session cookie.
  */
 export function POST(request: Request) {
-  const header = request.headers.get("authorization")
-  const bearerToken = header?.replace("Bearer ", "")
+  revokeCurrentSession(request)
 
-  if (bearerToken) {
-    revokeToken(bearerToken)
-  }
-
-  return json({ success: true })
+  return jsonWithoutSession({ ok: true })
 }

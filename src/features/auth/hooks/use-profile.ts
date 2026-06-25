@@ -2,14 +2,16 @@
 
 import { useMutation } from "@tanstack/react-query"
 
-import { updateUser } from "@/features/auth/store/auth.actions"
+import { useSession } from "@/packages/auth/session-provider"
 
 import { changePassword, checkHealth, deleteAccount, updateProfile } from "../api/settings.api"
 
 export function useUpdateProfile() {
+  const { setUser, user: currentUser } = useSession()
+
   return useMutation({
     mutationFn: updateProfile,
-    onSuccess: user => updateUser(user),
+    onSuccess: user => setUser({ ...user, abilities: currentUser?.abilities ?? [] }),
   })
 }
 

@@ -5,16 +5,16 @@ export const createTodoSchema = z.object({
 })
 
 export const toggleTodoSchema = z.object({
-  id: z.uuid(),
+  id: z.string().min(1),
   done: z.boolean(),
 })
 
 export const removeTodoSchema = z.object({
-  id: z.uuid(),
+  id: z.string().min(1),
 })
 
 export const todoIdSchema = z.object({
-  id: z.uuid(),
+  id: z.string().min(1),
 })
 
 export type CreateTodoInput = z.infer<typeof createTodoSchema>
@@ -38,4 +38,10 @@ export const todoOutputSchema = z.object({
   text: z.string(),
   done: z.boolean(),
   createdAt: z.string(),
+})
+
+export const todoListOutputSchema = todoOutputSchema.array()
+
+export const removedTodoOutputSchema = z.object({
+  id: z.string(),
 })

@@ -2,24 +2,16 @@
 
 import { useMutation } from "@tanstack/react-query"
 
-import { setToken, updateUser } from "@/features/auth/store/auth.actions"
+import { useSession } from "@/packages/auth/session-provider"
+import type { RegisterInput } from "@/packages/auth/schemas"
 
-import { fetchUser, register } from "../api/auth.api"
-import type { RegisterInput } from "../api/auth.schema"
+import { register } from "../api/auth.api"
 
 export function useRegister() {
+  const { setSession } = useSession()
+
   return useMutation({
-    mutationFn: async (input: RegisterInput) => {
-      const { token } = await register(input)
-      setToken(token)
-      try {
-        const user = await fetchUser()
-        updateUser(user)
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error("[auth] Failed to fetch user after register:", err)
-      }
-      return { token }
-    },
+    mutationFn: (input: RegisterInput) => register(input),
+    onSuccess: session => setSession(session),
   })
 }

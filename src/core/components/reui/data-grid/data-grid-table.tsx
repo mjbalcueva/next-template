@@ -1,13 +1,13 @@
 "use client"
 
 import {
-  CSSProperties,
+  type CSSProperties,
   Fragment,
   memo,
-  MouseEvent as ReactMouseEvent,
-  ReactNode,
-  TouchEvent as ReactTouchEvent,
-  Ref,
+  type MouseEvent as ReactMouseEvent,
+  type ReactNode,
+  type TouchEvent as ReactTouchEvent,
+  type Ref,
   useCallback,
   useEffect,
   useMemo,
@@ -15,13 +15,13 @@ import {
 } from "react"
 import { useDataGrid } from "@/core/components/reui/data-grid/data-grid"
 import {
-  Cell,
-  Column,
+  type Cell,
+  type Column,
   flexRender,
-  Header,
-  HeaderGroup,
-  Row,
-  Table,
+  type Header,
+  type HeaderGroup,
+  type Row,
+  type Table,
 } from "@tanstack/react-table"
 import { cva } from "class-variance-authority"
 
@@ -166,7 +166,7 @@ function startDataGridColumnResizeOnEnd<TData>(
   const updateOffset = (clientXPos?: number, commit = false) => {
     if (typeof clientXPos !== "number") return
 
-    let nextColumnSizing: Record<string, number> = {}
+    const nextColumnSizing: Record<string, number> = {}
     const deltaOffset = (clientXPos - dragStartClientX) * directionMultiplier
     const deltaPercentage = Math.max(deltaOffset / startSize, -0.999999)
 
@@ -415,10 +415,10 @@ function DataGridTableBase({ children }: { children: ReactNode }) {
       colSizes[`--col-${header.column.id}-size`] = header.column.getSize()
     }
     return colSizes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [
     props.tableLayout?.columnsResizable,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     table.getState().columnSizing,
   ])
 

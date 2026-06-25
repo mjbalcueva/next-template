@@ -9,7 +9,7 @@ import { formatDistanceToNow } from "date-fns"
 import { Button } from "@/core/components/ui/button"
 import { Checkbox } from "@/core/components/ui/checkbox"
 
-import { Can } from "@/packages/access-control/components/can"
+import { Can } from "@/packages/auth/components/can"
 
 import type { Todo } from "../api/todos.schema"
 import { useRemoveTodo, useToggleTodo } from "../hooks/use-todo-mutations"

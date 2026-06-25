@@ -2,25 +2,16 @@
 
 import { useMutation } from "@tanstack/react-query"
 
-import { setToken, updateUser } from "@/features/auth/store/auth.actions"
+import { useSession } from "@/packages/auth/session-provider"
+import type { LoginInput } from "@/packages/auth/schemas"
 
-import { fetchUser, login } from "../api/auth.api"
-import type { LoginInput } from "../api/auth.schema"
+import { login } from "../api/auth.api"
 
 export function useLogin() {
+  const { setSession } = useSession()
+
   return useMutation({
-    mutationFn: async (input: LoginInput) => {
-      const { token } = await login(input)
-      // Set token first — fetchUser needs the Bearer header.
-      setToken(token)
-      try {
-        const user = await fetchUser()
-        updateUser(user)
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error("[auth] Failed to fetch user after login:", err)
-      }
-      return { token }
-    },
+    mutationFn: (input: LoginInput) => login(input),
+    onSuccess: session => setSession(session),
   })
 }

@@ -18,19 +18,22 @@ export function useCopyToClipboard({
 
     if (!value) return
 
-    navigator.clipboard.writeText(value).then(() => {
-      setIsCopied(true)
+    void navigator.clipboard.writeText(value).then(
+      () => {
+        setIsCopied(true)
 
-      if (onCopy) {
-        onCopy()
-      }
+        if (onCopy) {
+          onCopy()
+        }
 
-      if (timeout !== 0) {
-        setTimeout(() => {
-          setIsCopied(false)
-        }, timeout)
-      }
-    }, console.error)
+        if (timeout !== 0) {
+          setTimeout(() => {
+            setIsCopied(false)
+          }, timeout)
+        }
+      },
+      () => {}
+    )
   }
 
   return { isCopied, copyToClipboard }

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 
+import { hasSessionCookie } from "@/packages/auth/config"
 import { DEFAULT_AUTH_REDIRECT, isAuthPagePath, isProtectedProxyPath } from "@/proxy-routes"
 
 /**
@@ -16,12 +17,12 @@ import { DEFAULT_AUTH_REDIRECT, isAuthPagePath, isProtectedProxyPath } from "@/p
  *   `src/proxy-routes.ts`
  */
 export function proxy(request: NextRequest) {
-  const authToken = request.cookies.get("auth_token")?.value
+  const hasSession = hasSessionCookie(name => request.cookies.get(name))
   const { pathname } = request.nextUrl
 
   // ── Auth pages: redirect to home if already logged in ────────────────
   if (isAuthPagePath(pathname)) {
-    if (authToken) {
+    if (hasSession) {
       return NextResponse.redirect(new URL(DEFAULT_AUTH_REDIRECT, request.url))
     }
     return NextResponse.next()
@@ -29,7 +30,7 @@ export function proxy(request: NextRequest) {
 
   // ── Protected routes: redirect to sign-in if not authenticated ────────
   if (isProtectedProxyPath(pathname)) {
-    if (!authToken) {
+    if (!hasSession) {
       const url = new URL("/auth/sign-in", request.url)
       url.searchParams.set("redirect", pathname)
       return NextResponse.redirect(url)

@@ -1,18 +1,18 @@
 "use client"
 
-import { createContext, ReactNode, useContext, useMemo } from "react"
+import { createContext, type ReactNode, useContext, useEffect, useMemo } from "react"
 import {
-  Column,
-  ColumnFiltersState,
-  RowData,
-  SortingState,
-  Table,
+  type Column,
+  type ColumnFiltersState,
+  type RowData,
+  type SortingState,
+  type Table,
 } from "@tanstack/react-table"
 
 import { cn } from "@/core/lib/utils"
 
 declare module "@tanstack/react-table" {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   interface ColumnMeta<TData extends RowData, TValue> {
     headerTitle?: string
     headerClassName?: string
@@ -108,7 +108,7 @@ export interface DataGridProps<TData extends object> {
 }
 
 const DataGridContext = createContext<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   DataGridContextProps<any> | undefined
 >(undefined)
 
@@ -129,11 +129,23 @@ function DataGridProvider<TData extends object>({
   const resolvedColumnsResizeMode =
     props.tableLayout?.columnsResizeMode ?? "onEnd"
 
-  // Keep resize mode aligned with the DataGrid contract every render so
-  // consumer-level useReactTable options cannot flip it back between drags.
-  if (props.tableLayout?.columnsResizable) {
-    table.options.columnResizeMode = resolvedColumnsResizeMode
-  }
+  // Keep resize mode aligned with the DataGrid contract.
+  useEffect(() => {
+    if (!props.tableLayout?.columnsResizable) {
+      return
+    }
+
+    table.setOptions(previous => {
+      if (previous.columnResizeMode === resolvedColumnsResizeMode) {
+        return previous
+      }
+
+      return {
+        ...previous,
+        columnResizeMode: resolvedColumnsResizeMode,
+      }
+    })
+  }, [props.tableLayout?.columnsResizable, resolvedColumnsResizeMode, table])
 
   // Memoize context value so consumers don't re-render during column resize.
   // Column sizing state is intentionally excluded from deps -- CSS variables
@@ -145,7 +157,7 @@ function DataGridProvider<TData extends object>({
       recordCount: props.recordCount,
       isLoading: props.isLoading || false,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     [
       table,
       props.recordCount,
@@ -157,9 +169,9 @@ function DataGridProvider<TData extends object>({
       props.emptyMessage,
       props.onRowClick,
       props.className,
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+       
       JSON.stringify(props.tableLayout),
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+       
       JSON.stringify(props.tableClassNames),
       tableState.sorting,
       tableState.pagination,

@@ -1,9 +1,9 @@
 "use client"
 
 import {
-  CSSProperties,
+  type CSSProperties,
   Fragment,
-  ReactNode,
+  type ReactNode,
   useEffect,
   useId,
   useRef,
@@ -31,7 +31,7 @@ import {
   closestCenter,
   DndContext,
   KeyboardSensor,
-  Modifier,
+  type Modifier,
   MouseSensor,
   TouchSensor,
   useSensor,
@@ -45,11 +45,11 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import {
-  Cell,
+  type Cell,
   flexRender,
-  Header,
-  HeaderGroup,
-  Row,
+  type Header,
+  type HeaderGroup,
+  type Row,
 } from "@tanstack/react-table"
 
 import { Button } from "@/core/components/ui/button"

@@ -1,14 +1,9 @@
-"use client"
-
-import { useUser } from "@/features/auth/hooks/use-session"
+import type { AuthUser } from "@/packages/auth/schemas"
 
 /**
- * Client component that renders the welcome message with the user's name.
- * Reads from the Zustand auth store (populated after login).
+ * Renders the welcome message with the user's name.
  */
-export function UserWelcome() {
-  const user = useUser()
-
+export function UserWelcome({ user }: { user: AuthUser | null }) {
   if (!user) return null
 
   return (

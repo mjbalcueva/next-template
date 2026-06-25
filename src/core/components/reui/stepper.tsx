@@ -3,9 +3,9 @@
 import {
   Children,
   createContext,
-  HTMLAttributes,
+  type HTMLAttributes,
   isValidElement,
-  ReactElement,
+  type ReactElement,
   useCallback,
   useContext,
   useEffect,
@@ -247,16 +247,16 @@ function StepperTrigger({
     if (btnRef.current) {
       registerTrigger(btnRef.current)
     }
-  }, [btnRef.current])
+  }, [registerTrigger])
 
-  // Find our index among triggers for navigation
-  const myIdx = useMemo(
-    () =>
-      triggerNodes.findIndex((n: HTMLButtonElement) => n === btnRef.current),
-    [triggerNodes, btnRef.current]
-  )
+  const getTriggerIndex = useCallback(() => {
+    const node = btnRef.current
+    return node ? triggerNodes.findIndex((n: HTMLButtonElement) => n === node) : -1
+  }, [triggerNodes])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    const myIdx = getTriggerIndex()
+
     switch (e.key) {
       case "ArrowRight":
       case "ArrowDown":

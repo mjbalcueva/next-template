@@ -1,30 +1,20 @@
-import { AuthError, json, requireAuth, store } from "../store"
+import { AuthError, getAbilitiesForRequest, json, requireAuth, safeUser } from "../store"
 
 /**
  * GET /api/mock/user
  *
- * Sanctum-style: returns the authenticated user with token abilities.
- * Requires a valid Bearer token.
+ * Sanctum-style: returns the authenticated user with abilities.
+ * Requires a valid session cookie.
  */
 export function GET(request: Request) {
   try {
     const user = requireAuth(request)
     const abilities = getAbilitiesForRequest(request)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...safeUser } = user
-    return json({ ...safeUser, abilities })
+    return json({ ...safeUser(user), abilities })
   } catch (err) {
     if (err instanceof AuthError) {
       return Response.json({ error: err.message }, { status: err.status })
     }
     throw err
   }
-}
-
-function getAbilitiesForRequest(request: Request): string[] {
-  const header = request.headers.get("authorization")
-  const bearerToken = header?.replace("Bearer ", "")
-  if (!bearerToken) return []
-  const tokenId = bearerToken.split("|")[0]
-  return store.tokens[tokenId]?.abilities ?? []
 }

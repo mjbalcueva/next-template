@@ -5,12 +5,16 @@ import { useRouter } from "next/navigation"
 
 import { useForm } from "@tanstack/react-form"
 
-import { Button } from "@/core/components/ui/button"
-import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
-import { Input } from "@/core/components/ui/input"
+import {
+  FormStatus,
+  PasswordFormField,
+  SubmitButton,
+  TextFormField,
+} from "@/core/components/forms/tanstack-form"
 
-import { registerInputSchema } from "@/features/auth/api/auth.schema"
 import { useRegister } from "@/features/auth/hooks/use-register"
+
+import { registerInputSchema } from "@/packages/auth/schemas"
 
 export function SignUpForm() {
   const router = useRouter()
@@ -43,95 +47,60 @@ export function SignUpForm() {
       className="flex flex-col gap-4"
     >
       <form.Field name="name">
-        {field => {
-          const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-          return (
-            <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={field.name}>Name</FieldLabel>
-              <Input
-                id={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={e => field.handleChange(e.target.value)}
-                placeholder="Your name"
-                autoComplete="name"
-              />
-              {isInvalid && <FieldError errors={field.state.meta.errors} />}
-            </Field>
-          )
-        }}
+        {field => (
+          <TextFormField
+            field={field}
+            label="Name"
+            placeholder="Your name"
+            autoComplete="name"
+          />
+        )}
       </form.Field>
 
       <form.Field name="email">
-        {field => {
-          const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-          return (
-            <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-              <Input
-                id={field.name}
-                type="email"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={e => field.handleChange(e.target.value)}
-                placeholder="you@example.com"
-                autoComplete="email"
-              />
-              {isInvalid && <FieldError errors={field.state.meta.errors} />}
-            </Field>
-          )
-        }}
+        {field => (
+          <TextFormField
+            field={field}
+            label="Email"
+            type="email"
+            placeholder="you@example.com"
+            autoComplete="email"
+          />
+        )}
       </form.Field>
 
       <form.Field name="password">
-        {field => {
-          const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-          return (
-            <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-              <Input
-                id={field.name}
-                type="password"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={e => field.handleChange(e.target.value)}
-                placeholder="At least 8 characters"
-                autoComplete="new-password"
-              />
-              {isInvalid && <FieldError errors={field.state.meta.errors} />}
-            </Field>
-          )
-        }}
+        {field => (
+          <PasswordFormField
+            field={field}
+            label="Password"
+            placeholder="At least 8 characters"
+            autoComplete="new-password"
+          />
+        )}
       </form.Field>
 
       <form.Field name="password_confirmation">
-        {field => {
-          const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-          return (
-            <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={field.name}>Confirm Password</FieldLabel>
-              <Input
-                id={field.name}
-                type="password"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={e => field.handleChange(e.target.value)}
-                placeholder="Re-enter your password"
-                autoComplete="new-password"
-              />
-              {isInvalid && <FieldError errors={field.state.meta.errors} />}
-            </Field>
-          )
-        }}
+        {field => (
+          <PasswordFormField
+            field={field}
+            label="Confirm Password"
+            placeholder="Re-enter your password"
+            autoComplete="new-password"
+          />
+        )}
       </form.Field>
 
-      {authError && <p className="text-destructive text-sm">{authError}</p>}
+      <FormStatus>{authError}</FormStatus>
 
       <form.Subscribe selector={s => s.isSubmitting}>
         {isSubmitting => (
-          <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "Creating account…" : "Create account"}
-          </Button>
+          <SubmitButton
+            isSubmitting={isSubmitting}
+            idleLabel="Create account"
+            submittingLabel="Creating account…"
+            className="w-full"
+          />
         )}
       </form.Subscribe>
     </form>

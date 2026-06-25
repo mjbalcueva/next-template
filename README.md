@@ -1,120 +1,125 @@
 # Next Template
 
-A **frontend-first Next.js template** for enterprise applications. Built with RBAC/ABAC permissions, TanStack Query, better-fetch, Zustand, and shadcn/ui.
+A server-first Next.js 16 / React 19 frontend template for apps backed by Laravel Sanctum.
 
 Created by [@mjbalcueva](https://github.com/mjbalcueva).
 
 ## Tech Stack
 
-| Layer         | Technology                                                                                     |
-| ------------- | ---------------------------------------------------------------------------------------------- |
-| Framework     | Next.js 16 (App Router) + React 19                                                             |
-| Data Fetching | [TanStack Query](https://tanstack.com/query) + [better-fetch](https://better-fetch.vercel.app) |
-| State         | [Zustand](https://zustand.docs.pmnd.rs) (auth, permissions, client state)                    |
-| Validation    | [Zod](https://zod.dev) (runtime schema validation)                                             |
-| UI            | [shadcn/ui](https://ui.shadcn.com) + [Tailwind CSS 4](https://tailwindcss.com)                 |
-| Auth          | Backend-agnostic (token-based, works with any REST API)                                        |
-| Permissions   | RBAC/ABAC matrix with `<Can>` component + `useCan()` hooks                                     |
-| Env           | [t3-env](https://env.t3.gg) (type-safe environment variables)                                  |
+| Layer | Technology |
+| --- | --- |
+| Framework | Next.js 16 App Router + React 19 |
+| Server state | TanStack Query |
+| Forms | TanStack Form + Zod |
+| Tables | TanStack Table + URL-synced state |
+| Charts | Recharts + shadcn chart wrappers |
+| UI | shadcn/ui, reui primitives/blocks, Tailwind CSS 4 |
+| Auth | Laravel Sanctum SPA cookie auth |
+| Env | t3-env |
 
 ## Getting Started
 
 ```bash
-pn install
-pn dev
+pnpm install
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
-### Mock API
+The default env points at the built-in mock backend, so the template runs without Laravel.
 
-The template includes Next.js API route handlers in `src/app/api/` that serve mock data so the app runs without any backend. When you connect a real backend:
-
-1. Set `NEXT_PUBLIC_API_URL` to your API
-2. Delete `src/app/api/` — the entire folder
-
-### Environment Variables
+## Environment
 
 ```env
-# .env.local
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_API_URL=http://localhost:3000/api
+
+# Mock backend defaults
+NEXT_PUBLIC_API_URL=http://localhost:3000/api/mock
+NEXT_PUBLIC_AUTH_URL=http://localhost:3000/api/mock
+NEXT_PUBLIC_SANCTUM_CSRF_URL=http://localhost:3000/api/mock/sanctum/csrf-cookie
 ```
+
+For Laravel Sanctum, set the same three backend URLs to your Laravel origin:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
+NEXT_PUBLIC_AUTH_URL=http://localhost:8000
+NEXT_PUBLIC_SANCTUM_CSRF_URL=http://localhost:8000/sanctum/csrf-cookie
+```
+
+The production assumption is first-party SPA auth on the same top-level domain or subdomains.
+
+## Auth Model
+
+This template uses Sanctum SPA cookie auth:
+
+- Browser requests use `credentials: "include"`.
+- Mutating browser requests bootstrap CSRF through `/sanctum/csrf-cookie`.
+- The `XSRF-TOKEN` cookie is sent back as `X-XSRF-TOKEN`.
+- Server requests forward incoming cookies to Laravel and send app `Origin` / `Referer`.
+- No bearer token is stored in localStorage or a frontend-owned auth cookie.
+
+Shared auth code lives in `src/packages/auth/`.
+User-facing auth UI and settings flows live in `src/features/auth/`.
+
+## Mock Backend
+
+The mock backend lives under `src/app/api/mock/`. It mirrors the Sanctum cookie shape closely enough for local frontend work.
+
+To replace it with Laravel:
+
+1. Set the env URLs above to Laravel.
+2. Delete `src/app/api/mock/`.
+3. Keep feature API calls pointed at resource paths like `todos`, `user`, and `permissions`.
+
+You should not need to edit a spread of feature files just to switch backend origins.
 
 ## Architecture
 
-```
+```text
 src/
-├── app/                    # Next.js App Router pages + API mock routes
-├── core/                   # Low-level primitives (shadcn/ui, utils, styles)
-│   ├── components/ui/      # shadcn components
-│   ├── lib/                # cn(), getApiUrl()
-│   └── styles/             # globals.css
-├── packages/               # Internal shared libraries (reused everywhere)
-│   ├── tanstack/           # better-fetch client, QueryClient provider, query-factory
-│   └── access-control/     # RBAC/ABAC — store, constants, <Can>, hooks, routes
-├── services/               # Third-party service integrations (payment, email, etc.)
-├── features/               # Self-contained feature modules
-│   ├── auth/               # Zustand auth store (login, logout, session, token)
-│   ├── todo/               # Example feature
-│   │   ├── api/            # Zod schemas + API client
-│   │   ├── lib/            # TanStack Query (query-options + mutations)
-│   │   └── components/     # React components
-│   ├── site/               # Site shell (header)
-│   └── home/               # Home page components
-├── env.ts                  # t3-env: type-safe environment variables
-└── proxy.ts                # Route protection (auth token check)
+├── app/                    # Server-first App Router routes
+├── core/                   # shadcn/ui, reui, providers, global styles
+├── features/               # User-facing feature modules
+│   ├── auth/               # Auth forms, settings UI, auth mutations
+│   ├── home/
+│   └── todo/               # Example CRUD, table, charts, analytics
+├── packages/               # Shared internal libraries
+│   ├── api/                # schema-validated fetch + CSRF/session handling
+│   ├── analytics/          # reusable chart panels/states
+│   ├── auth/               # schemas, server helpers, session context, permissions
+│   ├── table/              # reusable filter badge/table-state helpers
+│   ├── tanstack/           # Query provider + query-key factory
+│   └── url-state/          # nuqs + optional localStorage persistence
+├── env.ts
+└── proxy.ts
 ```
 
-### Permission System
+No barrel files are required for app imports; import directly from the file that owns the behavior.
 
-Define permissions once, use anywhere:
+## Useful APIs
 
-```tsx
-// Hook (function-based)
-const canDelete = useCan("todos:delete")
-
-// Component (JSX-based)
-<Can permission="todos:delete" fallback={<LockIcon />}>
-  <DeleteButton />
-</Can>
-```
-
-Edit `src/packages/permissions/constants.ts` to customize roles and permissions.
-
-### Route Protection
-
-Edit `src/packages/permissions/routes.ts` to control which routes require authentication:
-
-```ts
-export const PROXY_PROTECTED_PREFIXES = ["/todos", "/settings"]
-```
-
-## Connecting to a Backend
-
-This template is backend-agnostic:
-
-1. Set `NEXT_PUBLIC_API_URL` to your API's base URL.
-2. Update the API schema in `src/packages/tanstack/client.ts` to match your endpoints.
-3. The auth flow expects `POST /auth/login` and `POST /auth/register` returning `{ token, user }`.
-4. The token is stored in localStorage and sent as `Authorization: Bearer <token>`.
-
-### Laravel Sanctum Example
-
-With Laravel Sanctum API tokens:
-
-1. Create a token on login: `$user->createToken('api')->plainTextToken`
-2. Return it in the login response as `{ token: "...", user: {...} }`
-3. The template automatically injects the token into all API requests.
+- `src/packages/api/fetch.ts`: `apiFetch()`
+- `src/packages/api/csrf.ts`: `ensureCsrfCookie()`, `readXsrfToken()`
+- `src/packages/auth/server.ts`: `getCurrentUser()`, `getCurrentSession()`, `requireUser()`, `can()`
+- `src/packages/auth/session-provider.tsx`: `SessionProvider`, `useSession()`
+- `src/packages/auth/components/can.tsx`: `<Can />`
+- `src/packages/url-state/use-persistent-query-states.ts`: URL state with optional localStorage hydration
+- `src/core/components/forms/tanstack-form.tsx`: reusable TanStack Form field adapters
 
 ## Scripts
 
-| Command     | Description               |
-| ----------- | ------------------------- |
-| `pn dev`    | Start development server  |
-| `pn build`  | Production build          |
-| `pn format` | Format code with Prettier |
-| `pn lint`   | Lint with ESLint          |
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Start development server |
+| `pnpm typecheck` | Run TypeScript |
+| `pnpm lint` | Run ESLint |
+| `pnpm lint:strict` | Run ESLint with zero warnings |
+| `pnpm check` | Run typecheck and lint |
+| `pnpm build` | Production build |
+| `pnpm format` | Format code with Prettier |
+
+Vitest and Testing Library are intentionally not included in this pass.
 
 ## License
 

@@ -20,7 +20,7 @@ import {
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table"
-import { parseAsInteger, parseAsString, parseAsStringEnum, useQueryStates } from "nuqs"
+import { parseAsInteger, parseAsString, parseAsStringEnum } from "nuqs"
 
 import { Badge } from "@/core/components/ui/badge"
 import { Button } from "@/core/components/ui/button"
@@ -46,6 +46,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/core/components/ui/table"
+
+import { createActiveFilterBadges, getColumnFilterKey } from "@/packages/table/filter-state"
+import { usePersistentQueryStates } from "@/packages/url-state/use-persistent-query-states"
 
 import type { Todo } from "../api/todos.schema"
 
@@ -86,29 +89,6 @@ export type TodoTableFilterValues = {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// localStorage helpers (plain functions, no effects)
-// ═══════════════════════════════════════════════════════════════════════
-
-function loadPersisted(): Partial<TodoTableFilterValues> {
-  if (typeof window === "undefined") return {}
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? (JSON.parse(raw) as Partial<TodoTableFilterValues>) : {}
-  } catch {
-    return {}
-  }
-}
-
-function persist(f: TodoTableFilterValues) {
-  if (typeof window === "undefined") return
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(f))
-  } catch {
-    /* quota exceeded */
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════
 // Pure filtering
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -140,11 +120,6 @@ function filterTodos(todos: Todo[], f: TodoTableFilterValues): Todo[] {
 // ═══════════════════════════════════════════════════════════════════════
 // Helpers
 // ═══════════════════════════════════════════════════════════════════════
-
-function colFilterKey(colId: string): keyof TodoTableFilterValues | null {
-  const key = `col_${colId}` as keyof TodoTableFilterValues
-  return key in filterParsers ? key : null
-}
 
 function getColFilterDef(colId: string): ColumnFilterDef | undefined {
   return columnFilterConfig[colId]
@@ -208,32 +183,15 @@ interface DataTableProps {
 }
 
 export function DataTable({ columns, data: rawData, isLoading, onFilteredChange }: DataTableProps) {
-  const [urlFilters, setUrlFilters] = useQueryStates(filterParsers, {
-    history: "replace",
-    shallow: false,
+  const [filters, setUrlFilters] = usePersistentQueryStates({
+    parsers: filterParsers,
+    persist: true,
+    storageKey: STORAGE_KEY,
+    options: {
+      history: "replace",
+      shallow: false,
+    },
   })
-
-  // Hydrate once from localStorage if no URL params
-  const hydrated = useRef(false)
-  useEffect(() => {
-    if (hydrated.current) return
-    hydrated.current = true
-    const hasUrlParams =
-      typeof window !== "undefined" && window.location.search.length > 0
-    if (!hasUrlParams) {
-      const stored = loadPersisted()
-      if (Object.keys(stored).length > 0) {
-        void setUrlFilters(stored as Partial<TodoTableFilterValues>)
-      }
-    }
-  }, [setUrlFilters])
-
-  const filters = urlFilters as TodoTableFilterValues
-
-  // Persist to localStorage (idempotent)
-  useEffect(() => {
-    persist(filters)
-  }, [filters])
 
   // ── Set a single filter key (NO spreading of prev — partial-only) ──
   const setFilter = useCallback(
@@ -301,28 +259,22 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
 
   // Active filter badges
   const activeFilterBadges = useMemo(() => {
-    const b: { key: string; label: string; clear: () => void }[] = []
-
-    if (filters.status !== "all") {
-      b.push({ key: "status", label: `Status: ${filters.status}`, clear: () => setFilter("status", "all") })
-    }
-    if (filters.search) {
-      b.push({ key: "search", label: `Search: "${filters.search}"`, clear: () => setFilter("search", "") })
-    }
-    if (filters.col_status !== "all") {
-      b.push({ key: "col_status", label: `Col-Status: ${filters.col_status}`, clear: () => setFilter("col_status", "all") })
-    }
-    if (filters.col_text) {
-      b.push({ key: "col_text", label: `Col-Task: "${filters.col_text}"`, clear: () => setFilter("col_text", "") })
-    }
-    if (filters.col_createdAt) {
-      b.push({ key: "col_createdAt", label: `Col-Created: "${filters.col_createdAt}"`, clear: () => setFilter("col_createdAt", "") })
-    }
-    if (filters.col_id) {
-      b.push({ key: "col_id", label: `Col-ID: "${filters.col_id}"`, clear: () => setFilter("col_id", "") })
-    }
-
-    return b
+    return createActiveFilterBadges<TodoTableFilterValues>({
+      filters,
+      setFilter,
+      definitions: [
+        { key: "status", emptyValue: "all", label: value => `Status: ${value}` },
+        { key: "search", emptyValue: "", label: value => `Search: "${value}"` },
+        { key: "col_status", emptyValue: "all", label: value => `Col-Status: ${value}` },
+        { key: "col_text", emptyValue: "", label: value => `Col-Task: "${value}"` },
+        {
+          key: "col_createdAt",
+          emptyValue: "",
+          label: value => `Col-Created: "${value}"`,
+        },
+        { key: "col_id", emptyValue: "", label: value => `Col-ID: "${value}"` },
+      ],
+    })
   }, [filters, setFilter])
 
   const clearAll = useCallback(() => {
@@ -421,7 +373,7 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
                 {hg.headers.map((header) => {
                   const colId = header.column.id
                   const fDef = getColFilterDef(colId)
-                  const fKey = colFilterKey(colId)
+                  const fKey = getColumnFilterKey(filters, colId)
                   const colVal = fKey ? (filters[fKey] as string) : ""
 
                   return (

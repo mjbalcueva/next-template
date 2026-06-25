@@ -1,13 +1,15 @@
+import { NextResponse } from "next/server"
+
 /**
  * In-memory mock store shared across API route handlers.
  *
- * Delete the entire `src/app/api/` folder when you connect
- * to a real backend (set NEXT_PUBLIC_API_URL to your API).
+ * Delete the entire `src/app/api/mock/` folder when you connect
+ * to a real backend and point the auth/API env values at Laravel.
  *
  * Auth follows Laravel Sanctum conventions:
- *   - Tokens are "{id}|{plaintext}" sent as Bearer.
- *   - The store holds {userId, abilities, tokenHash} keyed by token id.
- *   - Login/Register return { token } only; user is fetched from /api/user.
+ *   - Login/Register set an HttpOnly first-party session cookie.
+ *   - `/sanctum/csrf-cookie` sets a readable `XSRF-TOKEN` cookie.
+ *   - Protected routes read the session cookie, not a bearer token.
  */
 
 interface MockTodo {
@@ -26,13 +28,12 @@ interface MockUser {
   role: "admin" | "moderator" | "member" | "viewer"
 }
 
-interface TokenEntry {
+interface SessionEntry {
   userId: string
-  /** Permission abilities granted to this token (Sanctum "abilities"). */
   abilities: string[]
-  /** The plaintext token stored as-is (in real Sanctum this is SHA-256 hashed). */
-  tokenHash: string
 }
+
+export const MOCK_SESSION_COOKIE = "mock_session"
 
 export const store = {
   users: [
@@ -90,11 +91,7 @@ export const store = {
     },
   ] as MockTodo[],
 
-  /** Sanctum-style token store: tokenId → TokenEntry */
-  tokens: {} as Record<string, TokenEntry>,
-
-  /** Auto-incrementing token id (like a DB sequence). */
-  _nextTokenId: 1,
+  sessions: {} as Record<string, SessionEntry>,
 }
 
 export function uid() {
@@ -109,65 +106,84 @@ export function jsonError(message: string, status: number) {
   return Response.json({ error: message }, { status })
 }
 
-// ─── Sanctum token helpers ─────────────────────────────────────────────
+export function jsonWithSession(data: unknown, sessionId: string, status = 200) {
+  const response = NextResponse.json(data, { status })
+  response.cookies.set(MOCK_SESSION_COOKIE, sessionId, {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+  })
+  return response
+}
 
-/**
- * Create a new Sanctum-style personal access token.
- *
- * Returns the FULL token string to give to the client (e.g. "3|abc123…").
- * The store holds the token id → { userId, abilities, tokenHash }.
- *
- * In real Sanctum the hash is SHA-256(plaintext); here we store it as-is
- * for simplicity.
- */
-export function createToken(
-  userId: string,
-  abilities: string[] = ["*"]
-): { plainTextToken: string } {
-  const tokenId = String(store._nextTokenId++)
-  const plaintext = uid() + uid()
-  store.tokens[tokenId] = {
-    userId,
-    abilities,
-    tokenHash: plaintext,
+export function jsonWithoutSession(data: unknown, status = 200) {
+  const response = NextResponse.json(data, { status })
+  response.cookies.set(MOCK_SESSION_COOKIE, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  })
+  return response
+}
+
+export function createSession(userId: string, abilities: string[] = ["*"]) {
+  const sessionId = uid() + uid()
+  store.sessions[sessionId] = { userId, abilities }
+  return sessionId
+}
+
+function readCookie(request: Request, name: string) {
+  const header = request.headers.get("cookie")
+  if (!header) return null
+
+  const value = header
+    .split(";")
+    .map(part => part.trim())
+    .find(part => part.startsWith(`${name}=`))
+
+  if (!value) return null
+
+  try {
+    return decodeURIComponent(value.slice(name.length + 1))
+  } catch {
+    return value.slice(name.length + 1)
   }
-  return { plainTextToken: `${tokenId}|${plaintext}` }
 }
 
-/**
- * Revoke (delete) a Sanctum token by its FULL Bearer string.
- */
-export function revokeToken(bearerToken: string): void {
-  const tokenId = bearerToken.split("|")[0]
-  delete store.tokens[tokenId]
+export function getSessionEntry(request: Request) {
+  const sessionId = readCookie(request, MOCK_SESSION_COOKIE)
+  return sessionId ? store.sessions[sessionId] : undefined
 }
 
-/**
- * Authenticate a request via Sanctum Bearer token.
- *
- * Parses the "{id}|{plaintext}" format, looks up the token id,
- * and verifies the plaintext matches the stored hash.
- *
- * Returns the authenticated user (never null — throws AuthError on failure).
- */
+export function revokeCurrentSession(request: Request) {
+  const sessionId = readCookie(request, MOCK_SESSION_COOKIE)
+  if (sessionId) {
+    delete store.sessions[sessionId]
+  }
+}
+
 export function requireAuth(request: Request): MockUser {
-  const header = request.headers.get("authorization")
-  const bearerToken = header?.replace("Bearer ", "")
-  if (!bearerToken) throw new AuthError("Unauthorized", 401)
-
-  const [tokenId, plaintext] = bearerToken.split("|")
-  if (!tokenId || !plaintext) throw new AuthError("Malformed token", 401)
-
-  const entry = store.tokens[tokenId]
-  if (!entry) throw new AuthError("Invalid token", 401)
-
-  // In real Sanctum: hash(plaintext) === entry.tokenHash
-  if (plaintext !== entry.tokenHash) throw new AuthError("Invalid token", 401)
+  const entry = getSessionEntry(request)
+  if (!entry) throw new AuthError("Unauthorized", 401)
 
   const user = store.users.find(u => u.id === entry.userId)
   if (!user) throw new AuthError("User not found", 401)
 
   return user
+}
+
+export function getAbilitiesForRequest(request: Request) {
+  return getSessionEntry(request)?.abilities ?? []
+}
+
+export function safeUser(user: MockUser) {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  }
 }
 
 export class AuthError extends Error {

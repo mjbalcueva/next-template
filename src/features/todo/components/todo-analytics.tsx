@@ -4,6 +4,8 @@ import { useCallback, useState } from "react"
 
 import { useQuery } from "@tanstack/react-query"
 
+import { Alert, AlertDescription, AlertTitle } from "@/core/components/ui/alert"
+
 import type { Todo } from "../api/todos.schema"
 import { todoListQueryOptions } from "../lib/query-options"
 import { computeTodoStats } from "../lib/todo-table-utils"
@@ -14,11 +16,12 @@ import { TodoCharts } from "./todo-charts"
 import { TodoStatsCards } from "./todo-stats-cards"
 
 export function TodoAnalytics() {
-  const { data: todos, isLoading } = useQuery(todoListQueryOptions())
+  const { data: todos, error, isError, isLoading } = useQuery(todoListQueryOptions())
 
-  const [filtered, setFiltered] = useState<Todo[]>([])
+  const [filtered, setFiltered] = useState<Todo[] | null>(null)
+  const visibleTodos = filtered ?? todos ?? []
 
-  const stats = computeTodoStats(filtered)
+  const stats = computeTodoStats(visibleTodos)
 
   const handleFilteredChange = useCallback((rows: Todo[]) => {
     setFiltered(rows)
@@ -39,8 +42,16 @@ export function TodoAnalytics() {
       {/* Stats Cards */}
       <TodoStatsCards stats={stats} isLoading={isLoading} />
 
-      {/* Charts */}
-      <TodoCharts todos={filtered} isLoading={isLoading} />
+      {isError ? (
+        <Alert variant="destructive">
+          <AlertTitle>Unable to load analytics</AlertTitle>
+          <AlertDescription>
+            {error instanceof Error ? error.message : "Please refresh and try again."}
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <TodoCharts todos={visibleTodos} isLoading={isLoading} />
+      )}
 
       {/* Data Table with integrated toolbar & filters */}
       <DataTable

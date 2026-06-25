@@ -2,8 +2,8 @@
 
 import {
   createContext,
-  CSSProperties,
-  ReactNode,
+  type CSSProperties,
+  type ReactNode,
   useContext,
   useEffect,
   useId,
@@ -34,7 +34,7 @@ import {
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
-  UniqueIdentifier,
+  type UniqueIdentifier,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -47,7 +47,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { Cell, flexRender, HeaderGroup, Row } from "@tanstack/react-table"
+import { type Cell, flexRender, type HeaderGroup, type Row } from "@tanstack/react-table"
 
 import { cn } from "@/core/lib/utils"
 import { Button } from "@/core/components/ui/button"
@@ -111,7 +111,7 @@ function DataGridTableDndRow<TData>({ row }: { row: Row<TData> }) {
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition: transition,
+    transition,
     opacity: isDragging ? 0.8 : 1,
     zIndex: isDragging ? 1 : 0,
     position: "relative",

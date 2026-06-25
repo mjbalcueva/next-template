@@ -3,12 +3,11 @@
  *
  * ## How it works
  *
- *   1. `PROXY_PROTECTED_PREFIXES` — paths that require an auth token.
+ *   1. `PROXY_PROTECTED_PREFIXES` — paths that require a Sanctum session cookie.
  *   2. `PUBLIC_PREFIXES` — paths that bypass the proxy entirely (login, signup, etc.).
  *
- * The proxy performs a fast token-existence check — it does NOT decode tokens
- * or enforce permissions. Permission checks happen at the API level (backend)
- * and UI level (`<Can>` component).
+ * The proxy performs a fast optimistic cookie-existence check. Full session
+ * validation happens in server layouts via the Laravel API.
  *
  * ## How to add a new protected route
  *

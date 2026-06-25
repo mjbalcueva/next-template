@@ -1,9 +1,9 @@
-import { createToken, json, jsonError, store } from "../../store"
+import { createSession, jsonError, jsonWithSession, store } from "../../store"
 
 /**
  * POST /api/mock/auth/login
  *
- * Sanctum-style: returns { token } only (no user object).
+ * Sanctum SPA-style: sets an HttpOnly session cookie.
  * User is fetched separately via GET /api/mock/user.
  */
 export async function POST(request: Request) {
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
   if (user.password !== body.password) return jsonError("Invalid credentials", 401)
 
-  const { plainTextToken } = createToken(user.id, ["*"])
+  const sessionId = createSession(user.id, ["*"])
 
-  return json({ token: plainTextToken })
+  return jsonWithSession({ ok: true }, sessionId)
 }

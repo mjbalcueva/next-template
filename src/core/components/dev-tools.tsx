@@ -14,14 +14,13 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useTheme } from "next-themes"
-import { useShallow } from "zustand/react/shallow"
 
 import { Button } from "@/core/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/core/components/ui/sheet"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/core/components/ui/tabs"
 import { cn } from "@/core/lib/utils"
 
-import { useAuthStore } from "@/features/auth/store/auth.store"
+import { useSession } from "@/packages/auth/session-provider"
 
 const RQDevtoolsPanel = dynamic(
   () => import("@tanstack/react-query-devtools").then(m => m.ReactQueryDevtoolsPanel),
@@ -363,19 +362,15 @@ const DetailsTab = memo(function DetailsTab() {
 
 function DevToolsPanel() {
   const [open, setOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  // Start with defaults matching the server render, sync from localStorage after mount.
-  const [corner, setCorner] = useState<Corner>("bottom-left")
-  const [side, setSide] = useState<Side>("right")
+  const [corner, setCorner] = useState<Corner>(() =>
+    typeof window === "undefined" ? "bottom-left" : loadCorner()
+  )
+  const [side, setSide] = useState<Side>(() =>
+    typeof window === "undefined" ? "right" : loadSide()
+  )
   const btn = useRef<HTMLButtonElement>(null)
   const drag = useRef({ active: false, x: 0, y: 0 })
   const { resolvedTheme, setTheme } = useTheme()
-
-  useEffect(() => {
-    setCorner(loadCorner())
-    setSide(loadSide())
-    setMounted(true)
-  }, [])
 
   const pd = useCallback((e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
@@ -415,12 +410,14 @@ function DevToolsPanel() {
   }, [])
 
   const qc = useQueryClient()
-  const session = useAuthStore(
-    useShallow(s => ({
-      token: s.session?.token ?? null,
-      user: s.session?.user ?? null,
-      isAuthenticated: s.session !== null,
-    }))
+  const { session, isAuthenticated } = useSession()
+  const debugSession = useMemo(
+    () => ({
+      user: session?.user ?? null,
+      permissions: session?.permissions ?? [],
+      isAuthenticated,
+    }),
+    [isAuthenticated, session]
   )
 
   const cycleSide = useCallback(() => {
@@ -552,10 +549,12 @@ function DevToolsPanel() {
 
             <TabsContent value="session" className="flex-1 overflow-auto p-4">
               <div className="mb-2 flex justify-end">
-                <CopyButton getValue={() => JSON.stringify(session, null, 2)} />
+                <CopyButton getValue={() => JSON.stringify(debugSession, null, 2)} />
               </div>
               <pre className="bg-muted/50 text-foreground/80 h-full overflow-auto rounded-md border p-4 font-mono text-xs">
-                {session.isAuthenticated ? JSON.stringify(session, null, 2) : "No active session."}
+                {debugSession.isAuthenticated
+                  ? JSON.stringify(debugSession, null, 2)
+                  : "No active session."}
               </pre>
             </TabsContent>
           </Tabs>

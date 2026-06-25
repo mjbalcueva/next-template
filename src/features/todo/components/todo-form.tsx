@@ -4,11 +4,13 @@ import { useState } from "react"
 
 import { useForm } from "@tanstack/react-form"
 
-import { Button } from "@/core/components/ui/button"
-import { Field, FieldError, FieldLabel } from "@/core/components/ui/field"
-import { Input } from "@/core/components/ui/input"
+import {
+  FormStatus,
+  SubmitButton,
+  TextFormField,
+} from "@/core/components/forms/tanstack-form"
 
-import { Can } from "@/packages/access-control/components/can"
+import { Can } from "@/packages/auth/components/can"
 
 import { createTodoSchema } from "../api/todos.schema"
 import { useCreateTodo } from "../hooks/use-todo-mutations"
@@ -44,32 +46,23 @@ export function TodoForm() {
         className="flex flex-col gap-2"
       >
         <form.Field name="text">
-          {field => {
-            const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>New todo</FieldLabel>
-                <div className="flex gap-2">
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={e => field.handleChange(e.target.value)}
-                    placeholder="What needs to be done?"
-                    disabled={create.isPending}
-                    aria-invalid={isInvalid}
-                  />
-                  <Button type="submit" disabled={create.isPending}>
-                    Add
-                  </Button>
-                </div>
-                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-              </Field>
-            )
-          }}
+          {field => (
+            <TextFormField
+              field={field}
+              label="New todo"
+              placeholder="What needs to be done?"
+              disabled={create.isPending}
+              action={
+                <SubmitButton
+                  isSubmitting={create.isPending}
+                  idleLabel="Add"
+                  submittingLabel="Adding…"
+                />
+              }
+            />
+          )}
         </form.Field>
-        {error && <p className="text-destructive text-sm">{error}</p>}
+        <FormStatus>{error}</FormStatus>
       </form>
     </Can>
   )

@@ -2,14 +2,16 @@
 
 import { useMutation } from "@tanstack/react-query"
 
-import { clearSession, updateUser } from "@/features/auth/store/auth.actions"
+import { useSession } from "@/packages/auth/session-provider"
 
-import { fetchUser } from "../api/auth.api"
+import { fetchSession } from "../api/auth.api"
 
 export function useFetchUser() {
+  const { clearSession, setSession } = useSession()
+
   return useMutation({
-    mutationFn: fetchUser,
-    onSuccess: user => updateUser(user),
+    mutationFn: fetchSession,
+    onSuccess: session => setSession(session),
     onError: () => clearSession(),
   })
 }

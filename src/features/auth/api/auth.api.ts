@@ -1,36 +1,38 @@
-import { $fetch } from "@/packages/tanstack/lib/client"
-
+import { apiFetch } from "@/packages/api/fetch"
+import { AUTH_ENDPOINTS } from "@/packages/auth/config"
 import {
+  authSessionSchema,
+  authUserSchema,
+  permissionsSchema,
   type AuthUser,
+  type AuthSession,
   type LoginInput,
   type RegisterInput,
-  type TokenResponse,
-} from "./auth.schema"
+} from "@/packages/auth/schemas"
 
-// ─── Endpoint path constants ─────────────────────────────────────────
-
-export const AUTH_ENDPOINTS = {
-  login: "mock/auth/login",
-  register: "mock/auth/register",
-  me: "mock/user",
-  logout: "mock/auth/logout",
+export async function login(input: LoginInput): Promise<AuthSession> {
+  await apiFetch(AUTH_ENDPOINTS.login, { base: "auth", method: "POST", body: input })
+  return fetchSession()
 }
 
-// ─── Fetch wrappers ──────────────────────────────────────────────────
-
-export async function login(input: LoginInput): Promise<TokenResponse> {
-  return $fetch(`/${AUTH_ENDPOINTS.login}`, { method: "POST", body: input })
-}
-
-export async function register(input: RegisterInput): Promise<TokenResponse> {
-  return $fetch(`/${AUTH_ENDPOINTS.register}`, { method: "POST", body: input })
+export async function register(input: RegisterInput): Promise<AuthSession> {
+  await apiFetch(AUTH_ENDPOINTS.register, { base: "auth", method: "POST", body: input })
+  return fetchSession()
 }
 
 export async function logout(): Promise<void> {
-  await $fetch(`/${AUTH_ENDPOINTS.logout}`, { method: "POST" })
+  await apiFetch(AUTH_ENDPOINTS.logout, { base: "auth", method: "POST" })
 }
 
-/** Fetch the authenticated user (Sanctum's GET /api/user). */
 export async function fetchUser(): Promise<AuthUser> {
-  return $fetch(`/${AUTH_ENDPOINTS.me}`)
+  return apiFetch(AUTH_ENDPOINTS.user, { schema: authUserSchema })
+}
+
+export async function fetchSession(): Promise<AuthSession> {
+  const [user, permissionResponse] = await Promise.all([
+    fetchUser(),
+    apiFetch(AUTH_ENDPOINTS.permissions, { schema: permissionsSchema }),
+  ])
+
+  return authSessionSchema.parse({ user, permissions: permissionResponse.permissions })
 }

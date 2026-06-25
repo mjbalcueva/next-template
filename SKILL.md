@@ -1,89 +1,104 @@
 ---
 name: next-template
-description: Frontend-first Next.js template with RBAC/ABAC permissions, TanStack Query, better-fetch, Zustand, and shadcn/ui. Created by mjbalcueva.
+description: >
+  Server-first Next.js 16 / React 19 frontend template for Laravel Sanctum
+  SPA cookie auth, TanStack Query/Form/Table, Recharts analytics, shadcn/ui,
+  reui primitives, URL-synced state, and removable mock backend routes.
 ---
 
 # next-template
 
-A production-ready, frontend-first Next.js template designed for enterprise applications.
+Use this skill when working in this template, adding features, connecting a Laravel backend, or extending auth, forms, tables, analytics, and reusable packages.
 
-## Tech Stack
+## Architecture Rules
 
-- **Next.js 16** (App Router) with React 19
-- **TanStack Query** — server state, caching, mutations
-- **better-fetch** — type-safe fetch with Zod runtime validation
-- **Zustand** — lightweight client state (auth, permissions)
-- **shadcn/ui** — accessible, customizable UI components
-- **Tailwind CSS 4** — utility-first styling
+1. Prefer server-first App Router code. Fetch sessions and protect route groups on the server before rendering client UI.
+2. Keep client components for actual interactivity: forms, mutations, filters, tables, charts, theme toggles, local UI state, and dev tools.
+3. Do not add barrel files. Import directly from the file that owns the behavior.
+4. Preserve `src/core/components/reui/` as reusable shadcn-like primitives and blocks.
+5. Keep mocks easy to delete. Feature API calls should use resource paths like `todos`, `user`, and `permissions`; backend origin belongs in env.
 
-## When to use
+## Auth
 
-- Building frontend applications that talk to any REST API (Laravel, Express, Go, etc.)
-- SaaS dashboards, admin panels, and permission-gated apps
-- Projects that need RBAC/ABAC from day one
-- Teams that want a feature-based folder structure with clear separation of concerns
+Use Laravel Sanctum SPA cookie auth:
 
-## Architecture
+- Browser requests use `credentials: "include"`.
+- Mutating browser requests call `NEXT_PUBLIC_SANCTUM_CSRF_URL` first.
+- Send the decoded `XSRF-TOKEN` cookie as `X-XSRF-TOKEN`.
+- Server requests forward incoming cookies to Laravel and set `Origin` / `Referer`.
+- Never store bearer tokens in localStorage or frontend-owned auth cookies.
 
-### Folder structure
+Relevant files:
 
+- `src/packages/api/fetch.ts`
+- `src/packages/api/csrf.ts`
+- `src/packages/auth/server.ts`
+- `src/packages/auth/session-provider.tsx`
+- `src/features/auth/api/auth.api.ts`
+
+## Forms
+
+Use TanStack Form with Zod validators and the shared shadcn adapters in `src/core/components/forms/tanstack-form.tsx`.
+
+Prefer:
+
+- `TextFormField`
+- `PasswordFormField`
+- `FormStatus`
+- `SubmitButton`
+
+Keep feature-specific schemas beside feature API code unless they are shared auth schemas.
+
+## Tables And URL State
+
+Use `src/packages/url-state/use-persistent-query-states.ts` for URL-synced state with optional localStorage persistence.
+
+The intended behavior is:
+
+- URL params are canonical.
+- localStorage hydrates only when the URL has no query string.
+- localStorage persistence can be disabled per surface.
+
+Use `src/packages/table/filter-state.ts` for active filter badges and column filter key helpers.
+
+## Analytics
+
+Keep Recharts and shadcn chart wrappers. Do not add another runtime chart dependency unless the project has a concrete chart requirement Recharts cannot cover.
+
+Use `src/packages/analytics/chart-panel.tsx` for reusable chart shells:
+
+- `ChartPanel`
+- `ChartSkeleton`
+- `ChartEmptyState`
+
+## Backend Switch
+
+Mock backend defaults:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3000/api/mock
+NEXT_PUBLIC_AUTH_URL=http://localhost:3000/api/mock
+NEXT_PUBLIC_SANCTUM_CSRF_URL=http://localhost:3000/api/mock/sanctum/csrf-cookie
 ```
-src/
-  app/                      # Next.js App Router pages, layouts, and API mock routes
-  core/                     # Reusable primitives shared across the app
-    components/             # shadcn/ui and shared UI components
-    hooks/                  # Shared React hooks
-    lib/                    # Utility functions (cn, etc.)
-    providers/              # React context providers (theme, etc.)
-    styles/                 # Global styles
-  features/                 # Self-contained feature modules
-    feat/                   # e.g. auth, settings, dashboard — each owns:
-      api/                  # Zod schemas + feature-specific API calls
-      components/           # Feature-specific React components
-      lib/                  # TanStack Query options and mutations
-  packages/                 # Shared libraries consumed across features (permissions, tanstack, etc.)
-  services/                 # Third-party integrations (API client setup, SDK wrappers)
-  env.ts                    # t3-env: type-safe environment variables
-  proxy.ts                  # Route protection (token existence check)
+
+Laravel defaults:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
+NEXT_PUBLIC_AUTH_URL=http://localhost:8000
+NEXT_PUBLIC_SANCTUM_CSRF_URL=http://localhost:8000/sanctum/csrf-cookie
 ```
 
-### Data flow
+When Laravel is ready, set env and delete `src/app/api/mock/`.
 
+## Verification
+
+After code edits:
+
+```bash
+pnpm typecheck
+pnpm lint
+pnpm lint:strict
 ```
 
-Component → TanStack Query hook → feature client ($fetch) → Backend API
-↕ ↕
-Zustand stores   better-fetch
-(auth state, (schema validation,
-permissions) auth token injection)
-
-```
-
-## Permission System
-
-Two ways to check permissions:
-
-### Function-based (hooks)
-
-```ts
-const canDelete = useCan("todos:delete")
-const canManage = useCanAll(["todos:update", "todos:delete"])
-```
-
-### JSX-based (component)
-
-```tsx
-<Can permission="todos:delete" fallback={<LockIcon />}>
-  <DeleteButton />
-</Can>
-```
-
-## Instructions for AI agents
-
-1. Keep the feature-based folder structure — each feature owns its API client, queries, mutations, and components.
-2. Use `queryOptions()` with key factories for TanStack Query (follow Tanner Linsley's patterns).
-3. Use Zod schemas for API input/output validation — they live in `feature/api/*.schema.ts`.
-4. Use `$fetch` from `@/services/tanstack/client` for all API calls — never use raw `fetch`.
-5. Permission checks go in components via `<Can>` or `useCan()` — never in the proxy.
-6. The proxy only checks for token existence — actual auth validation happens in the backend API.
-7. Zustand stores for client state only — server data stays in TanStack Query.
+For Next compilation, use the repo's Next dev compile workflow before reporting completion.

@@ -1,11 +1,11 @@
 "use client"
 
-import { HTMLAttributes, memo, ReactNode, useMemo } from "react"
+import { type HTMLAttributes, memo, type ReactNode, useMemo } from "react"
 import {
   getColumnHeaderLabel,
   useDataGrid,
 } from "@/core/components/reui/data-grid/data-grid"
-import { Column } from "@tanstack/react-table"
+import { type Column } from "@tanstack/react-table"
 
 import { cn } from "@/core/lib/utils"
 import { Button } from "@/core/components/ui/button"
@@ -257,7 +257,7 @@ function DataGridColumnHeaderInner<TData, TValue>({
     }
 
     return items
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [
     filter,
     canSort,

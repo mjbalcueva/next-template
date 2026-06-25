@@ -3,6 +3,8 @@
 import { useMemo } from "react"
 
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
@@ -16,22 +18,25 @@ import {
 } from "recharts"
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/core/components/ui/card"
-import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
 } from "@/core/components/ui/chart"
-import { Skeleton } from "@/core/components/ui/skeleton"
+
+import {
+  ChartEmptyState,
+  ChartPanel,
+  ChartSkeleton,
+} from "@/packages/analytics/chart-panel"
 
 import type { Todo } from "../api/todos.schema"
-import { computeTodoStats, groupTodosByDate } from "../lib/todo-table-utils"
+import {
+  buildStatusBreakdown,
+  buildTodoTrend,
+  buildTodoVolumeByStatus,
+  computeTodoStats,
+} from "../lib/todo-table-utils"
 
 interface TodoChartsProps {
   todos: Todo[]
@@ -41,65 +46,37 @@ interface TodoChartsProps {
 const chartConfig = {
   open: { label: "Open", color: "var(--chart-2)" },
   done: { label: "Done", color: "var(--chart-1)" },
+  total: { label: "Total", color: "var(--chart-3)" },
+  completionRate: { label: "Completion rate", color: "var(--chart-4)" },
+  count: { label: "Count", color: "var(--chart-5)" },
 } satisfies ChartConfig
 
 export function TodoCharts({ todos, isLoading }: TodoChartsProps) {
   const stats = useMemo(() => computeTodoStats(todos), [todos])
-  const dateGroups = useMemo(() => groupTodosByDate(todos), [todos])
-
-  const pieData = useMemo(
-    () => [
-      { name: "done", value: stats.done, fill: "var(--chart-1)" },
-      { name: "open", value: stats.open, fill: "var(--chart-2)" },
-    ],
-    [stats]
-  )
-
-  const barData = useMemo(
-    () =>
-      dateGroups.map(g => ({
-        date: g.date,
-        Total: g.count,
-        Done: g.done,
-        Open: g.count - g.done,
-      })),
-    [dateGroups]
-  )
+  const pieData = useMemo(() => buildStatusBreakdown(todos), [todos])
+  const trendData = useMemo(() => buildTodoTrend(todos), [todos])
+  const statusVolumeData = useMemo(() => buildTodoVolumeByStatus(todos), [todos])
+  const hasData = todos.length > 0
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 lg:grid-cols-5">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <Skeleton className="h-5 w-24" />
-            <Skeleton className="h-4 w-32" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="aspect-square w-full rounded-full" />
-          </CardContent>
-        </Card>
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <Skeleton className="h-5 w-32" />
-            <Skeleton className="h-4 w-40" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-64 w-full" />
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 lg:grid-cols-6">
+        <ChartSkeleton className="lg:col-span-2" shape="circle" />
+        <ChartSkeleton className="lg:col-span-4" />
+        <ChartSkeleton className="lg:col-span-3" />
+        <ChartSkeleton className="lg:col-span-3" />
       </div>
     )
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-5">
-      {/* ── Donut: Open vs Done ── */}
-      <Card className="lg:col-span-2" size="sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Status Breakdown</CardTitle>
-          <CardDescription>Open vs. completed todos</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="grid gap-4 lg:grid-cols-6">
+      <ChartPanel
+        className="lg:col-span-2"
+        title="Status Breakdown"
+        description="Open vs. completed todos"
+      >
+        {hasData ? (
           <ChartContainer config={chartConfig} initialDimension={{ width: 300, height: 250 }}>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
@@ -122,6 +99,10 @@ export function TodoCharts({ todos, isLoading }: TodoChartsProps) {
               </PieChart>
             </ResponsiveContainer>
           </ChartContainer>
+        ) : (
+          <ChartEmptyState title="No status data" />
+        )}
+        {hasData && (
           <div className="mt-2 flex justify-center gap-6 text-sm">
             <div className="flex items-center gap-2">
               <div className="bg-chart-1 h-3 w-3 rounded-sm" />
@@ -132,19 +113,18 @@ export function TodoCharts({ todos, isLoading }: TodoChartsProps) {
               <span className="text-muted-foreground">Open ({stats.open})</span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </ChartPanel>
 
-      {/* ── Bar: Todos over time ── */}
-      <Card className="lg:col-span-3" size="sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Todos Over Time</CardTitle>
-          <CardDescription>Created per day (stacked by status)</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <ChartPanel
+        className="lg:col-span-4"
+        title="Todos Over Time"
+        description="Created per day, stacked by status"
+      >
+        {hasData ? (
           <ChartContainer config={chartConfig} initialDimension={{ width: 500, height: 280 }}>
             <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={barData} barGap={0} barCategoryGap="20%">
+              <BarChart data={trendData} barGap={0} barCategoryGap="20%">
                 <CartesianGrid vertical={false} strokeDasharray="3 3" />
                 <XAxis
                   dataKey="date"
@@ -161,13 +141,90 @@ export function TodoCharts({ todos, isLoading }: TodoChartsProps) {
                   contentStyle={{ borderRadius: "12px" }}
                   labelFormatter={d => `Date: ${d}`}
                 />
-                <Bar dataKey="Done" stackId="a" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Open" stackId="a" fill="var(--chart-2)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="done" stackId="a" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="open" stackId="a" fill="var(--chart-2)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
-        </CardContent>
-      </Card>
+        ) : (
+          <ChartEmptyState title="No time-series data" />
+        )}
+      </ChartPanel>
+
+      <ChartPanel
+        className="lg:col-span-3"
+        title="Completion Trend"
+        description="Daily completion rate"
+      >
+        {hasData ? (
+          <ChartContainer config={chartConfig} initialDimension={{ width: 500, height: 260 }}>
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={trendData}>
+                <defs>
+                  <linearGradient id="completionRate" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--chart-4)" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="var(--chart-4)" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="date"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  tickFormatter={d => {
+                    const [, m, day] = d.split("-")
+                    return `${m}/${day}`
+                  }}
+                />
+                <YAxis tickLine={false} axisLine={false} domain={[0, 100]} width={34} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Area
+                  type="monotone"
+                  dataKey="completionRate"
+                  stroke="var(--chart-4)"
+                  fill="url(#completionRate)"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        ) : (
+          <ChartEmptyState title="No trend data" />
+        )}
+      </ChartPanel>
+
+      <ChartPanel
+        className="lg:col-span-3"
+        title="Status Volume"
+        description="Categorical count by status"
+      >
+        {hasData ? (
+          <ChartContainer config={chartConfig} initialDimension={{ width: 500, height: 260 }}>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={statusVolumeData} layout="vertical" margin={{ left: 16 }}>
+                <CartesianGrid horizontal={false} strokeDasharray="3 3" />
+                <XAxis type="number" tickLine={false} axisLine={false} allowDecimals={false} />
+                <YAxis
+                  dataKey="status"
+                  type="category"
+                  tickLine={false}
+                  axisLine={false}
+                  width={80}
+                />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                  {statusVolumeData.map(entry => (
+                    <Cell key={entry.status} fill={entry.fill} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        ) : (
+          <ChartEmptyState title="No category data" />
+        )}
+      </ChartPanel>
     </div>
   )
 }

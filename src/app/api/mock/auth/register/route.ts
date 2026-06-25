@@ -1,11 +1,11 @@
-import { createToken, json, jsonError, store, uid } from "../../store"
+import { createSession, jsonError, jsonWithSession, store, uid } from "../../store"
 
 /**
  * POST /api/mock/auth/register
  *
  * Sanctum-style:
  *   - Requires password_confirmation.
- *   - Returns { token } only (no user object).
+ *   - Sets an HttpOnly session cookie.
  *   - New users default to "member" role.
  */
 export async function POST(request: Request) {
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   }
   store.users.push(user)
 
-  const { plainTextToken } = createToken(user.id, ["*"])
+  const sessionId = createSession(user.id, ["*"])
 
-  return json({ token: plainTextToken }, 201)
+  return jsonWithSession({ ok: true }, sessionId, 201)
 }

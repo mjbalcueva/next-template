@@ -1,8 +1,8 @@
 "use client"
 
 import {
-  PointerEvent,
-  ReactNode,
+  type PointerEvent,
+  type ReactNode,
   useCallback,
   useEffect,
   useRef,
@@ -246,12 +246,15 @@ function DataGridScrollArea({
         : new ResizeObserver(scheduleSync)
 
     observer?.observe(viewport)
-    observedElementsRef.current.header &&
+    if (observedElementsRef.current.header) {
       observer?.observe(observedElementsRef.current.header)
-    observedElementsRef.current.table &&
+    }
+    if (observedElementsRef.current.table) {
       observer?.observe(observedElementsRef.current.table)
-    observedElementsRef.current.tableViewport &&
+    }
+    if (observedElementsRef.current.tableViewport) {
       observer?.observe(observedElementsRef.current.tableViewport)
+    }
 
     return () => {
       cancelAnimationFrame(frame)

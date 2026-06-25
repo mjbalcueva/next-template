@@ -1,33 +1,42 @@
-import { $fetch } from "@/packages/tanstack/lib/client"
+import { z } from "zod"
 
-import type { User } from "./auth.schema"
+import { apiFetch } from "@/packages/api/fetch"
+
+import { userSchema, type User } from "@/packages/auth/schemas"
 
 // ─── Endpoint path constants ─────────────────────────────────────────
 
 export const SETTINGS_ENDPOINTS = {
-  profile: "mock/settings/profile",
-  password: "mock/settings/password",
-  account: "mock/settings/account",
-  health: "mock/health",
+  profile: "settings/profile",
+  password: "settings/password",
+  account: "settings/account",
+  health: "health",
 }
 
 // ─── Fetch wrappers ──────────────────────────────────────────────────
 
 export async function updateProfile(body: { name: string }): Promise<User> {
-  return $fetch(`/${SETTINGS_ENDPOINTS.profile}`, { method: "PATCH", body })
+  return apiFetch(SETTINGS_ENDPOINTS.profile, { method: "PATCH", body, schema: userSchema })
 }
 
 export async function changePassword(body: {
   currentPassword: string
   newPassword: string
 }): Promise<{ ok: boolean }> {
-  return $fetch(`/${SETTINGS_ENDPOINTS.password}`, { method: "PATCH", body })
+  return apiFetch(SETTINGS_ENDPOINTS.password, {
+    method: "PATCH",
+    body,
+    schema: z.object({ ok: z.boolean() }),
+  })
 }
 
 export async function deleteAccount(): Promise<{ ok: boolean }> {
-  return $fetch(`/${SETTINGS_ENDPOINTS.account}`, { method: "DELETE" })
+  return apiFetch(SETTINGS_ENDPOINTS.account, {
+    method: "DELETE",
+    schema: z.object({ ok: z.boolean() }),
+  })
 }
 
 export async function checkHealth() {
-  return $fetch(`/${SETTINGS_ENDPOINTS.health}`)
+  return apiFetch(SETTINGS_ENDPOINTS.health)
 }
