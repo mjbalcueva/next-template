@@ -6,12 +6,13 @@ import { useQuery } from "@tanstack/react-query"
 
 import { Alert, AlertDescription, AlertTitle } from "@/core/components/ui/alert"
 
-import type { Todo } from "../api/todos.schema"
-import { todoListQueryOptions } from "../lib/query-options"
-import { computeTodoStats } from "../lib/todo-table-utils"
+import type { Todo } from "../../api/todos.schema"
+import { todoListQueryOptions } from "../../lib/query-options"
+import { computeTodoStats } from "../../lib/todo-table-utils"
 
-import { todoColumns } from "./columns"
-import { DataTable } from "./data-table"
+import { todoColumns } from "../data-table/columns"
+import { DataTable } from "../data-table/data-table"
+
 import { TodoCharts } from "./todo-charts"
 import { TodoStatsCards } from "./todo-stats-cards"
 

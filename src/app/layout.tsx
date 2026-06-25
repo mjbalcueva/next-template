@@ -11,7 +11,7 @@ import { cn } from "@/core/lib/utils"
 
 import "@/core/styles/globals.css"
 
-import { AuthInitializer } from "@/packages/auth/context/auth-initializer"
+import { SessionLoader } from "@/packages/auth/components/session-loader"
 import { ReactQueryProvider } from "@/packages/tanstack/providers/provider"
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" })
@@ -59,12 +59,12 @@ export default function RootLayout({
         >
           <NuqsAdapter>
             <ReactQueryProvider>
-              <AuthInitializer>
+              <SessionLoader>
                 <TooltipProvider>
                   {children}
                   <DevTools />
                 </TooltipProvider>
-              </AuthInitializer>
+              </SessionLoader>
             </ReactQueryProvider>
           </NuqsAdapter>
           <Toaster />

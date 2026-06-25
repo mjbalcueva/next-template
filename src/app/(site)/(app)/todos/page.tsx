@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
 
-import { TodoList } from "@/features/todo/components/todo-list"
+import { TodoList } from "@/features/todo/components/list/todo-list"
 import { todoListQueryOptions } from "@/features/todo/lib/query-options"
 
 export default async function TodosPage() {

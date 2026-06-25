@@ -13,7 +13,7 @@ import {
   TextFormField,
 } from "@/core/components/forms/tanstack-form"
 
-import { useLogin } from "@/features/user/hooks/use-login"
+import { useLogin } from "@/features/user/hooks/auth.mutations"
 
 import { DEFAULT_AUTH_REDIRECT, loginInputSchema } from "@/packages/auth/lib/schemas"
 

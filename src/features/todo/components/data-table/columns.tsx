@@ -4,11 +4,18 @@ import { type ColumnDef } from "@tanstack/react-table"
 
 import { Badge } from "@/core/components/ui/badge"
 
-import type { Todo } from "../api/todos.schema"
+import type { Todo } from "../../api/todos.schema"
 
 // ─── Column definitions ────────────────────────────────────────────────
 
 export const todoColumns: ColumnDef<Todo, unknown>[] = [
+  {
+    accessorKey: "id",
+    header: "ID",
+    cell: ({ getValue }) => `${getValue<string>().slice(0, 8)}…`,
+    enableSorting: false,
+    size: 110,
+  },
   {
     id: "status",
     accessorKey: "done",
@@ -31,13 +38,6 @@ export const todoColumns: ColumnDef<Todo, unknown>[] = [
     cell: ({ getValue }) => new Date(getValue<string>()).toLocaleDateString(),
     sortingFn: "datetime",
     size: 140,
-  },
-  {
-    accessorKey: "id",
-    header: "ID",
-    cell: ({ getValue }) => `${getValue<string>().slice(0, 8)}…`,
-    enableSorting: false,
-    size: 110,
   },
 ]
 

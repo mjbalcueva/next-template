@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import {
   ArrowDown01Icon,
@@ -46,11 +46,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/core/components/ui/table"
+import { useDebouncedInput } from "@/core/hooks/use-debounced-input"
 
-import { createActiveFilterBadges, getColumnFilterKey } from "@/packages/table/filter-state"
 import { usePersistentQueryStates } from "@/packages/use-persistent-query-states"
 
-import type { Todo } from "../api/todos.schema"
+import type { Todo } from "../../api/todos.schema"
+import { createActiveFilterBadges, getColumnFilterKey } from "../../lib/filter-state"
 
 import { ColumnFilterPopover } from "./column-filter-popover"
 import { columnFilterConfig, type ColumnFilterDef } from "./columns"
@@ -60,7 +61,6 @@ import { columnFilterConfig, type ColumnFilterDef } from "./columns"
 // ═══════════════════════════════════════════════════════════════════════
 
 const STORAGE_KEY = "todo-table-filters"
-const DEBOUNCE_MS = 1000
 
 const filterParsers = {
   status: parseAsStringEnum(["all", "done", "open"]).withDefault("all"),
@@ -126,52 +126,6 @@ function getColFilterDef(colId: string): ColumnFilterDef | undefined {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// useDebouncedInput — uncontrolled input + ref-based sync
-// ═══════════════════════════════════════════════════════════════════════
-
-/**
- * Returns [inputRef, handleChange] for an uncontrolled <Input>.
- * Typing updates the DOM immediately; the debounced value commits to onCommit.
- * When `value` changes externally, the input's DOM value is synced via effect.
- */
-function useDebouncedInput(
-  value: string,
-  onCommit: (v: string) => void
-): [React.RefObject<HTMLInputElement | null>, () => void] {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const onCommitRef = useRef(onCommit)
-
-  useEffect(() => {
-    onCommitRef.current = onCommit
-  })
-
-  // Sync DOM when external value changes (clear-all, etc.)
-  useEffect(() => {
-    if (inputRef.current && inputRef.current.value !== value) {
-      inputRef.current.value = value
-    }
-  }, [value])
-
-  const handleChange = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => {
-      if (inputRef.current) {
-        onCommitRef.current(inputRef.current.value)
-      }
-    }, DEBOUNCE_MS)
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
-    }
-  }, [])
-
-  return [inputRef, handleChange]
-}
-
-// ═══════════════════════════════════════════════════════════════════════
 // DataTable
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -193,17 +147,19 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
     },
   })
 
-  // ── Set a single filter key (NO spreading of prev — partial-only) ──
-  const setFilter = useCallback(
-    <K extends keyof TodoTableFilterValues>(key: K, value: TodoTableFilterValues[K]) => {
-      const resetPage =
-        key !== "sortBy" && key !== "sortDir" && key !== "page" && key !== "pageSize"
+  // ── Set multiple filters without resetting others ──
+  const setFilters = useCallback(
+    (patch: Partial<TodoTableFilterValues>) => {
+      const hasNonSort = Object.keys(patch).some(
+        k => k !== "sortBy" && k !== "sortDir" && k !== "page" && k !== "pageSize"
+      )
       void setUrlFilters({
-        [key]: value,
-        ...(resetPage ? { page: 1 } : {}),
-      } as Partial<TodoTableFilterValues>)
+        ...filters,
+        ...patch,
+        ...(hasNonSort ? { page: 1 } : {}),
+      })
     },
-    [setUrlFilters]
+    [filters, setUrlFilters]
   )
 
   // Filtering (pure, memoized)
@@ -216,7 +172,7 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
 
   // Debounced global search (uncontrolled input to avoid setState-in-effect)
   const [searchRef, handleSearchChange] = useDebouncedInput(filters.search, v =>
-    setFilter("search", v)
+    setFilters({ search: v })
   )
 
   // Sorting: derived from URL (not duplicated in useState)
@@ -242,10 +198,9 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
       const next = typeof updater === "function" ? updater(sorting) : updater
       if (next.length > 0) {
         const { id, desc } = next[0]
-        setFilter("sortBy", id)
-        setFilter("sortDir", desc ? "desc" : "asc")
+        setFilters({ sortBy: id, sortDir: desc ? "desc" : "asc" })
       } else {
-        setFilter("sortBy", "")
+        setFilters({ sortBy: "" })
       }
     },
     onColumnVisibilityChange: setColumnVisibility,
@@ -261,7 +216,7 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
   const activeFilterBadges = useMemo(() => {
     return createActiveFilterBadges<TodoTableFilterValues>({
       filters,
-      setFilter,
+      setFilters,
       definitions: [
         { key: "status", emptyValue: "all", label: value => `Status: ${value}` },
         { key: "search", emptyValue: "", label: value => `Search: "${value}"` },
@@ -275,7 +230,7 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
         { key: "col_id", emptyValue: "", label: value => `Col-ID: "${value}"` },
       ],
     })
-  }, [filters, setFilter])
+  }, [filters, setFilters])
 
   const clearAll = useCallback(() => {
     void setUrlFilters({
@@ -312,7 +267,7 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
 
         <Select
           value={filters.status}
-          onValueChange={v => setFilter("status", v as TodoTableFilterValues["status"])}
+          onValueChange={v => setFilters({ status: v as TodoTableFilterValues["status"] })}
         >
           <SelectTrigger className="w-28">
             <SelectValue />
@@ -325,7 +280,7 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
         </Select>
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="border-input bg-input/30 hover:bg-input/50 focus-visible:border-ring focus-visible:ring-ring/50 inline-flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-4xl border px-3 text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:ring-[3px] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+          <DropdownMenuTrigger className="border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-sm font-medium shadow-xs transition-colors">
             <HugeiconsIcon icon={LayoutGridIcon} />
             Columns
           </DropdownMenuTrigger>
@@ -370,7 +325,7 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
       )}
 
       {/* Table */}
-      <div className="rounded-xl border">
+      <div className="rounded-lg border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map(hg => (
@@ -388,28 +343,25 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
                     >
                       <div className="flex items-center gap-1.5">
                         {header.column.getCanSort() ? (
-                          <button
-                            type="button"
-                            className="hover:bg-accent -ml-1.5 flex cursor-pointer items-center gap-0.5 rounded px-1 py-0.5 text-sm font-medium select-none"
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="-ml-3"
                             onClick={header.column.getToggleSortingHandler()}
                           >
-                            <span>
-                              {header.isPlaceholder
-                                ? null
-                                : flexRender(header.column.columnDef.header, header.getContext())}
-                            </span>
-                            <span className="text-muted-foreground ml-0.5">
-                              {{
-                                asc: <HugeiconsIcon icon={ArrowUp01Icon} className="size-3.5" />,
-                                desc: <HugeiconsIcon icon={ArrowDown01Icon} className="size-3.5" />,
-                              }[header.column.getIsSorted() as string] ?? (
-                                <HugeiconsIcon
-                                  icon={UnfoldMoreIcon}
-                                  className="size-3.5 opacity-50"
-                                />
-                              )}
-                            </span>
-                          </button>
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(header.column.columnDef.header, header.getContext())}
+                            {{
+                              asc: <HugeiconsIcon icon={ArrowUp01Icon} className="size-3.5" />,
+                              desc: <HugeiconsIcon icon={ArrowDown01Icon} className="size-3.5" />,
+                            }[header.column.getIsSorted() as string] ?? (
+                              <HugeiconsIcon
+                                icon={UnfoldMoreIcon}
+                                className="size-3.5 opacity-50"
+                              />
+                            )}
+                          </Button>
                         ) : (
                           <span className="text-sm font-medium">
                             {header.isPlaceholder
@@ -422,7 +374,9 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
                             colId={colId}
                             filterDef={fDef}
                             currentValue={colVal}
-                            onValueChange={v => setFilter(fKey, v as never)}
+                            onValueChange={v =>
+                              setFilters({ [fKey]: v } as Partial<TodoTableFilterValues>)
+                            }
                           />
                         )}
                       </div>
@@ -483,7 +437,7 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
               disabled={pageIndex <= 1}
               onClick={() => {
                 table.setPageIndex(pageIndex - 2)
-                setFilter("page", pageIndex - 1)
+                setFilters({ page: pageIndex - 1 })
               }}
             >
               Previous
@@ -494,7 +448,7 @@ export function DataTable({ columns, data: rawData, isLoading, onFilteredChange 
               disabled={pageIndex >= totalPages}
               onClick={() => {
                 table.setPageIndex(pageIndex)
-                setFilter("page", pageIndex + 1)
+                setFilters({ page: pageIndex + 1 })
               }}
             >
               Next

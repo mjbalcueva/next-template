@@ -24,15 +24,15 @@ import {
   type ChartConfig,
 } from "@/core/components/ui/chart"
 
-import { ChartEmptyState, ChartPanel, ChartSkeleton } from "@/packages/analytics/chart-panel"
-
-import type { Todo } from "../api/todos.schema"
+import type { Todo } from "../../api/todos.schema"
 import {
   buildStatusBreakdown,
   buildTodoTrend,
   buildTodoVolumeByStatus,
   computeTodoStats,
-} from "../lib/todo-table-utils"
+} from "../../lib/todo-table-utils"
+
+import { ChartEmptyState, ChartPanel, ChartSkeleton } from "./chart-panel"
 
 interface TodoChartsProps {
   todos: Todo[]

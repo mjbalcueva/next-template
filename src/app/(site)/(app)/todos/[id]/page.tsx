@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
 
-import { TodoDetails } from "@/features/todo/components/todo-details"
+import { TodoDetails } from "@/features/todo/components/detail/todo-details"
 import { todoDetailQueryOptions } from "@/features/todo/lib/query-options"
 
 export default async function TodoPage(props: { params: Promise<{ id: string }> }) {

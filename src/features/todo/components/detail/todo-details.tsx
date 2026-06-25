@@ -15,8 +15,8 @@ import { Checkbox } from "@/core/components/ui/checkbox"
 
 import { Gate } from "@/packages/auth/components/gate"
 
-import { useRemoveTodo, useToggleTodo } from "../hooks/use-todo-mutations"
-import { todoDetailQueryOptions } from "../lib/query-options"
+import { useRemoveTodo, useToggleTodo } from "../../hooks/todos.mutations"
+import { todoDetailQueryOptions } from "../../lib/query-options"
 
 export function TodoDetails({ id }: { id: string }) {
   const router = useRouter()

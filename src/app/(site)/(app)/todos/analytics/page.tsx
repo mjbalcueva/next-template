@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
 
-import { TodoAnalytics } from "@/features/todo/components/todo-analytics"
+import { TodoAnalytics } from "@/features/todo/components/analytics/todo-analytics"
 import { todoListQueryOptions } from "@/features/todo/lib/query-options"
 
 export default async function TodoAnalyticsPage() {

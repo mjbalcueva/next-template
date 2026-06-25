@@ -8,7 +8,6 @@ import { changePassword, checkHealth, deleteAccount, updateProfile } from "../ap
 
 export function useUpdateProfile() {
   const { setUser, user: currentUser } = useAuth()
-
   return useMutation({
     mutationFn: updateProfile,
     onSuccess: user => setUser({ ...user, abilities: currentUser?.abilities ?? [] }),

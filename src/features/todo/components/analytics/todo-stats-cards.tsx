@@ -11,7 +11,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card"
 import { Skeleton } from "@/core/components/ui/skeleton"
 
-import type { TodoStats } from "../lib/todo-table-utils"
+import type { TodoStats } from "../../lib/todo-table-utils"
 
 interface TodoStatsCardsProps {
   stats: TodoStats | null
@@ -40,28 +40,24 @@ export function TodoStatsCards({ stats, isLoading }: TodoStatsCardsProps) {
       value: stats.total,
       icon: CheckListIcon,
       description: "All todos",
-      className: "text-blue-600 dark:text-blue-400",
     },
     {
       title: "Open",
       value: stats.open,
       icon: Clock01Icon,
       description: "Awaiting completion",
-      className: "text-amber-600 dark:text-amber-400",
     },
     {
       title: "Completed",
       value: stats.done,
       icon: CheckmarkCircle01Icon,
       description: "Finished",
-      className: "text-emerald-600 dark:text-emerald-400",
     },
     {
       title: "Completion Rate",
       value: `${stats.completionRate}%`,
       icon: Target03Icon,
       description: `${stats.done} of ${stats.total}`,
-      className: "text-purple-600 dark:text-purple-400",
     },
   ]
 
@@ -72,7 +68,7 @@ export function TodoStatsCards({ stats, isLoading }: TodoStatsCardsProps) {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardDescription>{card.title}</CardDescription>
-              <HugeiconsIcon icon={card.icon} className={card.className} size={20} />
+              <HugeiconsIcon icon={card.icon} className="text-muted-foreground" size={20} />
             </div>
             <div className="flex items-baseline gap-2">
               <CardTitle className="text-2xl font-bold tabular-nums">{card.value}</CardTitle>

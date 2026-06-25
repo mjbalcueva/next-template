@@ -11,8 +11,8 @@ import { Checkbox } from "@/core/components/ui/checkbox"
 
 import { Gate } from "@/packages/auth/components/gate"
 
-import type { Todo } from "../api/todos.schema"
-import { useRemoveTodo, useToggleTodo } from "../hooks/use-todo-mutations"
+import type { Todo } from "../../api/todos.schema"
+import { useRemoveTodo, useToggleTodo } from "../../hooks/todos.mutations"
 
 export function TodoItem({ todo }: { todo: Todo }) {
   const router = useRouter()

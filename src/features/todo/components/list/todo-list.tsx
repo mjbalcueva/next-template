@@ -15,10 +15,11 @@ import {
 import { Input } from "@/core/components/ui/input"
 import { Skeleton } from "@/core/components/ui/skeleton"
 
-import type { Todo } from "../api/todos.schema"
-import { todoListQueryOptions } from "../lib/query-options"
+import type { Todo } from "../../api/todos.schema"
+import { todoListQueryOptions } from "../../lib/query-options"
 
-import { TodoForm } from "./todo-form"
+import { TodoForm } from "../forms/todo-form"
+
 import { TodoItem } from "./todo-item"
 
 /**

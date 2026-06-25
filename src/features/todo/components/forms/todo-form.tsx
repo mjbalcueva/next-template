@@ -8,8 +8,8 @@ import { FormStatus, SubmitButton, TextFormField } from "@/core/components/forms
 
 import { Gate } from "@/packages/auth/components/gate"
 
-import { createTodoSchema } from "../api/todos.schema"
-import { useCreateTodo } from "../hooks/use-todo-mutations"
+import { createTodoSchema } from "../../api/todos.schema"
+import { useCreateTodo } from "../../hooks/todos.mutations"
 
 export function TodoForm() {
   const [error, setError] = useState<string | null>(null)

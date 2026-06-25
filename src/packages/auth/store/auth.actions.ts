@@ -4,6 +4,8 @@ import { useMemo } from "react"
 
 import { useShallow } from "zustand/shallow"
 
+import { apiFetch } from "@/packages/api/http"
+
 import {
   hasAbacPermission,
   hasActionPermission,
@@ -13,11 +15,61 @@ import {
   hasResourcePermission,
   hasRole,
 } from "../lib/permissions"
-import type { Permission } from "../lib/schemas"
+import {
+  AUTH_ENDPOINTS,
+  authSessionSchema,
+  authUserSchema,
+  permissionsSchema,
+  type AuthSession,
+  type AuthUser,
+  type Permission,
+} from "../lib/schemas"
 
 import { useAuthStore } from "./auth.store"
 
-// ─── Core state ────────────────────────────────────────────────────────
+// ─── Standalone actions ────────────────────────────────────────────────
+
+export async function refreshSession(): Promise<AuthSession | null> {
+  try {
+    const [user, permResult] = await Promise.all([
+      apiFetch(AUTH_ENDPOINTS.user, { schema: authUserSchema }),
+      apiFetch(AUTH_ENDPOINTS.permissions, { schema: permissionsSchema }),
+    ])
+    const session = authSessionSchema.parse({
+      user,
+      permissions: permResult.permissions,
+    })
+    useAuthStore.setState({
+      user: session.user,
+      permissions: session.permissions,
+    })
+    return session
+  } catch {
+    useAuthStore.setState({ user: null, permissions: [] })
+    return null
+  }
+}
+
+export function setSession(session: AuthSession | null) {
+  useAuthStore.setState({
+    user: session?.user ?? null,
+    permissions: session?.permissions ?? [],
+  })
+}
+
+export function setUser(user: AuthUser) {
+  useAuthStore.setState({ user })
+}
+
+export function setPermissions(permissions: readonly Permission[]) {
+  useAuthStore.setState({ permissions: [...permissions] })
+}
+
+export function clearSession() {
+  useAuthStore.setState({ user: null, permissions: [] })
+}
+
+// ─── Core state hooks ──────────────────────────────────────────────────
 
 /**
  * Returns the current user or `null`.
@@ -58,7 +110,7 @@ export function usePermissions() {
  *
  * @example
  * const { user, isAuthenticated, clearSession } = useAuth()
- * await clearSession()
+ * clearSession()
  */
 export function useAuth() {
   return useAuthStore(
@@ -66,11 +118,11 @@ export function useAuth() {
       user: s.user,
       permissions: s.permissions,
       isAuthenticated: s.user !== null,
-      refreshSession: s.refreshSession,
-      setSession: s.setSession,
-      setUser: s.setUser,
-      setPermissions: s.setPermissions,
-      clearSession: s.clearSession,
+      refreshSession,
+      setSession,
+      setUser,
+      setPermissions,
+      clearSession,
     }))
   )
 }

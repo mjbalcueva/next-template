@@ -9,7 +9,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { Button, buttonVariants } from "@/core/components/ui/button"
 import { cn } from "@/core/lib/utils"
 
-import { useLogout } from "@/features/user/hooks/use-logout"
+import { useLogout } from "@/features/user/hooks/auth.mutations"
 
 import { useAuth } from "@/packages/auth/store/auth.actions"
 
